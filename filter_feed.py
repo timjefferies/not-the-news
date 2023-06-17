@@ -45,7 +45,7 @@ def filter_rss_entries(input_file, output_file, keywords_file):
 # Example usage
 input_rss_file = "/tmp/merged_feed.xml"
 output_rss_file = "/tmp/filtered_feed.xml"
-keywords_file = "filter_keywords.txt"
+keywords_file = "www/config/filter_keywords.txt"
 
 filter_rss_entries(input_rss_file, output_rss_file, keywords_file)
 

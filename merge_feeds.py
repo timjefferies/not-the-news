@@ -121,6 +121,6 @@ def merge_feeds(file_path):
     print(f"Total entries: {total_entries}")
 
 # Example usage
-feeds_file = 'feeds.txt'  # Path to the file containing feed URLs
+feeds_file = 'www/config/feeds.txt'  # Path to the file containing feed URLs
 merge_feeds(feeds_file)
 
