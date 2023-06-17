@@ -31,3 +31,5 @@ www/config/
 - feeds.txt
 - filter_keywords.txt
 - config.php
+
+copy the nginx/sites-availble/news-nginx-example file to /etc/nginx/sites-available and edit the <yourdomain> sections of the file.
