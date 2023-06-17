@@ -1,5 +1,7 @@
 *.swp
 *.old
 *.bak
-config/config.php
+www/config/config.php
+www/config/feeds.txt
+www/config/filter-keywords.txt
 www/data/*
