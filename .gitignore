@@ -2,4 +2,4 @@
 *.old
 *.bak
 config/config.php
-data/*
+www/data/*
