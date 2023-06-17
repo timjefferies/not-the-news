@@ -1,7 +1,3 @@
-	/* Alternate stylesheet for rawdog. But you can still customise it as you like.
- * The .xmlbutton was stolen from the default stylesheet.
- * Samuel Hym <Samuel.Hym@gmail.com> */
-
 @import url('https://fonts.googleapis.com/css2?family=Prata&display=swap');
 #@import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Merriweather&display=swap');
@@ -47,28 +43,27 @@ button.close {
 }
 
 .pubdate {
+	padding-right: 2em;
 	font-style:italic;
-    	border-bottom: 1px solid lightgrey;
     	text-align: right;
 	color: gray;
-	font-size: normal;
+	font-size: medium;
     	padding-bottom: 0em;
     	margin-top: 0em;
+	margin-bottom: -1.3em;
 }
 
 .pubdate p {
     margin-top: 0em;
     line-height: 0em !important;
     color: gray;
-    font-size: normal;
+    font-size: medium;
 }
 
-.time {
+.spacer {
 	margin: 1.4vh;
-	display: flow-root;
+	/*display: flow-root;*/
 }
-
-.time h3 { display: none; }
 
 .itemdate h3 {
     margin-top: 0px;
@@ -86,6 +81,8 @@ img {
 }
 
 .itemdescription {
+    padding-left: 4em;
+    padding-right: 4em;
     width: auto;
     margin-top: 5em;
     margin-bottom: 3em;
@@ -165,7 +162,10 @@ h3 {
     display: block;
 }
 
-.itembox { padding: 5em; }
+.itembox {
+	/*padding-top: 5em;
+	padding-bottom: 5em;*/
+}
 
 .item {
     border: 1px solid #EEE;
@@ -181,11 +181,17 @@ h3 {
 }
 
 .itemtitle {
+	padding-left: 1em;
+	padding-right: 1em;
+    border-bottom: 1px solid lightgrey;
+    border-top: 1px solid lightgrey;
     font-size: xxx-large !important;
     font-family: 'Prata', serif;
     font-kerning: auto;
     text-transform: capitalize;
     line-height: 1.4em;
+    background: aliceblue !important;
+    padding-top: 0.3em;
 }
 
 .itemheader {
@@ -204,9 +210,9 @@ h3 {
 }
 
 .itemfrom {
+    padding-right: 2em;
     text-align: right;
     display: flow-root;
-    border-top: 1px solid lightgrey;
     padding-top: 1em;
     margin-bottom: 3em;
     font-style: italic;
@@ -216,45 +222,7 @@ h3 {
     margin-top: 0em;
     line-height: 0em !important;
     color: gray;
-    font-size: normal;
-}
-
-#feedstats, #feedstatsheader, #feeds {
-    float: center;
-    display:none;
-}
-
-#feeds {
-    margin: 10px 0;
-    border: 1px solid gray;
-    border-spacing: 0;
-}
-
-#feedsheader TH {
-    background-color: #eee;
-    border-bottom: 1px solid gray;
-    padding: 5px;
-    margin: 0;
-}
-
-.feedsrow TD {
-    padding: 5px 10px;
-    margin: 0;
-}
-
-.xmlbutton {
-    border: 1px solid;
-    border-color: #FC9 #630 #330 #F96;
-    padding: 0 3px;
-    font: bold 10px sans-serif;
-    color: #FFF;
-    background: #F60;
-    text-decoration: none;
-    margin: 0;
-}
-
-#footer {
-	float: right;
+    font-size: medium;
 }
 
 #loading-screen {

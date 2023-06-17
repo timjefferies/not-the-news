@@ -78,7 +78,6 @@ def generate_html(feed_url):
         
         # output rss item
         html_content += f'''
-            <div class="time">
             <div class="item" id="{entry_id}">
             <button type="button" class="close" onclick="removeEntry('{entry_id}')">x</button>
             <div class="itembox">
@@ -107,7 +106,6 @@ def generate_html(feed_url):
             '''
 
     html_content += '''
-        </div>
         </div>
 	<!-- Cog wheel button -->
 <div class="cog-wheel-button" onclick="openSettingsModal()">&#9881;</div>
