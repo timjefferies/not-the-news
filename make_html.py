@@ -48,7 +48,7 @@ def generate_html(feed_url):
         <head>
             <title>Latest News</title>
         </head>
-        <body id=rawdog>
+        <body id="news">
         <div id="loading-screen">Loading...</div>
             <div id="items">
             <div id="day">

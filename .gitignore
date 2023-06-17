@@ -3,5 +3,5 @@
 *.bak
 www/config/config.php
 www/config/feeds.txt
-www/config/filter-keywords.txt
+www/config/filter_keywords.txt
 www/data/*
