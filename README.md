@@ -33,3 +33,7 @@ www/config/
 - config.php
 
 copy the nginx/sites-availble/news-nginx-example file to /etc/nginx/sites-available and edit the <yourdomain> sections of the file.
+
+# running it
+you can either wait for the cron to kick off the run.sh
+or you can exec the run.sh file manually
