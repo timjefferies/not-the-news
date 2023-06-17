@@ -1,0 +1,8 @@
+- The hovering jump to top button doesn't appear for some reason
+- The localstorage.json isn't being saved
+	Uncaught SyntaxError: Unexpected token '<', "<?
+error_r"... is not valid JSON
+    at JSON.parse (<anonymous>)
+    at xhr.onreadystatechange (localstorage.js:25:49)
+
+- clean up the style.css file - a lot of divs you don't use in there now

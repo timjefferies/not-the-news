@@ -1,0 +1,5 @@
+*.swp
+*.old
+*.bak
+config/config.php
+data/*
