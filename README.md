@@ -38,4 +38,4 @@ copy the nginx/sites-availble/news-nginx-example file to /etc/nginx/sites-availa
 
 # running it
 you can either wait for the cron to kick off the run.py
-or you can exec the run.sh file manually
+or you can exec the run.py file manually
