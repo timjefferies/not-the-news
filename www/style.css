@@ -313,6 +313,11 @@ h3 {
 	line-height: 1.6;
 }
 
+    /* Styles for the cancel button */
+    .modal-content form cancelbutton {
+        margin-left: 10px;
+    }
+
 .modal-content h2 {
 	margin-top: 0px;
 }

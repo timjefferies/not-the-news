@@ -91,16 +91,27 @@ def merge_feeds(file_path):
         fe = fg.add_entry()
         fe.title(entry_title)
         fe.link(href=entry_link)
-        fe.description(entry_description)
         fe.published(entry_published)
 
-        # Add image links as separate entry.image
+        # Add description if available
+        if entry_description:
+            fe.description(entry_description)
+        else:
+            fe.description('No description available')  # Default value if description is not set
+
+        # Add image links as separate entries
         for image_link in image_links:
             fe_image = fg.add_entry()
-            fe_image.image(href=image_link)
+            fe_image.title('Image')
+            fe_image.link(href=image_link)
+            fe_image.published(entry_published)
 
     # Generate the XML representation of the merged feed
-    merged_feed = fg.rss_str(pretty=True)
+    try:
+        merged_feed = fg.rss_str(pretty=True)
+    except ValueError as e:
+        print(f"Error generating merged feed: {e}")
+        return
 
     # Save the merged feed to a file
     output_file = '/tmp/merged_feed.xml'

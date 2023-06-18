@@ -133,6 +133,7 @@ def generate_html(feed_url):
             <textarea id="filterWords" name="filterWords" rows="15" cols="30"></textarea><br>
 
             <input type="submit" value="Save">
+	    <button type="button" class="cancelbutton" onclick="closeSettingsModal()">Cancel</button>
         </form>
     </div>
 </div>
