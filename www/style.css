@@ -42,15 +42,19 @@ button.close {
 	box-shadow: -1px 1px -0px 1px whitesmoke;
 }
 
+button.close:hover {
+	color: aliceblue;
+	background: steelblue;
+}
+
 .pubdate {
-	padding-right: 2em;
+	padding-right: 3em;
 	font-style:italic;
     	text-align: right;
 	color: gray;
 	font-size: medium;
     	padding-bottom: 0em;
-    	margin-top: 0em;
-	margin-bottom: -1.3em;
+    	margin-top: 2em;
 }
 
 .pubdate p {
@@ -76,7 +80,7 @@ button.close {
 
 img {
     border-radius: 4px;
-    width: 50%;
+    width: 90%;
     padding-left: 0;
 }
 
@@ -84,7 +88,7 @@ img {
     padding-left: 4em;
     padding-right: 4em;
     width: auto;
-    margin-top: 5em;
+    margin-top: 1em;
     margin-bottom: 3em;
 }
 
@@ -96,12 +100,12 @@ td p a {
 }
 
 td {
-    width: 50%;
-    font-size: xx-large;
+    width: 60%;
 }
 
 td a {
 	display: grid;
+	line-height: 1.6;
 }
 
 span {
@@ -130,7 +134,7 @@ a:visited {
 }
 
 a:hover {
-    color: blue;
+    color: darkslateblue;
 }
 
 #header {
@@ -163,8 +167,8 @@ h3 {
 }
 
 .itembox {
-	/*padding-top: 5em;
-	padding-bottom: 5em;*/
+	padding-top: 3em;
+	/*padding-bottom: 5em;*/
 }
 
 .item {
@@ -174,14 +178,14 @@ h3 {
     /*width: 70%;*/
     align-content: center;
     /*margin: auto;*/
-    margin-bottom: 1.4vm;
+    margin-bottom: 1.4em;
     border-radius: 40px;
     display: block;
     float: right;
 }
 
 .itemtitle {
-	padding-left: 1em;
+	padding-left: 1.8em;
 	padding-right: 1em;
     border-bottom: 1px solid lightgrey;
     border-top: 1px solid lightgrey;
@@ -192,6 +196,7 @@ h3 {
     line-height: 1.4em;
     background: aliceblue !important;
     padding-top: 0.3em;
+    padding-bottom: 0.2em;
 }
 
 .itemheader {
@@ -245,13 +250,16 @@ h3 {
   bottom: 20px;
   right: 20px;
   z-index: 9999;
-  display: none;
-  background-color: #333;
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  padding: 10px;
-  cursor: pointer;
+        background-color: #fff;
+	color: darkgrey;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+	font-size: 40px;
+	line-height: 1.6;
+	border-color: whitesmoke;
 }
 
 #scroll-to-top-button:hover {
@@ -265,12 +273,19 @@ h3 {
         left: 20px;
         z-index: 9999;
         background-color: #fff;
+	color: darkgrey;
         border-radius: 50%;
         width: 50px;
         height: 50px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         cursor: pointer;
+	font-size: 55px;
+	line-height: 0.94;
     }
+.cog-wheel-button:hover {
+	background-color: dargray;
+	color: white;
+}
 
     /* Styles for the modal dialog box */
     .modal {
@@ -288,10 +303,24 @@ h3 {
     .modal-content {
         background-color: #fefefe;
         margin: 10% auto;
-        padding: 20px;
+        padding: 2em;
+	border-radius: 20px;
         border: 1px solid #888;
         width: 80%;
     }
+
+    .modal-content form {
+	padding: 1px;
+	line-height: 1.6;
+}
+
+.modal-content h2 {
+	margin-top: 0px;
+}
+
+.modal-content textarea {
+	width: -webkit-fill-available;
+}
 
 
 @media (max-width:512px) {
