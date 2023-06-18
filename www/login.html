@@ -11,17 +11,19 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
+            overflow: hidden; /* Prevent horizontal scrolling on mobile */
         }
 
-        .login-form {
+        .login-container {
             max-width: 400px;
+            width: 90%; /* Adjust the width to your preference */
             padding: 20px;
             background-color: #fff;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
 
-        .login-form h2 {
+        .login-container h2 {
             text-align: center;
             color: #333;
         }
@@ -52,7 +54,7 @@
     </style>
 </head>
 <body>
-    <div class="login-form">
+    <div class="login-container">
         <h2>Login</h2>
         <form action="index.php" method="POST">
             <input type="text" name="username" placeholder="Username" required>
