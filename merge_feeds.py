@@ -2,6 +2,7 @@ import time
 from urllib.parse import urlparse
 import feedparser
 import unicodedata
+import re
 from feedgen.feed import FeedGenerator
 
 def extract_domain(url):
@@ -64,11 +65,17 @@ def merge_feeds(file_path):
             # Remove non-ASCII characters from the description
             entry_description = remove_non_ascii(entry.description)
 
+            # Extract image links from description
+            image_links = re.findall(r'<img[^>]+src="([^">]+)"', entry_description)
+            for image_link in image_links:
+                # Remove the image link from the description
+                entry_description = entry_description.replace(image_link, '')
+
             # Get the published date of the entry
             entry_published = entry.published
 
             # Add the entry to the list
-            all_entries.append((entry_published, entry_title, entry_description, entry.link))
+            all_entries.append((entry_published, entry_title, entry_description, entry.link, image_links))
         
             # Increment the total number of entries
             total_entries += 1
@@ -80,34 +87,17 @@ def merge_feeds(file_path):
     all_entries.sort(key=lambda x: x[0])
 
     # Iterate over the sorted entries and add them to the merged feed
-    for entry_published, entry_title, entry_description, entry_link in all_entries:
+    for entry_published, entry_title, entry_description, entry_link, image_links in all_entries:
         fe = fg.add_entry()
         fe.title(entry_title)
         fe.link(href=entry_link)
         fe.description(entry_description)
         fe.published(entry_published)
 
-    # Generate the XML representation of the merged feed
-    merged_feed = fg.rss_str(pretty=True)
-
-    # Save the merged feed to a file
-    output_file = '/tmp/merged_feed.xml'
-    with open(output_file, 'wb') as output:
-        output.write(merged_feed)
-
-    print(f"Merged feed saved to '{output_file}'.")
-    print(f"Total entries: {total_entries}")
-
-    # Sort the entries in the merged feed based on the published date
-    sorted_entries = sorted(all_entries, key=lambda x: x[0])
-
-    # Iterate over the sorted entries and add them to the merged feed
-    for entry_published, entry_title, entry_description, entry_link in sorted_entries:
-        fe = fg.add_entry()
-        fe.title(entry_title)
-        fe.link(href=entry_link)
-        fe.description(entry_description)
-        fe.published(entry_published)
+        # Add image links as separate entry.image
+        for image_link in image_links:
+            fe_image = fg.add_entry()
+            fe_image.image(href=image_link)
 
     # Generate the XML representation of the merged feed
     merged_feed = fg.rss_str(pretty=True)

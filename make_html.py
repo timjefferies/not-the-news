@@ -54,60 +54,68 @@ def generate_html(feed_url):
             <div id="day">
     '''
 
-
     # Iterate over the entries in the feed
     for entry in feed.entries:
+        try:
+            # Generate a unique ID based on the entry's summary
+            entry_id = hashlib.md5(entry.summary.encode('utf-8')).hexdigest()
 
-        # Generate a unique ID based on the entry's summary
-        entry_id = hashlib.md5(entry.summary.encode('utf-8')).hexdigest()
+            # make pub date more reader friendly
+            entry.published = datetime.strptime(entry.published, "%a, %d %b %Y %H:%M:%S %z")
+            entry.published = entry.published.strftime("%a, %d %b %Y %I:%M%p")
 
-        # make pub date more reader friendly
-        entry.published = datetime.strptime(entry.published, "%a, %d %b %Y %H:%M:%S %z")
-        entry.published = entry.published.strftime("%a, %d %b %Y %I:%M%p")
+            # get item url
+            url = entry.get('links')
+            url = url.replace("'", '"')
+            url = json.loads(url)
+            url = url[0]
+            url = url.get('href')
 
-        # get item url
-        url = entry.get('links')
-        url = url.replace("'", '"')
-        url = json.loads(url)
-        url = url[0]
-        url = url.get('href')
+            # get source domain
+            source = urlparse(url)
+            source = source.netloc
 
-        # get source domain
-        source = urlparse(url)
-        source = source.netloc
-        
-        # output rss item
-        html_content += f'''
-            <div class="item" id="{entry_id}">
-            <button type="button" class="close" onclick="removeEntry('{entry_id}')">x</button>
-            <div class="itembox">
-            
+            # get entry image if available, or use an empty string as default
+            entry_image = entry.get('image', '')
 
-                <div class="pubdate">
-                <p>{entry.published}</p>
+            # output rss item
+            html_content += f'''
+                <div class="item" id="{entry_id}">
+                <button type="button" class="close" onclick="removeEntry('{entry_id}')">x</button>
+                <div class="itembox">
+
+
+                    <div class="pubdate">
+                    <p>{entry.published}</p>
+                    </div>
+
+                    <p class="itemheader"></p>
+
+                    <div class="itemtitle">
+                        <a href="{url}" target="_blank">{entry.title}</a>
+                    </div>
+
+                    <div class="itemfrom">
+                        <p>Source: {source}</p>
+                    </div>
+                    <div class="itemimage">
+                        <p>Source: {entry_image}</p>
+                    </div>
+
+                    <div class="itemdescription">
+                        <p>{entry.summary}</p>
+                    </div>
                 </div>
-                
-                <p class="itemheader"></p>
-                
-                <div class="itemtitle">
-                    <a href="{url}" target="_blank">{entry.title}</a>
                 </div>
-                
-                <div class="itemfrom">
-                    <p>Source: {source}</p>
                 </div>
-                
-                <div class="itemdescription">
-                    <p>{entry.summary}</p>
-                </div>
-            </div>
-            </div>
-            </div>
-            '''
+                '''
+        except AttributeError:
+            # Handle the case when 'image' attribute is not available
+            pass
 
     html_content += '''
         </div>
-	<!-- Cog wheel button -->
+    <!-- Cog wheel button -->
 <div class="cog-wheel-button" onclick="openSettingsModal()">&#9881;</div>
 
 <!-- Modal dialog box -->
@@ -158,7 +166,7 @@ def generate_html(feed_url):
         modal.style.display = "none";
     }
 </script>
-	<button id="scroll-to-top-button">Scroll to Top</button>
+    <button id="scroll-to-top-button">Scroll to Top</button>
 
         </body>
         </html>

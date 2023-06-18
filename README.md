@@ -24,7 +24,7 @@ Python3 modules:
 
 add to crontab:
 
-```*/30 * * * * su -c "sh /home/<user>/not-the-news/run.py" <username>```
+```*/30 * * * * su -c "python3 /home/<user>/not-the-news/run.py" <username>```
 
 edit and rename the config examples in
 www/config/
