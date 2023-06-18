@@ -14,7 +14,7 @@ def generate_html(feed_url):
         <html lang=en>
         <meta http-equiv=content-type content="text/html;charset=iso-8859-1">
         <meta name=robots content="noindex,nofollow,noarchive">
-        <script async src=https://code.jquery.com/jquery-3.6.0.min.js></script>
+        <script async src=jquery-3.6.0.min.js></script>
         <link rel=stylesheet href=style.css>
 
         <script async src=javacode.js></script>
@@ -34,12 +34,14 @@ def generate_html(feed_url):
 	    function openSettingsModal() {
         	var modal = document.getElementById("settingsModal");
 	        modal.style.display = "block";
+		$(".cog-wheel-button" + component).hide();
 	    }
 
 	    // Close the settings modal dialog box
 	    function closeSettingsModal() {
 	        var modal = document.getElementById("settingsModal");
 	        modal.style.display = "none";
+		$(".cog-wheel-button" + component).show();
 	    }
 	</script>
 
@@ -50,6 +52,7 @@ def generate_html(feed_url):
         </head>
         <body id="news">
         <div id="loading-screen">Loading...</div>
+        <div id="header"><h1>Latest News</h1></div>
             <div id="items">
             <div id="day">
     '''
@@ -58,7 +61,7 @@ def generate_html(feed_url):
     for entry in feed.entries:
         try:
             # Generate a unique ID based on the entry's summary
-            entry_id = hashlib.md5(entry.summary.encode('utf-8')).hexdigest()
+            entry_id = hashlib.md5(entry.title.encode('utf-8')).hexdigest()
 
             # make pub date more reader friendly
             entry.published = datetime.strptime(entry.published, "%a, %d %b %Y %H:%M:%S %z")
@@ -84,26 +87,25 @@ def generate_html(feed_url):
                 <button type="button" class="close" onclick="removeEntry('{entry_id}')">x</button>
                 <div class="itembox">
 
-
-                    <div class="pubdate">
-                    <p>{entry.published}</p>
-                    </div>
-
-                    <p class="itemheader"></p>
+                <div class="itemheader">
 
                     <div class="itemtitle">
                         <a href="{url}" target="_blank">{entry.title}</a>
                     </div>
-
-                    <div class="itemfrom">
-                        <p>Source: {source}</p>
+                    <div class="pubdate">
+                    <p>{entry.published}</p>
                     </div>
+
+		</div>
                     <div class="itemimage">
-                        <p>Source: {entry_image}</p>
+                        {entry_image}
                     </div>
 
                     <div class="itemdescription">
                         <p>{entry.summary}</p>
+                    </div>
+                    <div class="itemfrom">
+                        <p>Source: {source}</p>
                     </div>
                 </div>
                 </div>
@@ -115,6 +117,7 @@ def generate_html(feed_url):
 
     html_content += '''
         </div>
+    <button id="scroll-to-top-button">&#8963</button>
     <!-- Cog wheel button -->
 <div class="cog-wheel-button" onclick="openSettingsModal()">&#9881;</div>
 
@@ -124,10 +127,10 @@ def generate_html(feed_url):
         <h2>Settings</h2>
         <form>
             <label for="rssFeeds">RSS Feeds (one per line):</label><br>
-            <textarea id="rssFeeds" name="rssFeeds" rows="5" cols="30"></textarea><br>
+            <textarea id="rssFeeds" name="rssFeeds" rows="15" cols="30"></textarea><br>
 
             <label for="filterWords">Filter Words (one per line):</label><br>
-            <textarea id="filterWords" name="filterWords" rows="5" cols="30"></textarea><br>
+            <textarea id="filterWords" name="filterWords" rows="15" cols="30"></textarea><br>
 
             <input type="submit" value="Save">
         </form>
@@ -166,7 +169,6 @@ def generate_html(feed_url):
         modal.style.display = "none";
     }
 </script>
-    <button id="scroll-to-top-button">Scroll to Top</button>
 
         </body>
         </html>
