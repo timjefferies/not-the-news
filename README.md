@@ -24,7 +24,7 @@ Python3 modules:
 
 add to crontab:
 
-```*/30 * * * * su -c "sh /home/<user>/not-the-news/run.sh" <username>```
+```*/30 * * * * su -c "sh /home/<user>/not-the-news/run.py" <username>```
 
 edit and rename the config examples in
 www/config/
@@ -35,5 +35,5 @@ www/config/
 copy the nginx/sites-availble/news-nginx-example file to /etc/nginx/sites-available and edit the <yourdomain> sections of the file.
 
 # running it
-you can either wait for the cron to kick off the run.sh
+you can either wait for the cron to kick off the run.py
 or you can exec the run.sh file manually
