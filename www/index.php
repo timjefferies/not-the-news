@@ -1,5 +1,9 @@
 <?php
+// Set the cookie lifetime to 30 days (in seconds)
+$cookieLifetime = 30 * 24 * 60 * 60;
 
+// Set the session cookie parameters
+session_set_cookie_params($cookieLifetime);
 session_start();
 
 // Handle the login form submission
