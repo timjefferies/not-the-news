@@ -48,11 +48,11 @@ def generate_html(feed_url):
 
         <html>
         <head>
-            <title>Latest News</title>
+            <title>Not The News/title>
         </head>
         <body id="news">
         <div id="loading-screen">Loading...</div>
-        <div id="header"><h1>Latest News</h1></div>
+        <div id="header"><h1>Not The News</h1></div>
             <div id="items">
             <div id="day">
     '''
