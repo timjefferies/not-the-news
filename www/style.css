@@ -48,13 +48,14 @@ button.close:hover {
 }
 
 .pubdate {
-	padding-right: 3em;
+	padding-right: 4em;
 	font-style:italic;
     	text-align: right;
 	color: gray;
 	font-size: medium;
     	padding-bottom: 0em;
-    	margin-top: 2em;
+    	margin-top: 1.4em;
+	background-color: aliceblue;
 }
 
 .pubdate p {
@@ -85,10 +86,10 @@ img {
 }
 
 .itemdescription {
-    padding-left: 4em;
-    padding-right: 4em;
+    padding-left: 2.8em;
+    padding-right: 2.8em;
     width: auto;
-    margin-top: 1em;
+    margin-top: 3em;
     margin-bottom: 3em;
 }
 
@@ -138,11 +139,13 @@ a:hover {
 }
 
 #header {
+    font-family: 'Prata', serif;
     text-transform: uppercase;
     text-align: center;
-    border: 1px solid #ddd;
-    color: black;
-    /*display:none;*/
+    color: darkgray;
+    font-size: small;
+    font-variant: all-small-caps;
+    text-shadow: 2px 2px aliceblue;
 }
 
 button.close {
@@ -167,8 +170,9 @@ h3 {
 }
 
 .itembox {
-	padding-top: 3em;
+	/*padding-top: 3em;/*
 	/*padding-bottom: 5em;*/
+	margin-top: 2em;
 }
 
 .item {
@@ -185,41 +189,36 @@ h3 {
 }
 
 .itemtitle {
-	padding-left: 1.8em;
-	padding-right: 1em;
+	border-radius: 40px 40px 0 0;
+	padding-left: 1.2em;
+	padding-right: 2em;
     border-bottom: 1px solid lightgrey;
-    border-top: 1px solid lightgrey;
+    /*border-top: 1px solid lightgrey;*/
     font-size: xxx-large !important;
     font-family: 'Prata', serif;
     font-kerning: auto;
     text-transform: capitalize;
     line-height: 1.4em;
-    background: aliceblue !important;
-    padding-top: 0.3em;
+    background: linear-gradient(360deg, aliceblue 0%, transparent);
+    padding-top: 0;
     padding-bottom: 0.2em;
+    margin-top: -0.3em;
 }
 
-.itemheader {
-    text-align: left;
-    color: black;
+/*.itemheader {
 }
 
 .itemheader a, .itemheader a:visited {
     text-decoration: none;
-    color: black;
     font-family: 'Prata', serif;
-}
-
-.itemheader a:hover {
-    color: blue;
-}
+}*/
 
 .itemfrom {
-    padding-right: 2em;
+    padding-right: 3em;
     text-align: right;
     display: flow-root;
     padding-top: 1em;
-    margin-bottom: 3em;
+    margin-bottom: 1.2em;
     font-style: italic;
 }
 
