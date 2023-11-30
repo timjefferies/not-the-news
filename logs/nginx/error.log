@@ -1,0 +1,423 @@
+2023/06/20 09:37:31 [notice] 1#1: using the "epoll" event method
+2023/06/20 09:37:31 [notice] 1#1: nginx/1.25.1
+2023/06/20 09:37:31 [notice] 1#1: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2023/06/20 09:37:31 [notice] 1#1: OS: Linux 5.15.0-1032-oracle
+2023/06/20 09:37:31 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2023/06/20 09:37:31 [notice] 1#1: start worker processes
+2023/06/20 09:37:31 [notice] 1#1: start worker process 29
+2023/06/20 09:37:31 [notice] 1#1: start worker process 30
+2023/06/20 09:37:31 [notice] 1#1: start worker process 31
+2023/06/20 09:37:31 [notice] 1#1: start worker process 32
+2023/06/20 09:37:39 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2023/06/20 09:37:39 [notice] 29#29: gracefully shutting down
+2023/06/20 09:37:39 [notice] 30#30: gracefully shutting down
+2023/06/20 09:37:39 [notice] 31#31: gracefully shutting down
+2023/06/20 09:37:39 [notice] 29#29: exiting
+2023/06/20 09:37:39 [notice] 30#30: exiting
+2023/06/20 09:37:39 [notice] 31#31: exiting
+2023/06/20 09:37:39 [notice] 29#29: exit
+2023/06/20 09:37:39 [notice] 31#31: exit
+2023/06/20 09:37:39 [notice] 30#30: exit
+2023/06/20 09:37:39 [notice] 32#32: gracefully shutting down
+2023/06/20 09:37:39 [notice] 32#32: exiting
+2023/06/20 09:37:39 [notice] 32#32: exit
+2023/06/20 09:37:39 [notice] 1#1: signal 17 (SIGCHLD) received from 29
+2023/06/20 09:37:39 [notice] 1#1: worker process 29 exited with code 0
+2023/06/20 09:37:39 [notice] 1#1: worker process 31 exited with code 0
+2023/06/20 09:37:39 [notice] 1#1: signal 29 (SIGIO) received
+2023/06/20 09:37:39 [notice] 1#1: signal 17 (SIGCHLD) received from 31
+2023/06/20 09:37:39 [notice] 1#1: worker process 30 exited with code 0
+2023/06/20 09:37:39 [notice] 1#1: worker process 32 exited with code 0
+2023/06/20 09:37:39 [notice] 1#1: exit
+2023/06/20 09:37:42 [notice] 1#1: using the "epoll" event method
+2023/06/20 09:37:42 [notice] 1#1: nginx/1.25.1
+2023/06/20 09:37:42 [notice] 1#1: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2023/06/20 09:37:42 [notice] 1#1: OS: Linux 5.15.0-1032-oracle
+2023/06/20 09:37:42 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2023/06/20 09:37:42 [notice] 1#1: start worker processes
+2023/06/20 09:37:42 [notice] 1#1: start worker process 22
+2023/06/20 09:37:42 [notice] 1#1: start worker process 23
+2023/06/20 09:37:42 [notice] 1#1: start worker process 24
+2023/06/20 09:37:42 [notice] 1#1: start worker process 25
+2023/06/20 09:37:44 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2023/06/20 09:37:44 [notice] 24#24: gracefully shutting down
+2023/06/20 09:37:44 [notice] 23#23: gracefully shutting down
+2023/06/20 09:37:44 [notice] 22#22: gracefully shutting down
+2023/06/20 09:37:44 [notice] 24#24: exiting
+2023/06/20 09:37:44 [notice] 23#23: exiting
+2023/06/20 09:37:44 [notice] 22#22: exiting
+2023/06/20 09:37:44 [notice] 24#24: exit
+2023/06/20 09:37:44 [notice] 23#23: exit
+2023/06/20 09:37:44 [notice] 22#22: exit
+2023/06/20 09:37:44 [notice] 25#25: gracefully shutting down
+2023/06/20 09:37:44 [notice] 25#25: exiting
+2023/06/20 09:37:44 [notice] 25#25: exit
+2023/06/20 09:37:44 [notice] 1#1: signal 17 (SIGCHLD) received from 24
+2023/06/20 09:37:44 [notice] 1#1: worker process 24 exited with code 0
+2023/06/20 09:37:44 [notice] 1#1: signal 29 (SIGIO) received
+2023/06/20 09:37:44 [notice] 1#1: signal 17 (SIGCHLD) received from 22
+2023/06/20 09:37:44 [notice] 1#1: worker process 22 exited with code 0
+2023/06/20 09:37:44 [notice] 1#1: signal 29 (SIGIO) received
+2023/06/20 09:37:44 [notice] 1#1: signal 17 (SIGCHLD) received from 23
+2023/06/20 09:37:44 [notice] 1#1: worker process 23 exited with code 0
+2023/06/20 09:37:44 [notice] 1#1: worker process 25 exited with code 0
+2023/06/20 09:37:44 [notice] 1#1: exit
+2023/06/20 09:38:29 [notice] 1#1: using the "epoll" event method
+2023/06/20 09:38:29 [notice] 1#1: nginx/1.25.1
+2023/06/20 09:38:29 [notice] 1#1: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2023/06/20 09:38:29 [notice] 1#1: OS: Linux 5.15.0-1032-oracle
+2023/06/20 09:38:29 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2023/06/20 09:38:29 [notice] 1#1: start worker processes
+2023/06/20 09:38:29 [notice] 1#1: start worker process 29
+2023/06/20 09:38:29 [notice] 1#1: start worker process 30
+2023/06/20 09:38:29 [notice] 1#1: start worker process 31
+2023/06/20 09:38:29 [notice] 1#1: start worker process 32
+2023/06/20 09:39:16 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2023/06/20 09:39:16 [notice] 30#30: gracefully shutting down
+2023/06/20 09:39:16 [notice] 31#31: gracefully shutting down
+2023/06/20 09:39:16 [notice] 30#30: exiting
+2023/06/20 09:39:16 [notice] 29#29: gracefully shutting down
+2023/06/20 09:39:16 [notice] 31#31: exiting
+2023/06/20 09:39:16 [notice] 29#29: exiting
+2023/06/20 09:39:16 [notice] 30#30: exit
+2023/06/20 09:39:16 [notice] 31#31: exit
+2023/06/20 09:39:16 [notice] 29#29: exit
+2023/06/20 09:39:16 [notice] 32#32: gracefully shutting down
+2023/06/20 09:39:16 [notice] 32#32: exiting
+2023/06/20 09:39:16 [notice] 32#32: exit
+2023/06/20 09:39:16 [notice] 1#1: signal 17 (SIGCHLD) received from 30
+2023/06/20 09:39:16 [notice] 1#1: worker process 30 exited with code 0
+2023/06/20 09:39:16 [notice] 1#1: worker process 29 exited with code 0
+2023/06/20 09:39:16 [notice] 1#1: signal 29 (SIGIO) received
+2023/06/20 09:39:16 [notice] 1#1: signal 17 (SIGCHLD) received from 29
+2023/06/20 09:39:16 [notice] 1#1: worker process 31 exited with code 0
+2023/06/20 09:39:16 [notice] 1#1: signal 17 (SIGCHLD) received from 32
+2023/06/20 09:39:16 [notice] 1#1: worker process 32 exited with code 0
+2023/06/20 09:39:16 [notice] 1#1: exit
+2023/07/14 08:09:23 [notice] 1#1: using the "epoll" event method
+2023/07/14 08:09:23 [notice] 1#1: nginx/1.25.1
+2023/07/14 08:09:23 [notice] 1#1: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2023/07/14 08:09:23 [notice] 1#1: OS: Linux 5.15.0-1038-oracle
+2023/07/14 08:09:23 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2023/07/14 08:09:23 [notice] 1#1: start worker processes
+2023/07/14 08:09:23 [notice] 1#1: start worker process 21
+2023/07/14 08:09:23 [notice] 1#1: start worker process 22
+2023/07/14 08:09:23 [notice] 1#1: start worker process 23
+2023/07/14 08:09:23 [notice] 1#1: start worker process 24
+2023/07/14 09:18:14 [error] 21#21: *1 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 09:18:15 [error] 24#24: *2 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.0", host: "news.loveopenly.net", referrer: "https://news.loveopenly.net/"
+2023/07/14 09:18:30 [error] 23#23: *3 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 09:36:24 [error] 22#22: *4 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 09:38:38 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2023/07/14 09:38:38 [notice] 22#22: gracefully shutting down
+2023/07/14 09:38:38 [notice] 21#21: gracefully shutting down
+2023/07/14 09:38:38 [notice] 23#23: gracefully shutting down
+2023/07/14 09:38:38 [notice] 22#22: exiting
+2023/07/14 09:38:38 [notice] 21#21: exiting
+2023/07/14 09:38:38 [notice] 23#23: exiting
+2023/07/14 09:38:38 [notice] 22#22: exit
+2023/07/14 09:38:38 [notice] 23#23: exit
+2023/07/14 09:38:38 [notice] 21#21: exit
+2023/07/14 09:38:38 [notice] 24#24: gracefully shutting down
+2023/07/14 09:38:38 [notice] 24#24: exiting
+2023/07/14 09:38:38 [notice] 24#24: exit
+2023/07/14 09:38:38 [notice] 1#1: signal 17 (SIGCHLD) received from 23
+2023/07/14 09:38:38 [notice] 1#1: worker process 23 exited with code 0
+2023/07/14 09:38:38 [notice] 1#1: signal 29 (SIGIO) received
+2023/07/14 09:38:38 [notice] 1#1: signal 17 (SIGCHLD) received from 24
+2023/07/14 09:38:38 [notice] 1#1: worker process 22 exited with code 0
+2023/07/14 09:38:38 [notice] 1#1: worker process 21 exited with code 0
+2023/07/14 09:38:38 [notice] 1#1: worker process 24 exited with code 0
+2023/07/14 09:38:38 [notice] 1#1: exit
+2023/07/14 09:38:43 [notice] 1#1: using the "epoll" event method
+2023/07/14 09:38:43 [notice] 1#1: nginx/1.25.1
+2023/07/14 09:38:43 [notice] 1#1: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2023/07/14 09:38:43 [notice] 1#1: OS: Linux 5.15.0-1038-oracle
+2023/07/14 09:38:43 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2023/07/14 09:38:43 [notice] 1#1: start worker processes
+2023/07/14 09:38:43 [notice] 1#1: start worker process 22
+2023/07/14 09:38:43 [notice] 1#1: start worker process 23
+2023/07/14 09:38:43 [notice] 1#1: start worker process 24
+2023/07/14 09:38:43 [notice] 1#1: start worker process 25
+2023/07/14 09:38:49 [error] 22#22: *1 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 09:38:50 [error] 23#23: *2 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 09:38:53 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2023/07/14 09:38:53 [notice] 22#22: gracefully shutting down
+2023/07/14 09:38:53 [notice] 23#23: gracefully shutting down
+2023/07/14 09:38:53 [notice] 22#22: exiting
+2023/07/14 09:38:53 [notice] 23#23: exiting
+2023/07/14 09:38:53 [notice] 25#25: gracefully shutting down
+2023/07/14 09:38:53 [notice] 25#25: exiting
+2023/07/14 09:38:53 [notice] 22#22: exit
+2023/07/14 09:38:53 [notice] 23#23: exit
+2023/07/14 09:38:53 [notice] 25#25: exit
+2023/07/14 09:38:53 [notice] 24#24: gracefully shutting down
+2023/07/14 09:38:53 [notice] 24#24: exiting
+2023/07/14 09:38:53 [notice] 24#24: exit
+2023/07/14 09:38:53 [notice] 1#1: signal 17 (SIGCHLD) received from 25
+2023/07/14 09:38:53 [notice] 1#1: worker process 25 exited with code 0
+2023/07/14 09:38:53 [notice] 1#1: signal 29 (SIGIO) received
+2023/07/14 09:38:53 [notice] 1#1: signal 17 (SIGCHLD) received from 22
+2023/07/14 09:38:53 [notice] 1#1: worker process 22 exited with code 0
+2023/07/14 09:38:53 [notice] 1#1: signal 29 (SIGIO) received
+2023/07/14 09:38:53 [notice] 1#1: signal 17 (SIGCHLD) received from 23
+2023/07/14 09:38:53 [notice] 1#1: worker process 23 exited with code 0
+2023/07/14 09:38:53 [notice] 1#1: signal 17 (SIGCHLD) received from 24
+2023/07/14 09:38:53 [notice] 1#1: worker process 24 exited with code 0
+2023/07/14 09:38:53 [notice] 1#1: exit
+2023/07/14 10:02:58 [notice] 34#34: using the "epoll" event method
+2023/07/14 10:02:58 [notice] 34#34: nginx/1.25.1
+2023/07/14 10:02:58 [notice] 34#34: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2023/07/14 10:02:58 [notice] 34#34: OS: Linux 5.15.0-1038-oracle
+2023/07/14 10:02:58 [notice] 34#34: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2023/07/14 10:02:58 [notice] 35#35: start worker processes
+2023/07/14 10:02:58 [notice] 35#35: start worker process 36
+2023/07/14 10:02:58 [notice] 35#35: start worker process 37
+2023/07/14 10:02:58 [notice] 35#35: start worker process 38
+2023/07/14 10:02:58 [notice] 35#35: start worker process 39
+2023/07/14 10:03:13 [error] 36#36: *1 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:03:13 [error] 39#39: *2 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.0", host: "news.loveopenly.net", referrer: "https://news.loveopenly.net/"
+2023/07/14 10:05:52 [error] 38#38: *3 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:05:54 [error] 37#37: *4 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:05:59 [error] 36#36: *5 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:06:10 [error] 36#36: *7 open() "/usr/share/nginx/html/index.html" failed (2: No such file or directory), client: 172.19.0.1, server: localhost, request: "GET /index.html HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:08:52 [notice] 21#21: using the "epoll" event method
+2023/07/14 10:08:52 [notice] 21#21: nginx/1.25.1
+2023/07/14 10:08:52 [notice] 21#21: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2023/07/14 10:08:52 [notice] 21#21: OS: Linux 5.15.0-1038-oracle
+2023/07/14 10:08:52 [notice] 21#21: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2023/07/14 10:08:52 [notice] 22#22: start worker processes
+2023/07/14 10:08:52 [notice] 22#22: start worker process 23
+2023/07/14 10:08:52 [notice] 22#22: start worker process 24
+2023/07/14 10:08:52 [notice] 22#22: start worker process 25
+2023/07/14 10:08:52 [notice] 22#22: start worker process 26
+2023/07/14 10:09:04 [error] 23#23: *1 open() "/usr/share/nginx/html/index.html" failed (2: No such file or directory), client: 172.19.0.1, server: localhost, request: "GET /index.html HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:09:06 [error] 24#24: *2 open() "/usr/share/nginx/html/index.html" failed (2: No such file or directory), client: 172.19.0.1, server: localhost, request: "GET /index.html HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:09:09 [error] 26#26: *3 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:13:31 [notice] 20#20: using the "epoll" event method
+2023/07/14 10:13:31 [notice] 20#20: nginx/1.25.1
+2023/07/14 10:13:31 [notice] 20#20: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2023/07/14 10:13:31 [notice] 20#20: OS: Linux 5.15.0-1038-oracle
+2023/07/14 10:13:31 [notice] 20#20: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2023/07/14 10:13:31 [notice] 21#21: start worker processes
+2023/07/14 10:13:31 [notice] 21#21: start worker process 22
+2023/07/14 10:13:31 [notice] 21#21: start worker process 23
+2023/07/14 10:13:31 [notice] 21#21: start worker process 24
+2023/07/14 10:13:31 [notice] 21#21: start worker process 25
+2023/07/14 10:13:38 [error] 22#22: *1 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:13:38 [error] 23#23: *2 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.0", host: "news.loveopenly.net", referrer: "https://news.loveopenly.net/"
+2023/07/14 10:13:39 [error] 25#25: *3 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:19:12 [notice] 20#20: using the "epoll" event method
+2023/07/14 10:19:12 [notice] 20#20: nginx/1.25.1
+2023/07/14 10:19:12 [notice] 20#20: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2023/07/14 10:19:12 [notice] 20#20: OS: Linux 5.15.0-1038-oracle
+2023/07/14 10:19:12 [notice] 20#20: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2023/07/14 10:19:12 [notice] 21#21: start worker processes
+2023/07/14 10:19:12 [notice] 21#21: start worker process 22
+2023/07/14 10:19:12 [notice] 21#21: start worker process 23
+2023/07/14 10:19:12 [notice] 21#21: start worker process 24
+2023/07/14 10:19:12 [notice] 21#21: start worker process 25
+2023/07/14 10:27:09 [notice] 23#23: using the "epoll" event method
+2023/07/14 10:27:09 [notice] 23#23: nginx/1.25.1
+2023/07/14 10:27:09 [notice] 23#23: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2023/07/14 10:27:09 [notice] 23#23: OS: Linux 5.15.0-1038-oracle
+2023/07/14 10:27:09 [notice] 23#23: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2023/07/14 10:27:09 [notice] 24#24: start worker processes
+2023/07/14 10:27:09 [notice] 24#24: start worker process 25
+2023/07/14 10:27:09 [notice] 24#24: start worker process 26
+2023/07/14 10:27:09 [notice] 24#24: start worker process 27
+2023/07/14 10:27:09 [notice] 24#24: start worker process 28
+2023/07/14 10:27:24 [error] 28#28: *2 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.0", host: "news.loveopenly.net", referrer: "https://news.loveopenly.net/"
+2023/07/14 10:28:24 [error] 26#26: *3 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:28:25 [error] 27#27: *4 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.0", host: "news.loveopenly.net", referrer: "https://news.loveopenly.net/"
+2023/07/14 10:36:58 [notice] 24#24: signal 15 (SIGTERM) received from 174, exiting
+2023/07/14 10:36:58 [notice] 28#28: exiting
+2023/07/14 10:36:58 [notice] 27#27: exiting
+2023/07/14 10:36:58 [notice] 25#25: exiting
+2023/07/14 10:36:58 [notice] 26#26: exiting
+2023/07/14 10:36:58 [notice] 28#28: exit
+2023/07/14 10:36:58 [notice] 27#27: exit
+2023/07/14 10:36:58 [notice] 25#25: exit
+2023/07/14 10:36:58 [notice] 26#26: exit
+2023/07/14 10:36:58 [notice] 24#24: signal 17 (SIGCHLD) received from 25
+2023/07/14 10:36:58 [notice] 24#24: worker process 25 exited with code 0
+2023/07/14 10:36:58 [notice] 24#24: signal 29 (SIGIO) received
+2023/07/14 10:36:58 [notice] 24#24: signal 17 (SIGCHLD) received from 28
+2023/07/14 10:36:58 [notice] 24#24: worker process 28 exited with code 0
+2023/07/14 10:36:58 [notice] 24#24: signal 29 (SIGIO) received
+2023/07/14 10:36:58 [notice] 24#24: signal 17 (SIGCHLD) received from 27
+2023/07/14 10:36:58 [notice] 24#24: worker process 27 exited with code 0
+2023/07/14 10:36:58 [notice] 24#24: worker process 26 exited with code 0
+2023/07/14 10:36:58 [notice] 24#24: exit
+2023/07/14 10:36:58 [notice] 176#176: using the "epoll" event method
+2023/07/14 10:36:58 [notice] 176#176: nginx/1.25.1
+2023/07/14 10:36:58 [notice] 176#176: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2023/07/14 10:36:58 [notice] 176#176: OS: Linux 5.15.0-1038-oracle
+2023/07/14 10:36:58 [notice] 176#176: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2023/07/14 10:36:58 [notice] 177#177: start worker processes
+2023/07/14 10:36:58 [notice] 177#177: start worker process 178
+2023/07/14 10:36:58 [notice] 177#177: start worker process 179
+2023/07/14 10:36:58 [notice] 177#177: start worker process 180
+2023/07/14 10:36:58 [notice] 177#177: start worker process 181
+2023/07/14 10:37:03 [error] 178#178: *1 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:41:49 [notice] 177#177: signal 15 (SIGTERM) received from 206, exiting
+2023/07/14 10:41:49 [notice] 178#178: exiting
+2023/07/14 10:41:49 [notice] 181#181: exiting
+2023/07/14 10:41:49 [notice] 180#180: exiting
+2023/07/14 10:41:49 [notice] 179#179: exiting
+2023/07/14 10:41:49 [notice] 178#178: exit
+2023/07/14 10:41:49 [notice] 181#181: exit
+2023/07/14 10:41:49 [notice] 180#180: exit
+2023/07/14 10:41:49 [notice] 179#179: exit
+2023/07/14 10:41:49 [notice] 177#177: signal 17 (SIGCHLD) received from 179
+2023/07/14 10:41:49 [notice] 177#177: worker process 179 exited with code 0
+2023/07/14 10:41:49 [notice] 177#177: signal 29 (SIGIO) received
+2023/07/14 10:41:49 [notice] 177#177: signal 17 (SIGCHLD) received from 181
+2023/07/14 10:41:49 [notice] 177#177: worker process 181 exited with code 0
+2023/07/14 10:41:49 [notice] 177#177: signal 29 (SIGIO) received
+2023/07/14 10:41:49 [notice] 177#177: signal 17 (SIGCHLD) received from 180
+2023/07/14 10:41:49 [notice] 177#177: worker process 180 exited with code 0
+2023/07/14 10:41:49 [notice] 177#177: signal 29 (SIGIO) received
+2023/07/14 10:41:49 [notice] 177#177: signal 17 (SIGCHLD) received from 178
+2023/07/14 10:41:49 [notice] 177#177: worker process 178 exited with code 0
+2023/07/14 10:41:49 [notice] 177#177: exit
+2023/07/14 10:41:49 [notice] 208#208: using the "epoll" event method
+2023/07/14 10:41:49 [notice] 208#208: nginx/1.25.1
+2023/07/14 10:41:49 [notice] 208#208: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2023/07/14 10:41:49 [notice] 208#208: OS: Linux 5.15.0-1038-oracle
+2023/07/14 10:41:49 [notice] 208#208: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2023/07/14 10:41:49 [notice] 209#209: start worker processes
+2023/07/14 10:41:49 [notice] 209#209: start worker process 210
+2023/07/14 10:41:49 [notice] 209#209: start worker process 211
+2023/07/14 10:41:49 [notice] 209#209: start worker process 212
+2023/07/14 10:41:49 [notice] 209#209: start worker process 213
+2023/07/14 10:41:54 [error] 210#210: *1 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:41:56 [error] 213#213: *2 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:41:58 [error] 212#212: *3 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:41:59 [error] 211#211: *4 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.0", host: "news.loveopenly.net", referrer: "https://news.loveopenly.net/"
+2023/07/14 10:41:59 [error] 210#210: *5 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:42:00 [error] 210#210: *6 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:42:00 [error] 210#210: *7 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.0", host: "news.loveopenly.net", referrer: "https://news.loveopenly.net/"
+2023/07/14 10:43:33 [notice] 209#209: signal 15 (SIGTERM) received from 221, exiting
+2023/07/14 10:43:33 [notice] 210#210: exiting
+2023/07/14 10:43:33 [notice] 212#212: exiting
+2023/07/14 10:43:33 [notice] 213#213: exiting
+2023/07/14 10:43:33 [notice] 211#211: exiting
+2023/07/14 10:43:33 [notice] 210#210: exit
+2023/07/14 10:43:33 [notice] 212#212: exit
+2023/07/14 10:43:33 [notice] 213#213: exit
+2023/07/14 10:43:33 [notice] 211#211: exit
+2023/07/14 10:43:33 [notice] 209#209: signal 14 (SIGALRM) received
+2023/07/14 10:43:33 [notice] 209#209: signal 17 (SIGCHLD) received from 210
+2023/07/14 10:43:33 [notice] 209#209: worker process 210 exited with code 0
+2023/07/14 10:43:33 [notice] 209#209: worker process 211 exited with code 0
+2023/07/14 10:43:33 [notice] 209#209: worker process 212 exited with code 0
+2023/07/14 10:43:33 [notice] 209#209: signal 29 (SIGIO) received
+2023/07/14 10:43:33 [notice] 209#209: signal 17 (SIGCHLD) received from 212
+2023/07/14 10:43:33 [notice] 209#209: signal 17 (SIGCHLD) received from 213
+2023/07/14 10:43:33 [notice] 209#209: worker process 213 exited with code 0
+2023/07/14 10:43:33 [notice] 209#209: exit
+2023/07/14 10:43:33 [notice] 223#223: using the "epoll" event method
+2023/07/14 10:43:33 [notice] 223#223: nginx/1.25.1
+2023/07/14 10:43:33 [notice] 223#223: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2023/07/14 10:43:33 [notice] 223#223: OS: Linux 5.15.0-1038-oracle
+2023/07/14 10:43:33 [notice] 223#223: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2023/07/14 10:43:33 [notice] 224#224: start worker processes
+2023/07/14 10:43:33 [notice] 224#224: start worker process 225
+2023/07/14 10:43:33 [notice] 224#224: start worker process 226
+2023/07/14 10:43:33 [notice] 224#224: start worker process 227
+2023/07/14 10:43:33 [notice] 224#224: start worker process 228
+2023/07/14 10:44:01 [notice] 224#224: signal 15 (SIGTERM) received from 236, exiting
+2023/07/14 10:44:01 [notice] 228#228: exiting
+2023/07/14 10:44:01 [notice] 227#227: exiting
+2023/07/14 10:44:01 [notice] 226#226: exiting
+2023/07/14 10:44:01 [notice] 225#225: exiting
+2023/07/14 10:44:01 [notice] 228#228: exit
+2023/07/14 10:44:01 [notice] 227#227: exit
+2023/07/14 10:44:01 [notice] 226#226: exit
+2023/07/14 10:44:01 [notice] 225#225: exit
+2023/07/14 10:44:01 [notice] 224#224: signal 17 (SIGCHLD) received from 226
+2023/07/14 10:44:01 [notice] 224#224: worker process 226 exited with code 0
+2023/07/14 10:44:01 [notice] 224#224: worker process 227 exited with code 0
+2023/07/14 10:44:01 [notice] 224#224: worker process 228 exited with code 0
+2023/07/14 10:44:01 [notice] 224#224: signal 29 (SIGIO) received
+2023/07/14 10:44:01 [notice] 224#224: signal 17 (SIGCHLD) received from 228
+2023/07/14 10:44:01 [notice] 224#224: signal 17 (SIGCHLD) received from 225
+2023/07/14 10:44:01 [notice] 224#224: worker process 225 exited with code 0
+2023/07/14 10:44:01 [notice] 224#224: exit
+2023/07/14 10:44:01 [notice] 238#238: using the "epoll" event method
+2023/07/14 10:44:01 [notice] 238#238: nginx/1.25.1
+2023/07/14 10:44:01 [notice] 238#238: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2023/07/14 10:44:01 [notice] 238#238: OS: Linux 5.15.0-1038-oracle
+2023/07/14 10:44:01 [notice] 238#238: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2023/07/14 10:44:01 [notice] 239#239: start worker processes
+2023/07/14 10:44:01 [notice] 239#239: start worker process 240
+2023/07/14 10:44:01 [notice] 239#239: start worker process 241
+2023/07/14 10:44:01 [notice] 239#239: start worker process 242
+2023/07/14 10:44:01 [notice] 239#239: start worker process 243
+2023/07/14 10:44:04 [error] 240#240: *1 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:44:47 [notice] 239#239: signal 15 (SIGTERM) received from 252, exiting
+2023/07/14 10:44:47 [notice] 240#240: exiting
+2023/07/14 10:44:47 [notice] 241#241: exiting
+2023/07/14 10:44:47 [notice] 242#242: exiting
+2023/07/14 10:44:47 [notice] 240#240: exit
+2023/07/14 10:44:47 [notice] 241#241: exit
+2023/07/14 10:44:47 [notice] 242#242: exit
+2023/07/14 10:44:47 [notice] 243#243: exiting
+2023/07/14 10:44:47 [notice] 243#243: exit
+2023/07/14 10:44:47 [notice] 239#239: signal 17 (SIGCHLD) received from 240
+2023/07/14 10:44:47 [notice] 239#239: worker process 240 exited with code 0
+2023/07/14 10:44:47 [notice] 239#239: signal 29 (SIGIO) received
+2023/07/14 10:44:47 [notice] 239#239: signal 17 (SIGCHLD) received from 242
+2023/07/14 10:44:47 [notice] 239#239: worker process 241 exited with code 0
+2023/07/14 10:44:47 [notice] 239#239: worker process 242 exited with code 0
+2023/07/14 10:44:47 [notice] 239#239: signal 17 (SIGCHLD) received from 241
+2023/07/14 10:44:47 [notice] 239#239: worker process 243 exited with code 0
+2023/07/14 10:44:47 [notice] 239#239: exit
+2023/07/14 10:44:47 [notice] 254#254: using the "epoll" event method
+2023/07/14 10:44:47 [notice] 254#254: nginx/1.25.1
+2023/07/14 10:44:47 [notice] 254#254: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2023/07/14 10:44:47 [notice] 254#254: OS: Linux 5.15.0-1038-oracle
+2023/07/14 10:44:47 [notice] 254#254: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2023/07/14 10:44:47 [notice] 255#255: start worker processes
+2023/07/14 10:44:47 [notice] 255#255: start worker process 256
+2023/07/14 10:44:47 [notice] 255#255: start worker process 257
+2023/07/14 10:44:47 [notice] 255#255: start worker process 258
+2023/07/14 10:44:47 [notice] 255#255: start worker process 259
+2023/07/14 10:44:50 [error] 256#256: *1 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:45:20 [notice] 255#255: signal 15 (SIGTERM) received from 267, exiting
+2023/07/14 10:45:20 [notice] 256#256: exiting
+2023/07/14 10:45:20 [notice] 257#257: exiting
+2023/07/14 10:45:20 [notice] 258#258: exiting
+2023/07/14 10:45:20 [notice] 259#259: exiting
+2023/07/14 10:45:20 [notice] 256#256: exit
+2023/07/14 10:45:20 [notice] 257#257: exit
+2023/07/14 10:45:20 [notice] 258#258: exit
+2023/07/14 10:45:20 [notice] 259#259: exit
+2023/07/14 10:45:20 [notice] 255#255: signal 17 (SIGCHLD) received from 256
+2023/07/14 10:45:20 [notice] 255#255: worker process 256 exited with code 0
+2023/07/14 10:45:20 [notice] 255#255: signal 29 (SIGIO) received
+2023/07/14 10:45:20 [notice] 255#255: signal 17 (SIGCHLD) received from 257
+2023/07/14 10:45:20 [notice] 255#255: worker process 257 exited with code 0
+2023/07/14 10:45:20 [notice] 255#255: signal 29 (SIGIO) received
+2023/07/14 10:45:20 [notice] 255#255: signal 17 (SIGCHLD) received from 259
+2023/07/14 10:45:20 [notice] 255#255: worker process 259 exited with code 0
+2023/07/14 10:45:20 [notice] 255#255: signal 29 (SIGIO) received
+2023/07/14 10:45:20 [notice] 255#255: signal 17 (SIGCHLD) received from 258
+2023/07/14 10:45:20 [notice] 255#255: worker process 258 exited with code 0
+2023/07/14 10:45:20 [notice] 255#255: exit
+2023/07/14 10:45:20 [notice] 269#269: using the "epoll" event method
+2023/07/14 10:45:20 [notice] 269#269: nginx/1.25.1
+2023/07/14 10:45:20 [notice] 269#269: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2023/07/14 10:45:20 [notice] 269#269: OS: Linux 5.15.0-1038-oracle
+2023/07/14 10:45:20 [notice] 269#269: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2023/07/14 10:45:20 [notice] 270#270: start worker processes
+2023/07/14 10:45:20 [notice] 270#270: start worker process 271
+2023/07/14 10:45:20 [notice] 270#270: start worker process 272
+2023/07/14 10:45:20 [notice] 270#270: start worker process 273
+2023/07/14 10:45:20 [notice] 270#270: start worker process 274
+2023/07/14 10:45:23 [error] 272#272: *1 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:45:24 [error] 271#271: *2 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.0", host: "news.loveopenly.net", referrer: "https://news.loveopenly.net/"
+2023/07/14 10:45:27 [error] 274#274: *3 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 10:45:31 [error] 273#273: *4 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
+2023/07/14 15:18:51 [error] 272#272: *5 directory index of "/usr/share/nginx/html/" is forbidden, client: 172.19.0.1, server: localhost, request: "GET / HTTP/1.0", host: "news.loveopenly.net"
