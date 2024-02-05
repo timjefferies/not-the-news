@@ -1,7 +1,5 @@
-import json
 import feedparser
 from urllib.parse import urlparse
-import hashlib
 from datetime import datetime
 
 def generate_html(feed_url):
@@ -61,7 +59,7 @@ def generate_html(feed_url):
     for entry in feed.entries:
         try:
             # Generate a unique ID based on the entry's summary
-            entry_id = hashlib.md5(entry.title.encode('utf-8')).hexdigest()
+            entry_id = str(hash(entry.title))
 
             # make pub date more reader friendly
             entry.published = datetime.strptime(entry.published, "%a, %d %b %Y %H:%M:%S %z")
@@ -70,9 +68,11 @@ def generate_html(feed_url):
             # get item url
             url = entry.get('links')
             url = url.replace("'", '"')
-            url = json.loads(url)
-            url = url[0]
-            url = url.get('href')
+
+            start_index = url.find('"href":') + 8
+            end_index = url.find('"', start_index)
+
+            url = url[start_index:end_index]
 
             # get source domain
             source = urlparse(url)
@@ -182,6 +182,6 @@ rss_feed_url = "/tmp/filtered_feed.xml"
 html_page_content = generate_html(rss_feed_url)
 
 # Save the generated HTML to a file
-with open("www/data/final_feed.html", "w") as file:
+with open("/usr/share/nginx/html/data/final_feed.html", "w") as file:
     file.write(html_page_content)
 
