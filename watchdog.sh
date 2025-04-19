@@ -14,6 +14,20 @@ if [ ! -d "$TARGET_DIR" ]; then
     echo "Created and set ownership for $TARGET_DIR."
 fi
 
+# Check if feed.xml exists and is older than 30 minutes
+if [ -f "$FEED_FILE" ]; then
+    # Get file's last modification time in seconds
+    LAST_MODIFIED=$(stat -c %Y "$FEED_FILE")
+    CURRENT_TIME=$(date +%s)
+
+    # Calculate the age of the file in seconds
+    AGE=$((CURRENT_TIME - LAST_MODIFIED))
+
+    if [ $AGE -lt 1800 ]; then
+        echo "Feed file is less than 30 minutes old. Skipping script execution."
+        exit 0
+    fi
+fi
 
 # Run the Python script
 echo "Running Python script..."

@@ -5,7 +5,9 @@ import unicodedata
 import re
 from feedgen.feed import FeedGenerator
 import os
-
+from dateutil.parser import parse
+from datetime import datetime
+from html import unescape
 import argparse
 
 # Set up argument parser
@@ -18,15 +20,29 @@ args = parser.parse_args()
 # Set output_file variable based on the flag
 output_file = args.output
 
-
 def extract_domain(url):
+    """Extract the domain from a URL."""
     parsed_url = urlparse(url)
     domain = parsed_url.netloc
     return domain
 
 def remove_non_ascii(text):
-    # Remove non-ASCII characters excluding specific characters
+    """Remove non-ASCII characters from a string, excluding certain allowed ones."""
     return ''.join(c for c in text if ord(c) < 128 or c in ["'"])
+
+def clean_description(description):
+    """Remove HTML tags, decode entities, and sanitize descriptions."""
+    # Remove HTML tags
+    description = re.sub(r'<[^>]+>', '', description)
+    # Decode HTML entities
+    description = unescape(description)
+    # Remove non-ASCII characters
+    description = remove_non_ascii(description)
+    return description
+
+def validate_url(url):
+    """Validate the structure of a URL."""
+    return urlparse(url).scheme in ('http', 'https')
 
 def merge_feeds(file_path):
     previous_domain = None
@@ -37,6 +53,9 @@ def merge_feeds(file_path):
     fg.title('Merged Feed')
     fg.link(href='http://example.com', rel='alternate')
     fg.description('This is a merged feed.')
+    fg.language('en')  # Optional: Specify the feed's language
+    fg.docs('http://www.rssboard.org/rss-specification')
+    fg.generator('python-feedgen')
 
     with open(file_path, 'r') as file:
         feed_urls = [line.strip() for line in file if not line.startswith('#')]
@@ -44,82 +63,66 @@ def merge_feeds(file_path):
     all_entries = []  # List to store all the feed entries
 
     for url in feed_urls:
-        # skip empty lines
+        # Skip empty lines
         if not url:
             continue
-        
-        # check the domain in the url
+
+        # Check the domain in the URL
         current_domain = extract_domain(url)
 
-        # Check if the URL contains a domain
+        # Validate the URL
         if not current_domain:
-            print(f" Skipping invalid URL: {url}\n")
+            print(f"Skipping invalid URL: {url}\n")
             continue
 
         # Parse each feed
-        feed = feedparser.parse(url)
-        print(f"importing: {url}")
+        try:
+            feed = feedparser.parse(url)
+        except Exception as e:
+            print(f"Error parsing feed {url}: {e}")
+            continue
 
-        # Check if the domain is the same as the previous feed
+        print(f"Importing: {url}")
+        print(f"Total entries found in {url}: {len(feed.entries)}")
+        if not feed.entries:
+            print(f"Warning: Feed {url} contains no entries.")
+            continue
+
+        # Delay for duplicate domains to avoid overloading
         if current_domain == previous_domain:
-            time.sleep(5)  # Delay for 5 seconds
-
-        # Update the previous_domain variable
+            time.sleep(5)
         previous_domain = current_domain
-
-        # ############
-        # process feed
-        ##############
 
         # Iterate over the entries in the feed
         for entry in feed.entries:
-            # Remove non-ASCII characters from the title
-            entry_title = remove_non_ascii(entry.title) if 'title' in entry else 'No Title'
+            entry_title = clean_description(entry.title) if 'title' in entry else 'No Title'
+            entry_description = clean_description(entry.description) if 'description' in entry else 'No Description'
+            entry_link = entry.link if 'link' in entry and validate_url(entry.link) else 'http://example.com'
+            entry_published = entry.published if 'published' in entry else datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S +0000')
 
-            # Remove non-ASCII characters from the description
-            entry_description = remove_non_ascii(entry.description) if 'description' in entry else 'No Description'
-
-            # Extract image links from description
+            # Extract and clean image links from the description
             image_links = re.findall(r'<img[^>]+src="([^">]+)"', entry_description)
             for image_link in image_links:
-                # Remove the image link from the description
-                entry_description = entry_description.replace(image_link, '')
-
-            # Get the published date of the entry
-            entry_published = entry.published if 'published' in entry else '1970-01-01T00:00:00Z'
+                entry_description = entry_description.replace(image_link, '')  # Remove image links from description
 
             # Add the entry to the list
-            all_entries.append((entry_published, entry_title, entry_description, entry.link, image_links))
-        
-            # Increment the total number of entries
+            all_entries.append((entry_published, entry_title, entry_description, entry_link, image_links))
             total_entries += 1
 
-            # Print the count on the same line
-            #print(f"\r\tProcessing entry {total_entries}/{len(all_entries)}", end='', flush=True)
+    # Sort entries by published date
+    all_entries.sort(key=lambda x: parse(x[0]))
 
-    # Sort the entries based on the published date
-    from dateutil.parser import parse
-    all_entries.sort(key=lambda x: parse(x[0]) if x[0] else parse('1970-01-01T00:00:00Z'))
-
-    # Iterate over the sorted entries and add them to the merged feed
+    # Add sorted entries to the merged feed
     for entry_published, entry_title, entry_description, entry_link, image_links in all_entries:
         fe = fg.add_entry()
         fe.title(entry_title)
         fe.link(href=entry_link)
-        fe.published(entry_published)
+        fe.pubDate(entry_published)
+        fe.description(entry_description or 'No description available')
 
-        # Add description if available
-        if entry_description:
-            fe.description(entry_description)
-        else:
-            fe.description('No description available')  # Default value if description is not set
-
-        # Add image links as separate entries
+        # Optional: Embed image links in description
         for image_link in image_links:
-            fe_image = fg.add_entry()
-            fe_image.title('Image')
-            fe_image.link(href=image_link)
-            fe_image.published(entry_published)
+            fe.description(f"{entry_description}<br/><img src='{image_link}' alt='{entry_title}'>")
 
     # Generate the XML representation of the merged feed
     try:
@@ -130,7 +133,7 @@ def merge_feeds(file_path):
 
     # Save the merged feed to a file
     with open(output_file, 'w', encoding='utf-8') as output:
-        output.write(merged_feed.decode('utf-8'))  # Ensure merged_feed is properly decoded to a string
+        output.write(merged_feed.decode('utf-8'))  # Ensure XML is written as a UTF-8 string
 
     print(f"Merged feed saved to '{output_file}'.")
     print(f"Total entries: {total_entries}")
@@ -138,4 +141,3 @@ def merge_feeds(file_path):
 # Example usage
 feeds_file = 'data/config/feeds.txt'  # Path to the file containing feed URLs
 merge_feeds(feeds_file)
-
