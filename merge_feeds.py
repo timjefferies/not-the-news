@@ -4,7 +4,7 @@ import feedparser
 import unicodedata
 import re
 from feedgen.feed import FeedGenerator
-import os, pwd, grp
+import os
 
 import argparse
 
@@ -74,10 +74,10 @@ def merge_feeds(file_path):
         # Iterate over the entries in the feed
         for entry in feed.entries:
             # Remove non-ASCII characters from the title
-            entry_title = remove_non_ascii(entry.title)
+            entry_title = remove_non_ascii(entry.title) if 'title' in entry else 'No Title'
 
             # Remove non-ASCII characters from the description
-            entry_description = remove_non_ascii(entry.description)
+            entry_description = remove_non_ascii(entry.description) if 'description' in entry else 'No Description'
 
             # Extract image links from description
             image_links = re.findall(r'<img[^>]+src="([^">]+)"', entry_description)
@@ -86,7 +86,7 @@ def merge_feeds(file_path):
                 entry_description = entry_description.replace(image_link, '')
 
             # Get the published date of the entry
-            entry_published = entry.published
+            entry_published = entry.published if 'published' in entry else '1970-01-01T00:00:00Z'
 
             # Add the entry to the list
             all_entries.append((entry_published, entry_title, entry_description, entry.link, image_links))
@@ -98,7 +98,8 @@ def merge_feeds(file_path):
             #print(f"\r\tProcessing entry {total_entries}/{len(all_entries)}", end='', flush=True)
 
     # Sort the entries based on the published date
-    all_entries.sort(key=lambda x: x[0])
+    from dateutil.parser import parse
+    all_entries.sort(key=lambda x: parse(x[0]) if x[0] else parse('1970-01-01T00:00:00Z'))
 
     # Iterate over the sorted entries and add them to the merged feed
     for entry_published, entry_title, entry_description, entry_link, image_links in all_entries:
@@ -128,13 +129,13 @@ def merge_feeds(file_path):
         return
 
     # Save the merged feed to a file
-    with open(output_file, 'wb') as output:
-        output.write(output_file)
+    with open(output_file, 'w', encoding='utf-8') as output:
+        output.write(merged_feed.decode('utf-8'))  # Ensure merged_feed is properly decoded to a string
 
     print(f"Merged feed saved to '{output_file}'.")
     print(f"Total entries: {total_entries}")
 
 # Example usage
-feeds_file = 'www/config/feeds.txt'  # Path to the file containing feed URLs
+feeds_file = 'data/config/feeds.txt'  # Path to the file containing feed URLs
 merge_feeds(feeds_file)
 
