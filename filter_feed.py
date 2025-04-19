@@ -1,6 +1,28 @@
 import feedparser
 import xml.etree.ElementTree as ET
 
+import argparse
+
+# Set up argument parser
+parser = argparse.ArgumentParser(description="Filter an RSS feed based on keywords.")
+parser.add_argument('--input', required=True, help="Path to the input RSS file")
+parser.add_argument('--output', required=True, help="Path to save the filtered RSS file")
+parser.add_argument('--keywords', required=True, help="Path to the keywords file")
+
+# Parse arguments
+args = parser.parse_args()
+
+# Assign parsed arguments to variables
+input_rss_file = args.input
+output_rss_file = args.output
+keywords_file = args.keywords
+
+# Print the parsed arguments (optional, for testing)
+print(f"Input RSS file: {input_rss_file}")
+print(f"Output RSS file: {output_rss_file}")
+print(f"Keywords file: {keywords_file}")
+
+
 def load_filter_keywords(file_path):
     with open(file_path, 'r') as f:
         keywords = [line.strip().lower() for line in f if line.strip()]
@@ -41,11 +63,6 @@ def filter_rss_entries(input_file, output_file, keywords_file):
     # Save the filtered feed to a new RSS file
     with open(output_file, 'wb') as f:
         filtered_tree.write(f, encoding='utf-8', xml_declaration=True)
-
-# Example usage
-input_rss_file = "/tmp/merged_feed.xml"
-output_rss_file = "/tmp/filtered_feed.xml"
-keywords_file = "www/config/filter_keywords.txt"
 
 filter_rss_entries(input_rss_file, output_rss_file, keywords_file)
 

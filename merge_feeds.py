@@ -4,6 +4,20 @@ import feedparser
 import unicodedata
 import re
 from feedgen.feed import FeedGenerator
+import os, pwd, grp
+
+import argparse
+
+# Set up argument parser
+parser = argparse.ArgumentParser(description="Set the output file path using a flag.")
+parser.add_argument('--output', required=True, help="Path to save the output file")
+
+# Parse arguments
+args = parser.parse_args()
+
+# Set output_file variable based on the flag
+output_file = args.output
+
 
 def extract_domain(url):
     parsed_url = urlparse(url)
@@ -114,9 +128,8 @@ def merge_feeds(file_path):
         return
 
     # Save the merged feed to a file
-    output_file = '/tmp/merged_feed.xml'
     with open(output_file, 'wb') as output:
-        output.write(merged_feed)
+        output.write(output_file)
 
     print(f"Merged feed saved to '{output_file}'.")
     print(f"Total entries: {total_entries}")
