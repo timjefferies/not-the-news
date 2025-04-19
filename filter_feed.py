@@ -1,7 +1,8 @@
 import feedparser
 import xml.etree.ElementTree as ET
-
+from html import unescape
 import argparse
+
 
 # Set up argument parser
 parser = argparse.ArgumentParser(description="Filter an RSS feed based on keywords.")
@@ -17,24 +18,47 @@ input_rss_file = args.input
 output_rss_file = args.output
 keywords_file = args.keywords
 
-# Print the parsed arguments (optional, for testing)
+# Print the parsed arguments (optional, for testing purposes)
 print(f"Input RSS file: {input_rss_file}")
 print(f"Output RSS file: {output_rss_file}")
 print(f"Keywords file: {keywords_file}")
 
 
 def load_filter_keywords(file_path):
-    with open(file_path, 'r') as f:
-        keywords = [line.strip().lower() for line in f if line.strip()]
-    return keywords
+    """Load keywords from a file, stripping whitespace and converting to lowercase."""
+    try:
+        with open(file_path, 'r') as f:
+            keywords = [line.strip().lower() for line in f if line.strip()]
+        print(f"Loaded {len(keywords)} keywords from {file_path}.")
+        return keywords
+    except FileNotFoundError:
+        print(f"Error: Keywords file {file_path} not found.")
+        exit(1)
+
+
+def sanitize_text(text):
+    """Remove HTML tags, decode entities, and sanitize text."""
+    # Remove HTML tags
+    text = re.sub(r'<[^>]+>', '', text)
+    # Decode HTML entities
+    text = unescape(text)
+    # Return sanitized text
+    return text.strip()
+
 
 def filter_rss_entries(input_file, output_file, keywords_file):
+    """Filter RSS feed entries based on keywords."""
     # Load filter keywords
     keywords = load_filter_keywords(keywords_file)
 
     # Parse the RSS feed
+    print(f"Parsing RSS feed from {input_file}...")
     feed = feedparser.parse(input_file)
+    if not feed.entries:
+        print(f"Warning: No entries found in the RSS feed.")
+        exit(1)
 
+    # Filter entries based on keywords
     filtered_entries = []
     for entry in feed.entries:
         try:
@@ -43,26 +67,38 @@ def filter_rss_entries(input_file, output_file, keywords_file):
             print(f"Skipped entry without a 'title':\n {entry}\n")
             continue
 
-        if not any(keyword in entry_title_lower for keyword in keywords):
+        if any(keyword in entry_title_lower for keyword in keywords):
+            print(f"Entry matches keywords: {entry.title}")
             filtered_entries.append(entry)
 
+    print(f"Filtered {len(filtered_entries)} entries out of {len(feed.entries)}.")
+
     # Create a new XML tree for the filtered feed
-    filtered_root = ET.Element("rss", attrib={"version": feed.version})
+    filtered_root = ET.Element("rss", attrib={"version": "2.0"})
     channel_elem = ET.SubElement(filtered_root, "channel")
 
+    # Add metadata from the original feed
     for key, value in feed.feed.items():
-        ET.SubElement(channel_elem, key).text = str(value)
+        ET.SubElement(channel_elem, key).text = sanitize_text(str(value))
 
+    # Add filtered entries to the feed
     for entry in filtered_entries:
         entry_elem = ET.SubElement(channel_elem, 'item')
         for key, value in entry.items():
-            ET.SubElement(entry_elem, key).text = str(value)
+            ET.SubElement(entry_elem, key).text = sanitize_text(str(value))
 
+    # Create the XML tree for the filtered feed
     filtered_tree = ET.ElementTree(filtered_root)
 
     # Save the filtered feed to a new RSS file
-    with open(output_file, 'wb') as f:
-        filtered_tree.write(f, encoding='utf-8', xml_declaration=True)
+    try:
+        with open(output_file, 'wb') as f:
+            filtered_tree.write(f, encoding='utf-8', xml_declaration=True)
+        print(f"Filtered RSS feed saved to {output_file}.")
+    except Exception as e:
+        print(f"Error saving filtered feed: {e}")
+        exit(1)
 
+
+# Run the filtering process
 filter_rss_entries(input_rss_file, output_rss_file, keywords_file)
-
