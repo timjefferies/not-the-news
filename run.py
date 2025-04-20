@@ -19,20 +19,6 @@ if not os.path.exists(feed_dir):
 else:
     print(f"Directory already exists: {feed_dir}")
 
-# Function to check if a process is running
-def is_process_running(process_name):
-    for proc in psutil.process_iter(['name']):
-        if proc.info['name'] and process_name in proc.info['name']:
-            return True
-    return False
-
-# Wait if 'merged_feeds.py' is running
-process_name = 'merged_feeds.py'
-while is_process_running(process_name):
-    print(f"{process_name} is currently running. Waiting...")
-    time.sleep(5)  # Wait for 5 seconds before checking again
-
-print(f"{process_name} is not running. Proceeding with execution.")
 
 ########################################################
 # Run merge_feeds.py, passing the merged_file as a flag

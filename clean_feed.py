@@ -16,7 +16,7 @@ def clean_text(text):
     return ''.join(c for c in text if ord(c) < 128 or c == "'")
 
 def clean_feed_entries(entries):
-    """Clean feed entries and extract image links."""
+    """Clean feed entries and extract valid RSS fields."""
     cleaned = []
     for entry in entries:
         title = entry.get('title', 'No Title')
@@ -35,19 +35,27 @@ def clean_feed_entries(entries):
             'title': title,
             'description': description,
             'link': link,
-            'published': published,
+            'pubDate': published,
             'images': images
         })
     return cleaned
 
+def validate_rss_fields(entry):
+    """Ensure only valid RSS fields are used."""
+    valid_keys = {'title', 'link', 'description', 'pubDate'}
+    return {key: entry[key] for key in entry if key in valid_keys}
+
 def clean_feed(input_file, output_file):
-    """Read a merged feed, clean its entries, and write a new cleaned feed."""
+    """Read a merged feed, clean its entries, remove invalid tags, and write a new RSS-compliant feed."""
     feed = feedparser.parse(input_file)
     entries = feed.entries
     cleaned_entries = clean_feed_entries(entries)
 
     # Sort cleaned entries by date
-    cleaned_entries.sort(key=lambda x: parse(x['published']))
+    cleaned_entries.sort(key=lambda x: parse(x['pubDate']))
+    
+    # Filter out invalid fields
+    cleaned_entries = [validate_rss_fields(entry) for entry in cleaned_entries]
 
     fg = FeedGenerator()
     fg.title(feed.feed.get('title', 'Cleaned Feed'))
@@ -61,11 +69,8 @@ def clean_feed(input_file, output_file):
         fe = fg.add_entry()
         fe.title(entry['title'])
         fe.link(href=entry['link'])
-        fe.pubDate(entry['published'])
+        fe.pubDate(entry['pubDate'])
         desc = entry['description'] or 'No description available'
-        # Append images if any
-        for img in entry['images']:
-            desc += f"<br/><img src='{img}' alt='{entry['title']}'>"
         fe.description(desc)
 
     cleaned_feed = fg.rss_str(pretty=True)

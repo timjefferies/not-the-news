@@ -16,17 +16,22 @@ fi
 
 # Check if feed.xml exists and is older than 30 minutes
 if [ -f "$FEED_FILE" ]; then
-    # Get file's last modification time in seconds
     LAST_MODIFIED=$(stat -c %Y "$FEED_FILE")
     CURRENT_TIME=$(date +%s)
-
-    # Calculate the age of the file in seconds
     AGE=$((CURRENT_TIME - LAST_MODIFIED))
 
     if [ $AGE -lt 1800 ]; then
         echo "Feed file is less than 30 minutes old. Skipping script execution."
         exit 0
     fi
+fi
+
+# Check if run.py is already running
+if pgrep -f "python3 $SCRIPT_DIR/run.py" > /dev/null; then
+    echo "run.py is already running. Waiting for it to finish..."
+    while pgrep -f "python3 $SCRIPT_DIR/run.py" > /dev/null; do
+        sleep 5  # Wait for 5 seconds before checking again
+    done
 fi
 
 # Run the Python script
@@ -38,9 +43,9 @@ python3 "$SCRIPT_DIR/run.py" || {
 # Check if feed file exists after running Python
 if [ -f "$FEED_FILE" ]; then
     echo "Feed file found. Moving to $TARGET_DIR..."
-    cp "$FEED_FILE" "$TARGET_DIR/feed.xml"  # Rename in case of duplication
-    chown www-data:www-data "$TARGET_DIR/feed.xml"  # Ensure correct ownership
-    chmod 644 "$TARGET_DIR/feed.xml"  # Set permissions for readability
+    cp "$FEED_FILE" "$TARGET_DIR/feed.xml"
+    chown www-data:www-data "$TARGET_DIR/feed.xml"
+    chmod 644 "$TARGET_DIR/feed.xml"
     echo "File successfully moved and ownership/permissions updated."
 else
     echo "Warning: $FEED_FILE does not exist. No action taken."
