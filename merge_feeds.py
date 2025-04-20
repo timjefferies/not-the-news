@@ -8,10 +8,14 @@ import requests
 import pprint
 
 
-def extract_domain(url):
-    """Extract the domain from a URL."""
+def extract_domain(url, cache={}):
+    """Extract the domain from a URL with basic caching."""
+    if url in cache:
+        return cache[url]
     parsed_url = urlparse(url)
-    return parsed_url.netloc
+    domain = parsed_url.netloc
+    cache[url] = domain
+    return domain
 
 
 def validate_url(url):
@@ -22,7 +26,6 @@ def validate_url(url):
 
 def merge_feeds(feeds_file, output_file):
     """Fetch multiple RSS/Atom feeds, merge entries, and write to an output file."""
-    previous_domain = None
     total_entries = 0
 
     fg = FeedGenerator()
@@ -38,22 +41,22 @@ def merge_feeds(feeds_file, output_file):
         feed_urls = [line.strip() for line in f if line.strip() and not line.startswith('#')]
 
     # Sort feed URLs by their domain
-    feed_urls.sort(key=extract_domain)
+    domain_cache = {}
+    feed_urls.sort(key=lambda url: extract_domain(url, domain_cache))
 
-    all_entries = []
     headers = {'User-Agent': 'Mozilla/5.0'}  # Add a custom User-Agent
+    domain_requests = {}
     for url in feed_urls:
         if not validate_url(url):
             print(f"Skipping invalid URL: {url}")
             continue
 
-        current_domain = extract_domain(url)
-        if current_domain == previous_domain:
-            print(f"Same domain as previous: {current_domain}. Waiting 10 seconds...")
+        current_domain = extract_domain(url, domain_cache)
+        domain_requests[current_domain] = domain_requests.get(current_domain, 0) + 1
+        if domain_requests[current_domain] > 5:
+            print(f"Rate-limiting domain: {current_domain}. Waiting for 10 seconds...")
             time.sleep(10)
-        else:
-            print(f"New domain: {current_domain}. No wait necessary.")
-        previous_domain = current_domain
+            domain_requests[current_domain] = 0  # Reset counter for domain
 
         while True:  # Retry loop
             try:
@@ -76,25 +79,12 @@ def merge_feeds(feeds_file, output_file):
             continue
 
         for entry in feed.entries:
-            all_entries.append(entry)
+            fe = fg.add_entry()
+            fe.title(entry.get('title', 'No Title'))
+            fe.link(href=entry.get('link', ''))
+            fe.pubDate(entry.get('published', datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S +0000')))
+            fe.description(entry.get('summary', ''))
             total_entries += 1
-
-    # Sort by published date (use current time if missing)
-    def get_date(e):
-        try:
-            return e.published_parsed or datetime.utcnow().timetuple()
-        except Exception:
-            return datetime.utcnow().timetuple()
-
-    all_entries.sort(key=get_date)
-
-    # Build the merged feed without cleaning
-    for entry in all_entries:
-        fe = fg.add_entry()
-        fe.title(entry.get('title', 'No Title'))
-        fe.link(href=entry.get('link', ''))
-        fe.pubDate(entry.get('published', datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S +0000')))
-        fe.description(entry.get('summary', ''))
 
     merged_feed = fg.rss_str(pretty=True)
     with open(output_file, 'wb') as out:

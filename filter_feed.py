@@ -47,13 +47,14 @@ def filter_rss_entries(input_file, output_file, keywords_file):
     # Filter entries based on keywords
     filtered_entries = []
     for entry in feed.entries:
-        entry_title_lower = entry.title.lower() if hasattr(entry, 'title') else ""
-        entry_description_lower = entry.description.lower() if hasattr(entry, 'description') else ""
-
-        # Check both title and description for keywords
-        if any(keyword in entry_title_lower or keyword in entry_description_lower for keyword in keywords):
-            print(f"Entry matches keywords: {entry.title if hasattr(entry, 'title') else 'No title'}")
+        # Combine all fields of the entry into a single text for keyword matching
+        entry_text = " ".join([str(value).lower() for key, value in entry.items() if value])
+        
+        # Exclude entries with keywords
+        if not any(keyword in entry_text for keyword in keywords):
             filtered_entries.append(entry)
+        else:
+            print(f"Excluding entry with keyword match: {entry.title if hasattr(entry, 'title') else 'No title'}")
 
     print(f"Filtered {len(filtered_entries)} entries out of {len(feed.entries)}.")
 
