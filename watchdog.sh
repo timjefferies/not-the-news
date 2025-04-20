@@ -30,7 +30,6 @@ if [ -f "$FEED_FILE" ]; then
 fi
 
 # Run the Python script
-echo "Running Python script..."
 python3 "$SCRIPT_DIR/run.py" || {
     echo "Error: Failed to run the Python script!"
     exit 1

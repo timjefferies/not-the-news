@@ -1,0 +1,81 @@
+import re
+from html import unescape
+import feedparser
+from feedgen.feed import FeedGenerator
+from dateutil.parser import parse
+from datetime import datetime, timezone
+import argparse
+
+def clean_text(text):
+    """Remove HTML tags, decode entities, and sanitize text to ASCII-safe."""
+    if not text:
+        return ""
+    text = re.sub(r'<[^>]+>', '', text)
+    text = unescape(text)
+    text = re.sub(r'&[a-zA-Z0-9#]+;', '', text)
+    return ''.join(c for c in text if ord(c) < 128 or c == "'")
+
+def clean_feed_entries(entries):
+    """Clean feed entries and extract image links."""
+    cleaned = []
+    for entry in entries:
+        title = entry.get('title', 'No Title')
+        description = entry.get('summary', 'No Description')
+        link = entry.get('link', '')
+        published = entry.get('published', datetime.now(timezone.utc).strftime('%a, %d %b %Y %H:%M:%S +0000'))
+
+        # Extract image URLs from raw HTML
+        images = re.findall(r'<img[^>]+src=["\']([^"\']+)["\']', description)
+
+        # Clean text fields
+        title = clean_text(title)
+        description = clean_text(description)
+
+        cleaned.append({
+            'title': title,
+            'description': description,
+            'link': link,
+            'published': published,
+            'images': images
+        })
+    return cleaned
+
+def clean_feed(input_file, output_file):
+    """Read a merged feed, clean its entries, and write a new cleaned feed."""
+    feed = feedparser.parse(input_file)
+    entries = feed.entries
+    cleaned_entries = clean_feed_entries(entries)
+
+    # Sort cleaned entries by date
+    cleaned_entries.sort(key=lambda x: parse(x['published']))
+
+    fg = FeedGenerator()
+    fg.title(feed.feed.get('title', 'Cleaned Feed'))
+    fg.link(href=feed.feed.get('link', ''), rel='alternate')
+    fg.description(feed.feed.get('description', 'Cleaned feed.'))
+    fg.language(feed.feed.get('language', 'en'))
+    fg.docs(feed.feed.get('docs', ''))
+    fg.generator('python-feedgen-cleaner')
+
+    for entry in cleaned_entries:
+        fe = fg.add_entry()
+        fe.title(entry['title'])
+        fe.link(href=entry['link'])
+        fe.pubDate(entry['published'])
+        desc = entry['description'] or 'No description available'
+        # Append images if any
+        for img in entry['images']:
+            desc += f"<br/><img src='{img}' alt='{entry['title']}'>"
+        fe.description(desc)
+
+    cleaned_feed = fg.rss_str(pretty=True)
+    with open(output_file, 'wb') as out:
+        out.write(cleaned_feed)
+    print(f"Cleaned feed saved to '{output_file}' with {len(cleaned_entries)} entries.")
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Clean a merged RSS/Atom feed file.")
+    parser.add_argument('--input', required=True, help="Path to the merged feed XML.")
+    parser.add_argument('--output', required=True, help="Path to save the cleaned feed XML.")
+    args = parser.parse_args()
+    clean_feed(args.input, args.output)

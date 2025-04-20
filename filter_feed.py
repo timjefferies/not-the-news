@@ -1,8 +1,6 @@
 import feedparser
 import xml.etree.ElementTree as ET
-from html import unescape
 import argparse
-
 
 # Set up argument parser
 parser = argparse.ArgumentParser(description="Filter an RSS feed based on keywords.")
@@ -23,7 +21,6 @@ print(f"Input RSS file: {input_rss_file}")
 print(f"Output RSS file: {output_rss_file}")
 print(f"Keywords file: {keywords_file}")
 
-
 def load_filter_keywords(file_path):
     """Load keywords from a file, stripping whitespace and converting to lowercase."""
     try:
@@ -34,17 +31,6 @@ def load_filter_keywords(file_path):
     except FileNotFoundError:
         print(f"Error: Keywords file {file_path} not found.")
         exit(1)
-
-
-def sanitize_text(text):
-    """Remove HTML tags, decode entities, and sanitize text."""
-    # Remove HTML tags
-    text = re.sub(r'<[^>]+>', '', text)
-    # Decode HTML entities
-    text = unescape(text)
-    # Return sanitized text
-    return text.strip()
-
 
 def filter_rss_entries(input_file, output_file, keywords_file):
     """Filter RSS feed entries based on keywords."""
@@ -61,14 +47,12 @@ def filter_rss_entries(input_file, output_file, keywords_file):
     # Filter entries based on keywords
     filtered_entries = []
     for entry in feed.entries:
-        try:
-            entry_title_lower = entry.title.lower()
-        except AttributeError:
-            print(f"Skipped entry without a 'title':\n {entry}\n")
-            continue
+        entry_title_lower = entry.title.lower() if hasattr(entry, 'title') else ""
+        entry_description_lower = entry.description.lower() if hasattr(entry, 'description') else ""
 
-        if any(keyword in entry_title_lower for keyword in keywords):
-            print(f"Entry matches keywords: {entry.title}")
+        # Check both title and description for keywords
+        if any(keyword in entry_title_lower or keyword in entry_description_lower for keyword in keywords):
+            print(f"Entry matches keywords: {entry.title if hasattr(entry, 'title') else 'No title'}")
             filtered_entries.append(entry)
 
     print(f"Filtered {len(filtered_entries)} entries out of {len(feed.entries)}.")
@@ -79,13 +63,13 @@ def filter_rss_entries(input_file, output_file, keywords_file):
 
     # Add metadata from the original feed
     for key, value in feed.feed.items():
-        ET.SubElement(channel_elem, key).text = sanitize_text(str(value))
+        ET.SubElement(channel_elem, key).text = str(value)
 
     # Add filtered entries to the feed
     for entry in filtered_entries:
         entry_elem = ET.SubElement(channel_elem, 'item')
         for key, value in entry.items():
-            ET.SubElement(entry_elem, key).text = sanitize_text(str(value))
+            ET.SubElement(entry_elem, key).text = str(value)
 
     # Create the XML tree for the filtered feed
     filtered_tree = ET.ElementTree(filtered_root)
@@ -98,7 +82,6 @@ def filter_rss_entries(input_file, output_file, keywords_file):
     except Exception as e:
         print(f"Error saving filtered feed: {e}")
         exit(1)
-
 
 # Run the filtering process
 filter_rss_entries(input_rss_file, output_rss_file, keywords_file)

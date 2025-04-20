@@ -1,143 +1,99 @@
 import time
 from urllib.parse import urlparse
 import feedparser
-import unicodedata
-import re
 from feedgen.feed import FeedGenerator
-import os
-from dateutil.parser import parse
 from datetime import datetime
-from html import unescape
 import argparse
+import requests
+import pprint
 
-# Set up argument parser
-parser = argparse.ArgumentParser(description="Set the output file path using a flag.")
-parser.add_argument('--output', required=True, help="Path to save the output file")
-
-# Parse arguments
-args = parser.parse_args()
-
-# Set output_file variable based on the flag
-output_file = args.output
 
 def extract_domain(url):
     """Extract the domain from a URL."""
     parsed_url = urlparse(url)
-    domain = parsed_url.netloc
-    return domain
+    return parsed_url.netloc
 
-def remove_non_ascii(text):
-    """Remove non-ASCII characters from a string, excluding certain allowed ones."""
-    return ''.join(c for c in text if ord(c) < 128 or c in ["'"])
-
-def clean_description(description):
-    """Remove HTML tags, decode entities, and sanitize descriptions."""
-    # Remove HTML tags
-    description = re.sub(r'<[^>]+>', '', description)
-    # Decode HTML entities
-    description = unescape(description)
-    # Remove non-ASCII characters
-    description = remove_non_ascii(description)
-    return description
 
 def validate_url(url):
     """Validate the structure of a URL."""
-    return urlparse(url).scheme in ('http', 'https')
+    parsed = urlparse(url)
+    return parsed.scheme in ('http', 'https') and bool(parsed.netloc)
 
-def merge_feeds(file_path):
+
+def merge_feeds(feeds_file, output_file):
+    """Fetch multiple RSS/Atom feeds, merge entries, and write to an output file."""
     previous_domain = None
     total_entries = 0
 
-    # Create a new feed using feedgen
     fg = FeedGenerator()
     fg.title('Merged Feed')
     fg.link(href='http://example.com', rel='alternate')
     fg.description('This is a merged feed.')
-    fg.language('en')  # Optional: Specify the feed's language
+    fg.language('en')
     fg.docs('http://www.rssboard.org/rss-specification')
     fg.generator('python-feedgen')
 
-    with open(file_path, 'r') as file:
-        feed_urls = [line.strip() for line in file if not line.startswith('#')]
+    # Read the list of feed URLs
+    with open(feeds_file, 'r') as f:
+        feed_urls = [line.strip() for line in f if line.strip() and not line.startswith('#')]
 
-    all_entries = []  # List to store all the feed entries
-
+    all_entries = []
+    headers = {'User-Agent': 'Mozilla/5.0'}  # Add a custom User-Agent
     for url in feed_urls:
-        # Skip empty lines
-        if not url:
+        if not validate_url(url):
+            print(f"Skipping invalid URL: {url}")
             continue
 
-        # Check the domain in the URL
         current_domain = extract_domain(url)
-
-        # Validate the URL
-        if not current_domain:
-            print(f"Skipping invalid URL: {url}\n")
-            continue
-
-        # Parse each feed
-        try:
-            feed = feedparser.parse(url)
-        except Exception as e:
-            print(f"Error parsing feed {url}: {e}")
-            continue
-
-        print(f"Importing: {url}")
-        print(f"Total entries found in {url}: {len(feed.entries)}")
-        if not feed.entries:
-            print(f"Warning: Feed {url} contains no entries.")
-            continue
-
-        # Delay for duplicate domains to avoid overloading
         if current_domain == previous_domain:
             time.sleep(5)
         previous_domain = current_domain
 
-        # Iterate over the entries in the feed
+        try:
+            # Use requests to fetch the feed with a custom User-Agent
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()  # Raise HTTP errors
+            feed = feedparser.parse(response.content)
+        except Exception as e:
+            print(f"Error fetching or parsing feed {url}: {e}")
+            continue
+
+        print(f"Importing: {url} ({len(feed.entries)} entries)")
+        if len(feed.entries) == 0:
+            print(f"Debug: No entries found in feed {url}. Feed content: {pprint.pformat(feed)}")
+            continue
+
         for entry in feed.entries:
-            entry_title = clean_description(entry.title) if 'title' in entry else 'No Title'
-            entry_description = clean_description(entry.description) if 'description' in entry else 'No Description'
-            entry_link = entry.link if 'link' in entry and validate_url(entry.link) else 'http://example.com'
-            entry_published = entry.published if 'published' in entry else datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S +0000')
-
-            # Extract and clean image links from the description
-            image_links = re.findall(r'<img[^>]+src="([^">]+)"', entry_description)
-            for image_link in image_links:
-                entry_description = entry_description.replace(image_link, '')  # Remove image links from description
-
-            # Add the entry to the list
-            all_entries.append((entry_published, entry_title, entry_description, entry_link, image_links))
+            all_entries.append(entry)
             total_entries += 1
 
-    # Sort entries by published date
-    all_entries.sort(key=lambda x: parse(x[0]))
+    # Sort by published date (use current time if missing)
+    def get_date(e):
+        try:
+            return e.published_parsed or datetime.utcnow().timetuple()
+        except Exception:
+            return datetime.utcnow().timetuple()
 
-    # Add sorted entries to the merged feed
-    for entry_published, entry_title, entry_description, entry_link, image_links in all_entries:
+    all_entries.sort(key=get_date)
+
+    # Build the merged feed without cleaning
+    for entry in all_entries:
         fe = fg.add_entry()
-        fe.title(entry_title)
-        fe.link(href=entry_link)
-        fe.pubDate(entry_published)
-        fe.description(entry_description or 'No description available')
+        fe.title(entry.get('title', 'No Title'))
+        fe.link(href=entry.get('link', ''))
+        fe.pubDate(entry.get('published', datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S +0000')))
+        fe.description(entry.get('summary', ''))
 
-        # Optional: Embed image links in description
-        for image_link in image_links:
-            fe.description(f"{entry_description}<br/><img src='{image_link}' alt='{entry_title}'>")
+    merged_feed = fg.rss_str(pretty=True)
+    with open(output_file, 'wb') as out:
+        out.write(merged_feed)
 
-    # Generate the XML representation of the merged feed
-    try:
-        merged_feed = fg.rss_str(pretty=True)
-    except ValueError as e:
-        print(f"Error generating merged feed: {e}")
-        return
+    print(f"Merged feed saved to '{output_file}' with {total_entries} entries.")
 
-    # Save the merged feed to a file
-    with open(output_file, 'w', encoding='utf-8') as output:
-        output.write(merged_feed.decode('utf-8'))  # Ensure XML is written as a UTF-8 string
 
-    print(f"Merged feed saved to '{output_file}'.")
-    print(f"Total entries: {total_entries}")
-
-# Example usage
-feeds_file = 'data/config/feeds.txt'  # Path to the file containing feed URLs
-merge_feeds(feeds_file)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Merge multiple RSS/Atom feeds into one.")
+    parser.add_argument('--feeds', required=True, help="Path to the text file listing feed URLs.")
+    parser.add_argument('--output', required=True, help="Path to save the merged feed XML.")
+    args = parser.parse_args()
+    merge_feeds(args.feeds, args.output)
