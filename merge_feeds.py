@@ -37,6 +37,9 @@ def merge_feeds(feeds_file, output_file):
     with open(feeds_file, 'r') as f:
         feed_urls = [line.strip() for line in f if line.strip() and not line.startswith('#')]
 
+    # Sort feed URLs by their domain
+    feed_urls.sort(key=extract_domain)
+
     all_entries = []
     headers = {'User-Agent': 'Mozilla/5.0'}  # Add a custom User-Agent
     for url in feed_urls:
@@ -46,17 +49,26 @@ def merge_feeds(feeds_file, output_file):
 
         current_domain = extract_domain(url)
         if current_domain == previous_domain:
-            time.sleep(5)
+            print(f"Same domain as previous: {current_domain}. Waiting 10 seconds...")
+            time.sleep(10)
+        else:
+            print(f"New domain: {current_domain}. No wait necessary.")
         previous_domain = current_domain
 
-        try:
-            # Use requests to fetch the feed with a custom User-Agent
-            response = requests.get(url, headers=headers)
-            response.raise_for_status()  # Raise HTTP errors
-            feed = feedparser.parse(response.content)
-        except Exception as e:
-            print(f"Error fetching or parsing feed {url}: {e}")
-            continue
+        while True:  # Retry loop
+            try:
+                # Use requests to fetch the feed with a custom User-Agent
+                response = requests.get(url, headers=headers)
+                if response.status_code == 429:  # Too Many Requests
+                    print(f"429 Too Many Requests for {url}. Retrying in 30 seconds...")
+                    time.sleep(30)  # Wait before retrying
+                    continue
+                response.raise_for_status()  # Raise HTTP errors other than 429
+                feed = feedparser.parse(response.content)
+                break  # Exit loop if successful
+            except requests.exceptions.RequestException as e:
+                print(f"Error fetching feed {url}: {e}")
+                break  # Exit loop for other errors
 
         print(f"Importing: {url} ({len(feed.entries)} entries)")
         if len(feed.entries) == 0:
