@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import os
 import subprocess
-import psutil
 import time
 
 # Define paths for feed directory and files
