@@ -254,6 +254,21 @@ h3 {
   width: -webkit-fill-available;
 }
 
+/* Fade-out animation */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Class to trigger fade-out */
+.fade-out {
+  animation: fadeOut 0.5s ease-out forwards;
+}
+
 @media (max-width: 512px) {
   body {
     font-size: x-large !important;
@@ -286,4 +301,5 @@ h3 {
     margin-right: 20%;
   }
 }
+
 

@@ -23,7 +23,7 @@
   <!-- RSS Entries -->
   <main id="items">
     <template x-for="(entry, index) in entries" :key="index">
-      <div class="item" x-show="!hiddenSet.has(entry.link)">
+      <div class="item" x-show="!hiddenSet.has(entry.link)" x-transition.opacity.duration.500ms>
         <div class="itemtitle">
           <a :href="entry.link" target="_blank" x-text="entry.title"></a>
           <button class="close" @click="hide(entry.link)">✕</button>
@@ -81,6 +81,21 @@
         }
       }
     }
+    // Select all close buttons
+document.querySelectorAll('.close').forEach(button => {
+  button.addEventListener('click', function () {
+    const item = this.closest('.item');
+    if (item) {
+      // Add the fade-out class to trigger the animation
+      item.classList.add('fade-out');
+
+      // Listen for the end of the animation to remove the element
+      item.addEventListener('animationend', () => {
+        item.remove();
+      }, { once: true });
+    }
+  });
+});
   </script>
 </body>
 </html>
