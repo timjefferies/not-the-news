@@ -22,80 +22,70 @@
 
   <!-- RSS Entries -->
   <main id="items">
-    <template x-for="(entry, index) in entries" :key="index">
-      <div class="item" x-show="!hiddenSet.has(entry.link)" x-transition.opacity.duration.500ms>
-        <div class="itemtitle">
-          <a :href="entry.link" target="_blank" x-text="entry.title"></a>
-          <button class="close" @click="hide(entry.link)">✕</button>
-        </div>
-        <div class="itemfrom">
-          <p x-text="entry.pubDate"></p>
-        </div>
-        <div class="itemdescription">
-          <span x-html="entry.contentSnippet"></span>
-        </div>
-      </div>
-    </template>
+<template x-for="(entry, index) in entries" :key="index">
+  <div
+    class="item transition-all"
+    x-show="!hiddenSet.has(entry.link)"
+    x-transition:leave-start="translate-y-0"
+    x-transition:leave-end="translate-y-4"
+  >
+    <div class="itemtitle">
+      <a :href="entry.link" target="_blank" x-text="entry.title"></a>
+      <button class="close" @click="hide(entry.link)">✕</button>
+    </div>
+    <div class="itemfrom">
+      <p x-text="entry.pubDate"></p>
+    </div>
+    <div class="itemdescription">
+      <span x-html="entry.contentSnippet"></span>
+    </div>
+  </div>
+</template>
   </main>
 
   <!-- Scroll-to-top button -->
   <button id="scroll-to-top-button" @click="scrollToTop()">↑</button>
 
   <script>
-    function rssApp() {
-      return {
-        entries: [],
-        hiddenSet: new Set(),
-        loading: true,
-        init() {
-          // Load hidden entries from localStorage
-          const stored = JSON.parse(localStorage.getItem('hidden') || '[]');
-          this.hiddenSet = new Set(stored);
+  function rssApp() {
+  return {
+    entries: [],
+    hiddenSet: new Set(),
+    loading: true,
+    init() {
+      // Load hidden entries from localStorage
+      const stored = JSON.parse(localStorage.getItem('hidden') || '[]');
+      this.hiddenSet = new Set(stored);
 
-          const parser = new RSSParser();
+      const parser = new RSSParser();
 
-          // Fetch and parse the feed manually to avoid browser issues with parseURL
-          fetch('https://news.loveopenly.net/feed.xml')
-            .then(response => response.text())
-            .then(str => parser.parseString(str))
-            .then(feed => {
-              this.loading = false;
-              this.entries = feed.items.map(item => ({
-                title: item.title,
-                link: item.link,
-                pubDate: new Date(item.isoDate || item.pubDate).toLocaleString(),
-                contentSnippet: item.contentSnippet || item.content || ''
-              }));
-            })
-            .catch(err => {
-              this.loading = false;
-              console.error('RSS fetch/parse error:', err);
-            });
-        },
-        hide(link) {
-          this.hiddenSet.add(link);
-          localStorage.setItem('hidden', JSON.stringify([...this.hiddenSet]));
-        },
-        scrollToTop() {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      }
+      // Fetch and parse the feed
+      fetch('https://news.loveopenly.net/feed.xml')
+        .then(response => response.text())
+        .then(str => parser.parseString(str))
+        .then(feed => {
+          this.loading = false;
+          this.entries = feed.items.map(item => ({
+            title: item.title,
+            link: item.link,
+            pubDate: new Date(item.isoDate || item.pubDate).toLocaleString(),
+            contentSnippet: item.contentSnippet || item.content || ''
+          }));
+        })
+        .catch(err => {
+          this.loading = false;
+          console.error('RSS fetch/parse error:', err);
+        });
+    },
+    hide(link) {
+      this.hiddenSet.add(link);
+      localStorage.setItem('hidden', JSON.stringify([...this.hiddenSet]));
+    },
+    scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    // Select all close buttons
-document.querySelectorAll('.close').forEach(button => {
-  button.addEventListener('click', function () {
-    const item = this.closest('.item');
-    if (item) {
-      // Add the fade-out class to trigger the animation
-      item.classList.add('fade-out');
-
-      // Listen for the end of the animation to remove the element
-      item.addEventListener('animationend', () => {
-        item.remove();
-      }, { once: true });
-    }
-  });
-});
+  };
+}
   </script>
 </body>
 </html>

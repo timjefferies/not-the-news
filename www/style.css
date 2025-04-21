@@ -254,20 +254,36 @@ h3 {
   width: -webkit-fill-available;
 }
 
-/* Fade-out animation */
-@keyframes fadeOut {
+@keyframes fadeOutUp {
   from {
     opacity: 1;
+    transform: translateY(0);
   }
   to {
     opacity: 0;
+    transform: translateY(-20px);
   }
 }
 
-/* Class to trigger fade-out */
-.fade-out {
-  animation: fadeOut 0.5s ease-out forwards;
+.fade-out-up {
+  animation: fadeOutUp 0.5s ease forwards;
 }
+/* Define the transition properties */
+.transition-all {
+  transition: all 0.5s ease;
+}
+
+/* Define the transform and opacity for the leaving state */
+.translate-y-0 {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.translate-y-4 {
+  transform: translateY(-1rem); /* Adjust the value as needed */
+  opacity: 0;
+}
+
 
 @media (max-width: 512px) {
   body {
