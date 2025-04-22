@@ -6,6 +6,31 @@ from dateutil.parser import parse
 from datetime import datetime, timezone
 import argparse
 
+from datetime import datetime, timezone
+
+def get_pub_date(entry):
+    """Determine the most reliable pubDate."""
+    # Check if 'published' exists as a string and use it
+    if 'published' in entry:
+        return entry['published']
+    
+    # If 'published_parsed' exists, convert it to a datetime and format it
+    elif 'published_parsed' in entry:
+        # published_parsed is a time.struct_time, so we need to convert it to datetime
+        return datetime(*entry['published_parsed'][:6], tzinfo=timezone.utc).strftime('%a, %d %b %Y %H:%M:%S +0000')
+    
+    # If 'updated' exists as a string, use it
+    elif 'updated' in entry:
+        return entry['updated']
+    
+    # If 'updated_parsed' exists, convert it to a datetime and format it
+    elif 'updated_parsed' in entry:
+        # updated_parsed is also a time.struct_time
+        return datetime(*entry['updated_parsed'][:6], tzinfo=timezone.utc).strftime('%a, %d %b %Y %H:%M:%S +0000')
+    
+    # Fallback to the current time if no date is found
+    return datetime.now(timezone.utc).strftime('%a, %d %b %Y %H:%M:%S +0000')
+
 def clean_text(text):
     """Remove HTML tags, decode entities, convert HTML line breaks to newlines, and sanitize text to ASCII-safe."""
     if not text:
@@ -36,7 +61,9 @@ def clean_feed_entries(entries):
         title = entry.get('title', 'No Title')
         description = entry.get('summary', 'No Description')
         link = entry.get('link', '')
-        published = entry.get('published', datetime.now(timezone.utc).strftime('%a, %d %b %Y %H:%M:%S +0000'))
+        
+        # Use the get_pub_date function to retrieve the correct pubDate
+        pub_date = get_pub_date(entry)
 
         # Extract image URLs from raw HTML
         images = re.findall(r'<img[^>]+src=["\']([^"\']+)["\']', description)
@@ -49,7 +76,7 @@ def clean_feed_entries(entries):
             'title': title,
             'description': description,
             'link': link,
-            'pubDate': published,
+            'pubDate': pub_date,
             'images': images
         })
     return cleaned
@@ -83,7 +110,7 @@ def clean_feed(input_file, output_file):
         fe = fg.add_entry()
         fe.title(entry['title'])
         fe.link(href=entry['link'])
-        fe.pubDate(entry['pubDate'])
+        fe.pubDate(get_pub_date(entry))
         desc = entry['description'] or 'No description available'
         fe.description(desc)
 
