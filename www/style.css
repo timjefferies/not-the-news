@@ -328,13 +328,13 @@ h3 { margin-top: 2em; font-size: large; }
 .translate-y-4 { transform: translateY(-1rem); opacity: 0; }
 
 /* 1. Collapse description from bottom to top */
-.itemdescription {
+.item {
   overflow: hidden;
   /* a big enough max-height to cover any description */
   max-height: 1000px;
   transition: max-height 0.25s ease, padding 0.25s ease; /* CSS transitions animate between states  */
 }
-.itemdescription.collapsed {
+.item.collapsed {
   max-height: 0;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
