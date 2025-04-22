@@ -1,6 +1,7 @@
 import feedparser
 import xml.etree.ElementTree as ET
 import argparse
+import xml.dom.minidom
 
 # Set up argument parser
 parser = argparse.ArgumentParser(description="Filter an RSS feed based on keywords.")
@@ -31,6 +32,17 @@ def load_filter_keywords(file_path):
     except FileNotFoundError:
         print(f"Error: Keywords file {file_path} not found.")
         exit(1)
+def save_pretty_xml(output_file, tree):
+    """Save the XML tree to the file with pretty printing."""
+    # Convert the tree to a string
+    xml_str = ET.tostring(tree.getroot(), encoding='utf-8', method='xml')
+    
+    # Use minidom to format the string with indentation
+    pretty_xml = xml.dom.minidom.parseString(xml_str).toprettyxml(indent="  ")
+    
+    # Write the pretty-printed XML to the file
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(pretty_xml)
 
 def filter_rss_entries(input_file, output_file, keywords_file):
     """Filter RSS feed entries based on keywords."""
@@ -75,10 +87,9 @@ def filter_rss_entries(input_file, output_file, keywords_file):
     # Create the XML tree for the filtered feed
     filtered_tree = ET.ElementTree(filtered_root)
 
-    # Save the filtered feed to a new RSS file
+        # Save the filtered feed to a new RSS file using the pretty print function
     try:
-        with open(output_file, 'wb') as f:
-            filtered_tree.write(f, encoding='utf-8', xml_declaration=True)
+        save_pretty_xml(output_file, filtered_tree)
         print(f"Filtered RSS feed saved to {output_file}.")
     except Exception as e:
         print(f"Error saving filtered feed: {e}")

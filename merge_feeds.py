@@ -2,7 +2,7 @@ import time
 from urllib.parse import urlparse
 import feedparser
 from feedgen.feed import FeedGenerator
-from datetime import datetime
+from datetime import datetime, timezone
 import argparse
 import requests
 import pprint
@@ -82,7 +82,7 @@ def merge_feeds(feeds_file, output_file):
             fe = fg.add_entry()
             fe.title(entry.get('title', 'No Title'))
             fe.link(href=entry.get('link', ''))
-            fe.pubDate(entry.get('published', datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S +0000')))
+            fe.pubDate(entry.get('published', datetime.now(timezone.utc).strftime('%a, %d %b %Y %H:%M:%S +0000')))
             fe.description(entry.get('summary', ''))
             total_entries += 1
 
