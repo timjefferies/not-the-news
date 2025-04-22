@@ -5,6 +5,9 @@
 :root {
   --bg: #f5f5f5;
   --fg: darkslategrey;
+  --card-bg: #ffffff;
+  --card-border: #EEE;
+  --card-shadow-color: lightgrey;
 }
 
 /* Tell browser we support both light & dark */
@@ -15,8 +18,11 @@ html {
 /* System dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #000000;
-    --fg: #ffffff;
+    --bg: #282a36;
+    --fg: #f8f8f2;
+    --card-bg: #44475a;
+    --card-border: #6272a4;
+    --card-shadow-color: rgba(0,0,0,0.5);
   }
   body, html {
     background-image: none;
@@ -27,6 +33,9 @@ html {
 html.light {
   --bg: #f5f5f5;
   --fg: darkslategrey;
+  --card-bg: #ffffff;
+  --card-border: #EEE;
+  --card-shadow-color: lightgrey;
   /* show noise background */
   background-image: url("data:image/svg+xml;utf8,\
 <svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'>\
@@ -44,8 +53,11 @@ html.light {
 }
 
 html.dark {
-  --bg: #000000;
-  --fg: #ffffff;
+  --bg: #282a36;
+  --fg: #f8f8f2;
+  --card-bg: #44475a;
+  --card-border: #6272a4;
+  --card-shadow-color: rgba(0,0,0,0.5);
   background-image: none;
 }
 
@@ -56,14 +68,13 @@ body, html {
   word-break: break-word;
   font-size: calc(18px + .5vw);
   background-color: var(--bg);
-  /* default noise, overridden in dark or manual */
   background-image: url("data:image/svg+xml;utf8,\
 <svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'>\
 <defs>\
 <filter id='tileableNoise' x='0%' y='0%' width='100%' height='100%'>\
 <feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch' result='noise'/>\
 <feColorMatrix in='noise' type='saturate' values='0'/>\
-<feComponentTransfer><feFuncA type='linear' slope='0.05'/></feFuncA>\
+<feComponentTransfer><feFuncA type='linear' slope='0.05'/></feComponentTransfer>\
 </filter>\
 </defs>\
 <rect width='100%' height='100%' fill='%23f5f5f5'/>\
@@ -97,7 +108,7 @@ button.close:hover {
   color: gray;
   font-style: italic;
   font-size: medium;
-  background-color: white;
+  background-color: var(--card-bg);
 }
 
 .pubdate p, .itemfrom p {
@@ -158,7 +169,7 @@ a:hover { color: darkslateblue; }
 h2, h3 {
   font-family: 'Prata', serif;
   font-weight: 100;
-  color: darkslategrey;
+  color: var(--fg);
 }
 
 h3 { margin-top: 2em; font-size: large; }
@@ -168,9 +179,9 @@ h3 { margin-top: 2em; font-size: large; }
 .itembox { margin-top: 2em; }
 
 .item {
-  border: 1px solid #EEE;
-  background-color: white;
-  box-shadow: 1px 1px 100px 1px lightgrey;
+  border: 1px solid var(--card-border);
+  background-color: var(--card-bg);
+  box-shadow: 1px 1px 100px 1px var(--card-shadow-color);
   align-content: center;
   margin-bottom: 1.4em;
   border-radius: 40px;
@@ -185,12 +196,12 @@ h3 { margin-top: 2em; font-size: large; }
   gap: 1rem;
   border-radius: 40px 40px 0 0;
   padding: 0.75em 3rem 0.2em 1.2em;
-  border-bottom: 1px solid lightgrey;
+  border-bottom: 1px solid var(--card-border);
   font-size: 1.5rem !important;
   font-family: 'Prata', serif;
   text-transform: capitalize;
   line-height: 1.4em;
-  background: linear-gradient(360deg, aliceblue 0%, transparent);
+  background: linear-gradient(360deg, var(--bg) 0%, transparent);
   margin-top: -0.3em;
 }
 
@@ -266,11 +277,11 @@ h3 { margin-top: 2em; font-size: large; }
 }
 
 .modal-content {
-  background-color: #fefefe;
+  background-color: var(--card-bg);
   margin: 10% auto;
   padding: 2em;
   border-radius: 20px;
-  border: 1px solid #888;
+  border: 1px solid var(--card-border);
   width: 80%;
 }
 
@@ -280,7 +291,7 @@ h3 { margin-top: 2em; font-size: large; }
 
 @keyframes fadeOutUp {
   from { opacity: 1; transform: translateY(0); }
-  to   { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 0; transform: translateY(-20px); }
 }
 
 .fade-out-up { animation: fadeOutUp 0.5s ease forwards; }
@@ -293,16 +304,9 @@ h3 { margin-top: 2em; font-size: large; }
 .translate-y-4 { transform: translateY(-1rem); opacity: 0; }
 
 /* Responsive breakpoints */
-
-/* Small phones (up to 480px) */
 @media (max-width: 480px) {
-  body, html {
-    font-size: 14px;
-  }
-  p {
-    font-size: 1rem !important;
-    line-height: 1.4 !important;
-  }
+  body, html { font-size: 14px; }
+  p { font-size: 1rem !important; line-height: 1.4 !important; }
   .item {
     max-width: 95%;
     border-radius: 20px;
@@ -323,15 +327,9 @@ h3 { margin-top: 2em; font-size: large; }
   }
 }
 
-/* Medium phones (481px to 767px) */
 @media (min-width: 481px) and (max-width: 767px) {
-  body, html {
-    font-size: 16px;
-  }
-  p {
-    font-size: 1rem !important;
-    line-height: 1.5 !important;
-  }
+  body, html { font-size: 16px; }
+  p { font-size: 1rem !important; line-height: 1.5 !important; }
   .item {
     max-width: 90%;
     border-radius: 30px;
@@ -342,19 +340,12 @@ h3 { margin-top: 2em; font-size: large; }
     font-size: 1.5rem !important;
     padding: 0.75em 2.5rem 0.2em 1.2em;
   }
-  button.close {
-    font-size: 1.5rem;
-  }
+  button.close { font-size: 1.5rem; }
 }
 
-/* Tablets (768px to 1023px) */
 @media (min-width: 768px) and (max-width: 1023px) {
-  body, html {
-    font-size: calc(18px + .2vw);
-  }
-  p {
-    line-height: 1.6 !important;
-  }
+  body, html { font-size: calc(18px + .2vw); }
+  p { line-height: 1.6 !important; }
   .item {
     max-width: 85%;
     border-radius: 40px;
@@ -365,12 +356,9 @@ h3 { margin-top: 2em; font-size: large; }
     font-size: 1.75rem !important;
     padding: 0.75em 3rem 0.2em 1.2em;
   }
-  button.close {
-    font-size: 2rem;
-  }
+  button.close { font-size: 2rem; }
 }
 
-/* Desktops (1024px and up) */
 @media (min-width: 1024px) {
   .item {
     float: unset;
