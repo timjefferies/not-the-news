@@ -14,10 +14,12 @@
 
   <div id="header">
     <h2>Not The News</h2>
+    <!-- Theme toggle -->
+    <button id="theme-toggle" aria-label="Toggle theme" style="margin-left:1rem;font-size:1.2rem;">🌓</button>
   </div>
 
   <main id="items">
-    <template x-for="(entry, idx) in entries" :key="idx">
+  <template x-for="(entry, idx) in entries" :key="idx">
       <div class="item" x-show="!hiddenSet.has(entry.link)" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 transform" x-transition:leave-end="opacity-0 transform -translate-y-4">
         <div class="itemtitle">
           <a :href="entry.link" target="_blank" x-text="entry.title"></a>
@@ -79,6 +81,32 @@
         }
       }
     }
+  </script>
+    <!-- Theme toggle script -->
+  <script>
+    (function() {
+      const html = document.documentElement;
+      const toggle = document.getElementById('theme-toggle');
+      // Determine initial theme
+      const stored = localStorage.getItem('theme');
+      if (stored === 'dark' || stored === 'light') {
+        html.classList.add(stored);
+      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        html.classList.add('dark');
+      } else {
+        html.classList.add('light');
+      }
+      // Toggle on click
+      toggle.addEventListener('click', () => {
+        if (html.classList.contains('dark')) {
+          html.classList.replace('dark','light');
+          localStorage.setItem('theme','light');
+        } else {
+          html.classList.replace('light','dark');
+          localStorage.setItem('theme','dark');
+        }
+      });
+    })();
   </script>
 </body>
 </html>
