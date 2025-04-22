@@ -51,7 +51,7 @@ html.dark {
   a:visited { color: #0060A8; }
   a:hover { color: #33A8FF; }
   background-image: none;
-  .itemtitle a { color: floralwhite; }
+  .itemtitle a { color: white; }
   button.close { background: var(--bg); box-shadow: -1px 1px 0 1px var(--card-shadow-color); color: var(--fg); }
   button.close:hover { background: var(--fg); color: var(--bg); }
   #header { text-shadow: 2px 2px black; }

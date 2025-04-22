@@ -7,6 +7,8 @@ window.rssApp = function() {
     loading: true,
 
     async init() {
+      this.initTheme();
+
       // 1) Restore hidden links
       const stored = JSON.parse(localStorage.getItem('hidden') || '[]');
       this.hiddenSet = new Set(stored);
@@ -31,6 +33,32 @@ window.rssApp = function() {
       } finally {
         this.loading = false;
       }
+    },
+
+    initTheme() {
+      const html = document.documentElement;
+      const toggle = document.getElementById('theme-toggle');
+      if (!toggle) return;
+
+      // Initialize theme
+      const saved = localStorage.getItem('theme');
+      if (saved === 'dark' || saved === 'light') {
+        html.classList.add(saved);
+        toggle.checked = (saved === 'dark');
+      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        html.classList.add('dark');
+        toggle.checked = true;
+      } else {
+        html.classList.add('light');
+      }
+
+      // Listen for toggle
+      toggle.addEventListener('change', () => {
+        const newTheme = toggle.checked ? 'dark' : 'light';
+        html.classList.remove(toggle.checked ? 'light' : 'dark');
+        html.classList.add(newTheme);
+        localStorage.setItem('theme', newTheme);
+      });
     },
 
     animateClose(event, link) {
@@ -68,3 +96,4 @@ window.rssApp = function() {
     }
   };
 };
+

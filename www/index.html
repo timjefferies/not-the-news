@@ -23,7 +23,11 @@
 
   <!-- Header -->
   <header id="header" x-show="!loading" class="header">
-    <h1>Not The News</h1>
+    <h2>Not The News</h2>
+    <label class="switch" for="theme-toggle">
+       <input type="checkbox" id="theme-toggle" aria-label="Toggle light/dark theme">
+       <span class="slider"></span>
+    </label>
     <button id="scroll-to-top-button" @click="scrollToTop()">↑</button>
   </header>
 
