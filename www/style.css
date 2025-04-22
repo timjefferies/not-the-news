@@ -9,22 +9,20 @@ body, html {
   background-color: #f5f5f5;
   background-image: url("data:image/svg+xml;utf8,\
 <svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'>\
-  <defs>\
-    <filter id='tileableNoise' x='0%' y='0%' width='100%' height='100%'>\
-      <feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch' result='noise'/>\
-      <feColorMatrix in='noise' type='saturate' values='0'/>\
-      <feComponentTransfer><feFuncA type='linear' slope='0.05'/></feComponentTransfer>\
-    </filter>\
-  </defs>\
-  <rect width='100%' height='100%' fill='%23f5f5f5'/>\
-  <rect width='100%' height='100%' filter='url(%23tileableNoise)'/>\
+ <defs>\
+  <filter id='tileableNoise' x='0%' y='0%' width='100%' height='100%'>\
+   <feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch' result='noise'/>\
+   <feColorMatrix in='noise' type='saturate' values='0'/>\
+   <feComponentTransfer><feFuncA type='linear' slope='0.05'/></feComponentTransfer>\
+  </filter>\
+ </defs>\
+ <rect width='100%' height='100%' fill='%23f5f5f5'/>\
+ <rect width='100%' height='100%' filter='url(%23tileableNoise)'/>\
 </svg>");
   background-repeat: repeat;
 }
 
-title {
-  display: none;
-}
+title { display: none; }
 
 button.close {
   float: right;
@@ -57,9 +55,7 @@ button.close:hover {
   line-height: 0;
 }
 
-.spacer {
-  margin: 1.4vh;
-}
+.spacer { margin: 1.4vh; }
 
 .itemdate h3 {
   margin-top: 0;
@@ -75,48 +71,29 @@ img {
 }
 
 .itemdescription {
+  font-family: auto;
   padding: 3em 2.8em;
   padding-top: 1em;
   width: auto;
 }
 
-table {
-  min-width: -webkit-fill-available;
-}
+table { min-width: -webkit-fill-available; }
 
-td {
-  width: 60%;
-}
+td { width: 60%; }
 
-td p a, td a, span {
-  display: grid;
-}
+td p a, td a, span { display: grid; }
 
-td p a {
-  padding-left: 3em;
-}
+td p a { padding-left: 3em; }
 
-td a {
-  line-height: 1.6;
-}
+td a { line-height: 1.6; }
 
-p {
-  line-height: 1.6 !important;
-}
+p { line-height: 1.6 !important; }
 
-a {
-  text-decoration: none;
-  transition: color .3s linear;
-  color: steelblue;
-}
+a { text-decoration: none; transition: color .3s linear; color: steelblue; }
 
-a:visited {
-  color: grey;
-}
+a:visited { color: grey; }
 
-a:hover {
-  color: darkslateblue;
-}
+a:hover { color: darkslateblue; }
 
 #header {
   font-family: 'Prata', serif;
@@ -134,19 +111,11 @@ h2, h3 {
   color: darkslategrey;
 }
 
-h3 {
-  margin-top: 2em;
-  font-size: large;
-}
+h3 { margin-top: 2em; font-size: large; }
 
-#items {
-  width: 100%;
-  display: block;
-}
+#items { width: 100%; display: block; }
 
-.itembox {
-  margin-top: 2em;
-}
+.itembox { margin-top: 2em; }
 
 .item {
   border: 1px solid #EEE;
@@ -255,75 +224,103 @@ h3 {
   width: 80%;
 }
 
-.modal-content form {
-  padding: 1px;
-  line-height: 1.6;
-}
-
-.modal-content h2 {
-  margin-top: 0;
-}
-
-.modal-content textarea {
-  width: -webkit-fill-available;
-}
+.modal-content form { padding: 1px; line-height: 1.6; }
+.modal-content h2 { margin-top: 0; }
+.modal-content textarea { width: -webkit-fill-available; }
 
 @keyframes fadeOutUp {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-20px); }
 }
 
-.fade-out-up {
-  animation: fadeOutUp 0.5s ease forwards;
-}
+.fade-out-up { animation: fadeOutUp 0.5s ease forwards; }
+
 /* Define the transition properties */
-.transition-all {
-  transition: all 0.5s ease;
-}
+.transition-all { transition: all 0.5s ease; }
 
 /* Define the transform and opacity for the leaving state */
-.translate-y-0 {
-  transform: translateY(0);
-  opacity: 1;
-}
+.translate-y-0 { transform: translateY(0); opacity: 1; }
+.translate-y-4 { transform: translateY(-1rem); opacity: 0; }
 
-.translate-y-4 {
-  transform: translateY(-1rem); /* Adjust the value as needed */
-  opacity: 0;
-}
+/* Responsive breakpoints */
 
-
-@media (max-width: 512px) {
-  body {
-    font-size: x-large !important;
+/* Small phones (up to 480px) */
+@media (max-width: 480px) {
+  body, html {
+    font-size: 14px;
   }
   p {
-    font-size: inherit !important;
-    line-height: 1.35 !important;
+    font-size: 1rem !important;
+    line-height: 1.4 !important;
   }
   .item {
     max-width: 95%;
     border-radius: 20px;
+    margin: 1em auto;
+    float: none;
   }
   .itemtitle {
-    font-size: xxx-large;
+    font-size: 1.25rem !important;
+    padding: 0.5em 2rem 0.2em 1em;
   }
   button.close {
+    font-size: 1.25rem;
     border-radius: 0 20px 0 20px;
     opacity: 0.6;
     position: absolute;
     top: 0.5rem;
     right: 0.5rem;
-    float: none;
   }
 }
 
+/* Medium phones (481px to 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+  body, html {
+    font-size: 16px;
+  }
+  p {
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+  }
+  .item {
+    max-width: 90%;
+    border-radius: 30px;
+    margin: 1.5em auto;
+    float: none;
+  }
+  .itemtitle {
+    font-size: 1.5rem !important;
+    padding: 0.75em 2.5rem 0.2em 1.2em;
+  }
+  button.close {
+    font-size: 1.5rem;
+  }
+}
+
+/* Tablets (768px to 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  body, html {
+    font-size: calc(18px + .2vw);
+  }
+  p {
+    line-height: 1.6 !important;
+  }
+  .item {
+    max-width: 85%;
+    border-radius: 40px;
+    margin: 1.5em auto;
+    float: none;
+  }
+  .itemtitle {
+    font-size: 1.75rem !important;
+    padding: 0.75em 3rem 0.2em 1.2em;
+  }
+  button.close {
+    font-size: 2rem;
+  }
+}
+
+/* Desktops (1024px and up) */
 @media (min-width: 1024px) {
   .item {
     float: unset;
@@ -331,5 +328,4 @@ h3 {
     margin-right: 20%;
   }
 }
-
 
