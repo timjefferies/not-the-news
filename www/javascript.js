@@ -38,18 +38,22 @@ window.rssApp = function() {
     initTheme() {
       const html = document.documentElement;
       const toggle = document.getElementById('theme-toggle');
-      if (!toggle) return;
+      const themeText = document.getElementById('theme-text');
+      if (!toggle || !themeText) return;  // Ensure both elements exist
 
       // Initialize theme
       const saved = localStorage.getItem('theme');
       if (saved === 'dark' || saved === 'light') {
         html.classList.add(saved);
         toggle.checked = (saved === 'dark');
+	themeText.textContent = saved;
       } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
         html.classList.add('dark');
         toggle.checked = true;
+	themeText.textContent = 'dark';
       } else {
         html.classList.add('light');
+	themeText.textContent = 'light';
       }
 
       // Listen for toggle
@@ -58,6 +62,7 @@ window.rssApp = function() {
         html.classList.remove(toggle.checked ? 'light' : 'dark');
         html.classList.add(newTheme);
         localStorage.setItem('theme', newTheme);
+	themeText.textContent = newTheme;
       });
     },
 

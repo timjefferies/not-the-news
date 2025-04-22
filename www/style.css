@@ -210,6 +210,11 @@ a:hover { color: darkslateblue; }
 .switch input:checked + .slider::before {
   transform: translateX(26px);
 }
+#theme-text {
+  margin-left: -10px;
+  font-size: medium;
+  vertical-align: middle;
+}
 
 h2, h3 {
   font-family: 'Prata', serif;

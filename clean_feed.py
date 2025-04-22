@@ -106,7 +106,7 @@ def clean_feed(input_file, output_file):
 
     fg = FeedGenerator()
     fg.title(feed.feed.get('title', 'Cleaned Feed'))
-    fg.link(href=feed.feed.get('link', ''), rel='alternate')
+    fg.link(href=str(feed.feed.get('link', '')), rel='alternate')
     fg.description(feed.feed.get('description', 'Cleaned feed.'))
     fg.language(feed.feed.get('language', 'en'))
     fg.docs(feed.feed.get('docs', ''))
@@ -115,7 +115,7 @@ def clean_feed(input_file, output_file):
     for entry in cleaned_entries:
         fe = fg.add_entry()
         fe.title(entry['title'])
-        fe.link(href=entry['link'])
+        fe.link(href=str(entry['link']))
         fe.pubDate(get_pub_date(entry))
         desc = entry['description'] or 'No description available'
         fe.description(desc)
