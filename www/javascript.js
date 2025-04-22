@@ -74,8 +74,8 @@ window.rssApp = function() {
           const next = all.slice(idx + 1);
           const delta = itemEl.offsetHeight + parseFloat(getComputedStyle(itemEl).marginBottom);
           next.forEach(el => {
-            el.style.transition = 'transform 0.125s ease';
-            el.style.transform = `translateY(-${delta}px)`;
+            el.style.transition = 'transform 0.250s ease';
+            el.style.transform = `translateY(-500-${delta}px)`;
             el.addEventListener('transitionend', () => {
               el.style.transition = '';
               el.style.transform = '';
@@ -83,7 +83,7 @@ window.rssApp = function() {
           });
           this.hide(link);
         }, { once: true });
-      }, 125);
+      }, 250);
     },
 
     hide(link) {
