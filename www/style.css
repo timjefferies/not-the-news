@@ -49,9 +49,9 @@ html.dark {
   --card-shadow-color: rgba(0,0,0,0.5);
   a { color: #0079D3; }
   a:visited { color: #0060A8; }
-  a:hover { color: cornflowerblue; }
   background-image: none;
   .itemtitle a { color: white; }
+  .itemtitle a:hover { color: cornflowerblue; }
   button.close { background: var(--bg); box-shadow: -1px 1px 0 1px var(--card-shadow-color); color: var(--fg); }
   button.close:hover { background: var(--fg); color: var(--bg); }
   #header { text-shadow: 2px 2px black; }

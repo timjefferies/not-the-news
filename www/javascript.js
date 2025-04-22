@@ -94,41 +94,43 @@ window.rssApp = function() {
       });
     },
 
-    animateClose(event, link) {
-      const itemEl = event.target.closest('.item');
-      const desc   = itemEl.querySelector('.itemdescription');
-      desc.classList.add('collapsed');
+animateClose(event, link) {
+  const itemEl = event.target.closest('.item');
+  const desc   = itemEl.querySelector('.itemdescription');
+  desc.classList.add('collapsed');
 
-      setTimeout(() => {
-        itemEl.classList.add('slide-right');
-        itemEl.addEventListener('transitionend', () => {
-          const siblings = Array.from(itemEl.parentElement.querySelectorAll('.item'));
-          const index    = siblings.indexOf(itemEl);
-          const nextEls  = siblings.slice(index + 1);
-          const delta    = itemEl.offsetHeight + parseFloat(getComputedStyle(itemEl).marginBottom);
+  setTimeout(() => {
+    itemEl.classList.add('slide-right');
+    itemEl.addEventListener('transitionend', () => {
+      const siblings = Array.from(itemEl.parentElement.querySelectorAll('.item'));
+      const index    = siblings.indexOf(itemEl);
+      const nextEls  = siblings.slice(index + 1);
+      const delta    = itemEl.offsetHeight + parseFloat(getComputedStyle(itemEl).marginBottom);
 
-          nextEls.forEach(el => {
-            el.style.transition = 'transform 0.25s ease';
-            el.style.transform  = `translateY(-${delta}px)`;
-            el.addEventListener('transitionend', () => {
-              el.style.transition = '';
-              el.style.transform  = '';
-            }, { once: true });
-          });
-
-          this.hide(link);
+      nextEls.forEach(el => {
+        el.style.transition = 'transform 0.25s ease';
+        el.style.transform  = `translateY(-${delta}px)`;
+        el.addEventListener('transitionend', () => {
+          el.style.transition = '';
+          el.style.transform  = '';
         }, { once: true });
-      }, 250);
-    },
+      });
 
-    hide(link) {
-      this.hiddenSet.add(link);
-      localStorage.setItem('hidden', JSON.stringify([...this.hiddenSet]));
-    },
+      this.hide(link);
+    }, { once: true });
+  }, 250);
+},
 
-    scrollToTop() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+hide(link) {
+  // Build a brand‑new Set (this triggers Alpine reactivity)
+  this.hiddenSet = new Set([...this.hiddenSet, link]);
+  localStorage.setItem('hidden', JSON.stringify([...this.hiddenSet]));
+},
+
+scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
   };
 };
 
