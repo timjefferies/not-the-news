@@ -7,12 +7,26 @@ from datetime import datetime, timezone
 import argparse
 
 def clean_text(text):
-    """Remove HTML tags, decode entities, and sanitize text to ASCII-safe."""
+    """Remove HTML tags, decode entities, convert HTML line breaks to newlines, and sanitize text to ASCII-safe."""
     if not text:
         return ""
-    text = re.sub(r'<[^>]+>', '', text)
+
+    # Convert HTML <br>, <br/>, etc. to newlines
+    text = re.sub(r'(?i)<br\s*/?>', '\n', text)
+
+    # Decode HTML entities like &amp;, &lt;, etc.
     text = unescape(text)
+
+    # Convert common numeric carriage return entities to newlines
+    text = re.sub(r'&#13;|&#x0?D;', '\n', text, flags=re.IGNORECASE)
+
+    # Remove remaining HTML tags
+    text = re.sub(r'<[^>]+>', '', text)
+
+    # Remove any leftover named or numeric entities
     text = re.sub(r'&[a-zA-Z0-9#]+;', '', text)
+
+    # Keep only ASCII characters and apostrophes
     return ''.join(c for c in text if ord(c) < 128 or c == "'")
 
 def clean_feed_entries(entries):
