@@ -1,116 +1,50 @@
 <!DOCTYPE html>
-<html lang="en" x-data="rssApp()" x-init="init()">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Not The News</title>
-  <link rel="icon" href="data:,">
+
+  <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css" />
+
+  <!-- RSS Parser -->
   <script defer src="https://cdn.jsdelivr.net/npm/rss-parser@3.13.0/dist/rss-parser.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- App logic (defines window.rssApp) -->
+  <script defer src="javascript.js"></script>
+  <!-- Alpine.js -->
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body>
-  <div id="loading-screen" x-show="loading">Loading...</div>
-  
-  <div id="header">
-    <h2>Not The News</h2>
-    <label class="switch" for="theme-toggle">
-      <input type="checkbox" id="theme-toggle" aria-label="Toggle light/dark theme">
-      <span class="slider"></span>
-    </label>
+<body x-data="rssApp()" x-init="init()">
+  <!-- Loading screen -->
+  <div id="loading-screen" x-show="loading" class="loading-screen">
+    Loading…
   </div>
-  
-  <main id="items">
-    <template x-for="(entry, idx) in entries" :key="idx">
-      <div class="item"
-           x-show="!hiddenSet.has(entry.link)"
-           x-transition:leave="transition ease-in duration-300"
-           x-transition:leave-start="opacity-100 transform"
-           x-transition:leave-end="opacity-0 transform -translate-y-4">
+
+  <!-- Header -->
+  <header id="header" x-show="!loading" class="header">
+    <h1>Not The News</h1>
+    <button id="scroll-to-top-button" @click="scrollToTop()">↑</button>
+  </header>
+
+  <!-- Feed items -->
+  <main id="items" x-show="!loading">
+    <!-- Repeat each entry -->
+    <template x-for="(entry, idx) in entries" :key="entry.link + idx">
+      <div class="item" x-show="!hiddenSet.has(entry.link)">
         <div class="itemtitle">
           <a :href="entry.link" target="_blank" x-text="entry.title"></a>
-          <button class="close" @click="hide(entry.link)">✕</button>
+          <button class="close" @click="animateClose($event, entry.link)">✕</button>
         </div>
+        <div class="itemdescription">
         <div class="itemfrom">
           <p x-text="entry.pubDate"></p>
         </div>
-        <div class="itemdescription">
           <span x-text="entry.description"></span>
         </div>
       </div>
     </template>
   </main>
-
-  <button id="scroll-to-top-button" @click="scrollToTop()">↑</button>
-
-  <script>
-    function rssApp() {
-      return {
-        entries: [],
-        hiddenSet: new Set(),
-        loading: true,
-        init() {
-          const stored = JSON.parse(localStorage.getItem('hidden') || '[]');
-          this.hiddenSet = new Set(stored);
-          const parser = new RSSParser();
-          fetch('https://news.loveopenly.net/feed.xml')
-            .then(response => response.text())
-            .then(str => parser.parseString(str))
-            .then(feed => {
-              this.loading = false;
-              this.entries = feed.items.map(item => {
-                const rawDescription = item.content || item.contentSnippet || item.summary || item.description || '';
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = rawDescription;
-                const cleanText = tempDiv.textContent || tempDiv.innerText || '';
-                return {
-                  title: item.title,
-                  link: item.link,
-                  pubDate: item.pubDate || item.isoDate || 'Unknown date',
-                  description: cleanText.trim()
-                };
-              });
-            })
-            .catch(err => {
-              this.loading = false;
-              console.error('RSS fetch/parse error:', err);
-            });
-        },
-        hide(link) {
-          this.hiddenSet.add(link);
-          localStorage.setItem('hidden', JSON.stringify([...this.hiddenSet]));
-        },
-        scrollToTop() {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      };
-    }
-  </script>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const html = document.documentElement;
-      const toggle = document.getElementById('theme-toggle');
-      // Initialize theme
-      const saved = localStorage.getItem('theme');
-      if (saved === 'dark' || saved === 'light') {
-        html.classList.add(saved);
-        toggle.checked = (saved === 'dark');
-      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        html.classList.add('dark');
-        toggle.checked = true;
-      } else {
-        html.classList.add('light');
-      }
-      // Listen for toggle
-      toggle.addEventListener('change', () => {
-        const newTheme = toggle.checked ? 'dark' : 'light';
-        html.classList.remove(toggle.checked ? 'light' : 'dark');
-        html.classList.add(newTheme);
-        localStorage.setItem('theme', newTheme);
-      });
-    });
-  </script>
 </body>
 </html>
 

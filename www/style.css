@@ -14,14 +14,14 @@ html {
   color-scheme: light dark;
 }
 
-/* Theme */
+/* System dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #282a36;
-    --fg: #f8f8f2;
-    --card-bg: #44475a;
-    --card-border: #6272a4;
-    --card-shadow-color: rgba(0,0,0,0.5);
+  --bg: #f5f5f5;
+  --fg: darkslategrey;
+  --card-bg: #ffffff;
+  --card-border: #EEE;
+  --card-shadow-color: lightgrey;
   }
   body, html {
     background-image: none !important;
@@ -51,7 +51,7 @@ html.dark {
   a:visited { color: #0060A8; }
   a:hover { color: #33A8FF; }
   background-image: none;
-  .itemtitle a { color: var(--fg); }
+  .itemtitle a { color: floralwhite; }
   button.close { background: var(--bg); box-shadow: -1px 1px 0 1px var(--card-shadow-color); color: var(--fg); }
   button.close:hover { background: var(--fg); color: var(--bg); }
   #header { text-shadow: 2px 2px black; }
@@ -102,8 +102,8 @@ button.close:hover {
 }
 
 .pubdate, .itemfrom {
-  padding-right: 4em;
-  padding-top: 0.5em;
+  padding-right: 1em;
+  padding-bottom: 0.5em;
   text-align: right;
   color: gray;
   font-style: italic;
@@ -133,8 +133,7 @@ img {
 
 .itemdescription {
   font-family: auto;
-  padding: 2em 1.8em;
-  padding-top: 1em;
+  padding: 2em 1.8em 0.5em;
   width: auto;
 }
 
@@ -328,6 +327,27 @@ h3 { margin-top: 2em; font-size: large; }
 .translate-y-0 { transform: translateY(0); opacity: 1; }
 .translate-y-4 { transform: translateY(-1rem); opacity: 0; }
 
+/* 1. Collapse description from bottom to top */
+.itemdescription {
+  overflow: hidden;
+  /* a big enough max-height to cover any description */
+  max-height: 1000px;
+  transition: max-height 0.25s ease, padding 0.25s ease; /* CSS transitions animate between states  */
+}
+.itemdescription.collapsed {
+  max-height: 0;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* 2. Slide item off to the right */
+.item.slide-right {
+  transition: transform 0.25s ease; /* animate transform property  */
+  transform: translateX(100%);
+}
+
+
+
 /* Responsive breakpoints */
 @media (max-width: 480px) {
   body, html { font-size: 14px; }
@@ -341,7 +361,7 @@ h3 { margin-top: 2em; font-size: large; }
   button.close { font-size: 1.25rem; border-radius: 0 10px 0 10px;
     opacity: 0.6; position: absolute; top: 0.5rem; right: 0.5rem;
   }
-  .itemdescription { padding: 1em 1.8em !important; }
+  .itemdescription { padding: 1em 1.8em 2em !important; }
 }
 
 @media (min-width: 481px) and (max-width: 767px) {
@@ -351,7 +371,7 @@ h3 { margin-top: 2em; font-size: large; }
   .itemtitle { font-size: 1.5rem !important;
     padding: 0.75em 2.5rem 0.2em 1.2em;
   }
-  .itemdescription { padding: 1em 1.8em !important; }
+  .itemdescription { padding: 1em 1.8em 2em !important; }
   button.close { font-size: 1.5rem; }
 }
 
