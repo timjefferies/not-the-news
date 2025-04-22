@@ -14,7 +14,7 @@ html {
   color-scheme: light dark;
 }
 
-/* System dark mode */
+/* Theme */
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #282a36;
@@ -56,6 +56,21 @@ html.dark {
   button.close:hover { background: var(--fg); color: var(--bg); }
   #header { text-shadow: 2px 2px black; }
 }
+/* make the cog button match your dark theme */
+html.dark .cog-wheel-button {
+  background: var(--card-bg);
+  box-shadow: -1px 1px 0 1px var(--card-shadow-color);
+  color: var(--fg);
+}
+html.dark .cog-wheel-button:hover {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+html.dark .switch input:checked + .slider {
+  background-color: #4c4c4c;
+}
+
 
 /* Apply variables */
 body, html {
@@ -141,8 +156,7 @@ a:hover { color: darkslateblue; }
 
 /* Updated header: sticky and flex */
 #header {
-  position: sticky;
-  top: 0;
+  position: static;
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -320,7 +334,7 @@ h3 { margin-top: 2em; font-size: large; }
   p { font-size: 1rem !important; line-height: 1.4 !important; }
   .pubdate p, .itemfrom p { font-size: x-small !important; }
   .pubdate, .itemfrom { padding-right: 0.5em; }
-  .item { max-width: 95%; border-radius: 10px; margin: 1em auto; float: none; }
+  .item { max-width: 100%; border-radius: 10px; margin: 1em auto; float: none; }
   .itemtitle { font-size: 1.25rem !important;
     padding: 1em 3rem 0.5em 0.75em;
   }
@@ -354,5 +368,24 @@ h3 { margin-top: 2em; font-size: large; }
 
 @media (min-width: 1024px) {
   .item { float: unset; margin-left: 20%; margin-right: 20%; }
+  #header {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* centers everything by default */
+    position: relative;       /* only needed if you absolute‐center the H2 below */
+  }
+
+  /* absolute‐center the H2 */
+  #header h2 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* push the switch off to the right */
+  #header .switch {
+    margin-left: auto;
+    margin-right: 1rem;  /* match your padding */
+  }
 }
 
