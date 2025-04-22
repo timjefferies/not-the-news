@@ -49,7 +49,7 @@ html.dark {
   --card-shadow-color: rgba(0,0,0,0.5);
   a { color: #0079D3; }
   a:visited { color: #0060A8; }
-  a:hover { color: #33A8FF; }
+  a:hover { color: cornflowerblue; }
   background-image: none;
   .itemtitle a { color: white; }
   button.close { background: var(--bg); box-shadow: -1px 1px 0 1px var(--card-shadow-color); color: var(--fg); }
@@ -255,6 +255,7 @@ h3 { margin-top: 2em; font-size: large; }
 }
 
 .itemtitle a { flex: 1; word-break: break-word; }
+.itemtitle a:hover { color: cornflowerblue; }
 
 .itemtitle .close {
   position: static;
