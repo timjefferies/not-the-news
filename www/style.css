@@ -87,7 +87,7 @@ title { display: none; }
 button.close {
   float: right;
   border: none;
-  font-size: xxx-large;
+  font-size: xx-large;
   color: steelblue;
   background: aliceblue;
   padding: 0 0.8em;
@@ -133,7 +133,7 @@ img {
 
 .itemdescription {
   font-family: auto;
-  padding: 2em 1.8em 0.5em;
+  padding: 0.25em 1.8em 2em;
   width: auto;
 }
 
@@ -160,9 +160,8 @@ a:hover { color: darkslateblue; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 1rem;
-  background-color: var(--bg);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 1rem 1rem;
+  background-color: transparent;
   font-family: 'Prata', serif;
   text-transform: uppercase;
   text-align: center;
@@ -254,12 +253,13 @@ h3 { margin-top: 2em; font-size: large; }
 
 .itemtitle .close {
   position: static;
-  margin-top: -0.85rem;
+  margin-top: -0.65rem;
   margin-right: -3rem;
   flex-shrink: 0;
 }
 
 #loading-screen {
+  font-family: 'Prata', serif;
   position: fixed;
   top: 0;
   left: 0;
@@ -271,7 +271,7 @@ h3 { margin-top: 2em; font-size: large; }
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  font-size: xxx-large;
+  font-size: xx-large;
 }
 
 #scroll-to-top-button,
@@ -359,9 +359,9 @@ h3 { margin-top: 2em; font-size: large; }
     padding: 1em 3rem 0.5em 0.75em;
   }
   button.close { font-size: 1.25rem; border-radius: 0 10px 0 10px;
-    opacity: 0.6; position: absolute; top: 0.5rem; right: 0.5rem;
-  }
+    opacity: 0.6; position: absolute; top: 0.5rem; right: 0.5rem; margin-top: -0.85rem; }
   .itemdescription { padding: 1em 1.8em 2em !important; }
+  #header { padding: 0rem 1rem; }
 }
 
 @media (min-width: 481px) and (max-width: 767px) {
@@ -382,7 +382,6 @@ h3 { margin-top: 2em; font-size: large; }
   .itemtitle { font-size: 1.75rem !important;
     padding: 0.75em 3rem 0.2em 1.2em;
   }
-  .itemdescription { padding: 1em 1.8em !important; }
   button.close { font-size: 2rem; }
 }
 
@@ -400,6 +399,7 @@ h3 { margin-top: 2em; font-size: large; }
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    font-size: x-large;
   }
 
   /* push the switch off to the right */
