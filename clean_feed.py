@@ -71,14 +71,20 @@ def clean_feed_entries(entries):
         # Clean text fields
         title = clean_text(title)
         description = clean_text(description)
+        
+        # Clean the unwanted fields like 'published', 'published_parsed', 'updated', 'updated_parsed'
+        # Remove them explicitly
+        entry_cleaned = {key: entry[key] for key in entry if key not in ['published', 'published_parsed', 'updated', 'updated_parsed']}
 
-        cleaned.append({
+        entry_cleaned.update({
             'title': title,
             'description': description,
             'link': link,
             'pubDate': pub_date,
             'images': images
         })
+
+        cleaned.append(entry_cleaned)
     return cleaned
 
 def validate_rss_fields(entry):
