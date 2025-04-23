@@ -16,5 +16,5 @@ www/config/
 
 # running it
 export DOCKER_BUILDKIT=1
-docker buildx build --build-arg DOMAIN=yourdomain.tld --build-arg EMAIL=you@yourdomain.tld -t not-the-news-caddy .
-docker run -d -p 80:80 -p 443:443 --name ntn-caddy not-the-news-caddy
+docker buildx build --build-arg DOMAIN=yourdomain.tld --build-arg EMAIL=you@yourdomain.tld -t not-the-news .
+docker run -d -p 80:80 -p 443:443 --name ntn not-the-news

@@ -10,7 +10,6 @@ echo "Starting feed file handler in $SCRIPT_DIR..."
 # Ensure target directory exists
 if [ ! -d "$TARGET_DIR" ]; then
     mkdir -p "$TARGET_DIR"
-    chown www-data:www-data "$TARGET_DIR"
     echo "Created and set ownership for $TARGET_DIR."
 fi
 
