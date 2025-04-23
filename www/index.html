@@ -38,7 +38,7 @@
   <main id="items" x-show="!loading">
     <!-- Repeat each entry -->
     <template x-for="(entry, idx) in entries" :key="entry.link + idx">
-      <div class="item" x-show="!hiddenSet.has(entry.link)">
+      <div class="item" x-show="!hidden.includes(entry.link)">
         <div class="itemtitle">
           <a :href="entry.link" target="_blank" x-text="entry.title"></a>
           <button class="close" @click="animateClose($event, entry.link)">✕</button>
