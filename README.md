@@ -15,4 +15,6 @@ www/config/
 - config.php
 
 # running it
-docker buildx build -t not-the-news .
+export DOCKER_BUILDKIT=1
+docker buildx build --build-arg DOMAIN=yourdomain.tld --build-arg EMAIL=you@yourdomain.tld -t not-the-news-caddy .
+docker run -d -p 80:80 -p 443:443 --name ntn-caddy not-the-news-caddy
