@@ -80,9 +80,19 @@ def filter_rss_entries(input_file, output_file, keywords_file):
 
     # Add filtered entries to the feed
     for entry in filtered_entries:
-        entry_elem = ET.SubElement(channel_elem, 'item')
-        for key, value in entry.items():
-            ET.SubElement(entry_elem, key).text = str(value)
+        item = ET.SubElement(channel_elem, 'item')  # define 'item' here
+        ET.SubElement(item, 'title').text = entry.get('title', '')
+        ET.SubElement(item, 'link').text = entry.link
+        ET.SubElement(item, 'description').text = entry.get('summary', '')
+        ET.SubElement(item, 'pubDate').text = entry.get('published', '')
+        ET.SubElement(item, 'guid').text = entry.get('id', entry.link)
+
+        if 'author' in entry:
+            ET.SubElement(item, 'author').text = entry['author']
+
+        for tag in entry.get('tags', []):
+            ET.SubElement(item, 'category').text = tag.get('term', '')
+
 
     # Create the XML tree for the filtered feed
     filtered_tree = ET.ElementTree(filtered_root)

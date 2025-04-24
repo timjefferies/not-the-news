@@ -54,7 +54,7 @@ def merge_feeds(feeds_file, output_file):
         current_domain = extract_domain(url, domain_cache)
         domain_requests[current_domain] = domain_requests.get(current_domain, 0) + 1
         if domain_requests[current_domain] > 5:
-            print(f"Rate-limiting domain: {domain}. Waiting for {wait_time} seconds...", end='\r', flush=True)
+            print(f"Rate-limiting domain: {current_domain}. Waiting for 10 seconds...", end='\r', flush=True)
             time.sleep(10)
             domain_requests[current_domain] = 0  # Reset counter for domain
 
