@@ -54,7 +54,7 @@ def merge_feeds(feeds_file, output_file):
         current_domain = extract_domain(url, domain_cache)
         domain_requests[current_domain] = domain_requests.get(current_domain, 0) + 1
         if domain_requests[current_domain] > 5:
-            print(f"Rate-limiting domain: {current_domain}. Waiting for 10 seconds...")
+            print(f"Rate-limiting domain: {domain}. Waiting for {wait_time} seconds...", end='\r', flush=True)
             time.sleep(10)
             domain_requests[current_domain] = 0  # Reset counter for domain
 
@@ -70,10 +70,11 @@ def merge_feeds(feeds_file, output_file):
                 feed = feedparser.parse(response.content)
                 break  # Exit loop if successful
             except requests.exceptions.RequestException as e:
+                # this will print an error *and* force a newline
                 print(f"Error fetching feed {url}: {e}")
                 break  # Exit loop for other errors
 
-        print(f"Importing: {url} ({len(feed.entries)} entries)")
+        print(f"Importing: {url} ({len(feed.entries)} entries)", end='\r', flush=True)
         if len(feed.entries) == 0:
             print(f"Debug: No entries found in feed {url}. Feed content: {pprint.pformat(feed)}")
             continue
@@ -81,7 +82,11 @@ def merge_feeds(feeds_file, output_file):
         for entry in feed.entries:
             fe = fg.add_entry()
             fe.title(entry.get('title', 'No Title'))
-            fe.link(href=entry.get('link', ''))
+            fe.link(
+                href=entry['link'],
+                rel='alternate',
+                type='text/html'
+            )
             fe.pubDate(entry.get('published', datetime.now(timezone.utc).strftime('%a, %d %b %Y %H:%M:%S +0000')))
             fe.description(entry.get('summary', ''))
             total_entries += 1
@@ -90,6 +95,7 @@ def merge_feeds(feeds_file, output_file):
     with open(output_file, 'wb') as out:
         out.write(merged_feed)
 
+    print()
     print(f"Merged feed saved to '{output_file}' with {total_entries} entries.")
 
 

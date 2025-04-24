@@ -115,7 +115,11 @@ def clean_feed(input_file, output_file):
     for entry in cleaned_entries:
         fe = fg.add_entry()
         fe.title(entry['title'])
-        fe.link(href=str(entry['link']))
+        fe.link(
+            href=str(entry['link']),
+            rel='alternate',
+            type='text/html'
+        )
         fe.pubDate(get_pub_date(entry))
         desc = entry['description'] or 'No description available'
         fe.description(desc)
