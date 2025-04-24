@@ -106,7 +106,20 @@ def clean_feed(input_file, output_file):
 
     fg = FeedGenerator()
     fg.title(feed.feed.get('title', 'Cleaned Feed'))
-    fg.link(href=str(feed.feed.get('link', '')), rel='alternate')
+    # Extract a real URL if the feed link contains extra text
+
+    raw_link = feed.feed.get('link', '')
+    if isinstance(raw_link, dict):
+        raw_link = raw_link.get('href', '')
+
+    if isinstance(raw_link, str):
+        match = re.search(r'https?://\S+', raw_link)
+        cleaned_link = match.group(0) if match else 'https://example.com/dummy-feed-link'
+    else:
+        cleaned_link = 'https://example.com/dummy-feed-link'
+
+    fg.link(href=cleaned_link, rel='alternate')
+
     fg.description(feed.feed.get('description', 'Cleaned feed.'))
     fg.language(feed.feed.get('language', 'en'))
     fg.docs(feed.feed.get('docs', ''))

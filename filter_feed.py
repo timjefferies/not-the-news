@@ -36,7 +36,7 @@ def save_pretty_xml(output_file, tree):
     """Save the XML tree to the file with pretty printing."""
     # Convert the tree to a string
     xml_str = ET.tostring(tree.getroot(), encoding='utf-8', method='xml')
-    
+
     # Use minidom to format the string with indentation
     pretty_xml = xml.dom.minidom.parseString(xml_str).toprettyxml(indent="  ")
     
@@ -82,7 +82,12 @@ def filter_rss_entries(input_file, output_file, keywords_file):
     for entry in filtered_entries:
         item = ET.SubElement(channel_elem, 'item')  # define 'item' here
         ET.SubElement(item, 'title').text = entry.get('title', '')
-        ET.SubElement(item, 'link').text = entry.link
+        for linkinfo in entry.links:
+            ET.SubElement(item, 'link', attrib={
+                'href': linkinfo['href'],
+                'rel':  linkinfo.get('rel',''),
+                'type': linkinfo.get('type',''),
+                })
         ET.SubElement(item, 'description').text = entry.get('summary', '')
         ET.SubElement(item, 'pubDate').text = entry.get('published', '')
         ET.SubElement(item, 'guid').text = entry.get('id', entry.link)
