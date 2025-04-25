@@ -23,16 +23,26 @@ COPY rss/ /rss/
 COPY www/ /app/www/
 COPY data/ /app/data/
 
-# 6. Generate a *single* site block—Caddy will auto-enable HTTPS
+# 7. Generate a *single* site block—Caddy will auto-enable HTTPS
 RUN cat <<EOF > /etc/caddy/Caddyfile
 {
-  # Global options block: register LE email
+  # Global options: register LE email
   email ${EMAIL}
 }
 
 ${DOMAIN} {
+  # Default: serve your static site
   root * /app/www
   file_server
+
+  # Special case: /feed.xml → data/feed/feed.xml
+  @feed {
+    path /feed.xml
+  }
+  handle @feed {
+    root * /app/data/feed
+    file_server
+  }
 }
 EOF
 
