@@ -1,24 +1,54 @@
 // javascript.js
-// Attach to global so Alpine can see it
 window.rssApp = function() {
+  const FEED_URL = 'https://news.loveopenly.net/feed.xml';
+  const STORAGE_ETAG = 'feed-etag';
+
   return {
     entries: [],
-    hidden: [],
     loading: true,
 
     async init() {
       this.initTheme();
+      await this.loadFeed();
 
-      // 1) Restore hidden links from localStorage
-      const stored = JSON.parse(localStorage.getItem('hidden') || '[]');
-      this.hidden = Array.isArray(stored) ? stored : [];
+      // every N minutes, check for updates
+      setInterval(() => this.loadFeed(), 5 * 60 * 1000);
+    },
 
-      // 2) Fetch & parse RSS
+    async loadFeed() {
+      this.loading = true;
+
+      // get stored ETag (if any)
+      const prevEtag = localStorage.getItem(STORAGE_ETAG);
+
+      // build conditional headers
+      const headers = {};
+      if (prevEtag) {
+        headers['If-None-Match'] = prevEtag;
+      }
+
       try {
+        const res = await fetch(FEED_URL, { method: 'GET', headers });
+
+        if (res.status === 304) {
+          // feed hasn’t changed — nothing to do
+          console.log('Feed not modified');
+          return;
+        }
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        // store new ETag for next time
+        const newEtag = res.headers.get('ETag');
+        if (newEtag) {
+          localStorage.setItem(STORAGE_ETAG, newEtag);
+        }
+
+        // parse the updated feed
+        const xml   = await res.text();
         const parser = new RSSParser();
-        const response = await fetch('https://news.loveopenly.net/feed.xml');
-        const xml = await response.text();
-        const feed = await parser.parseString(xml);
+        const feed   = await parser.parseString(xml);
 
         this.entries = feed.items.map(item => {
           const raw = item.content || item.contentSnippet || item.summary || item.description || '';
@@ -26,14 +56,14 @@ window.rssApp = function() {
           tmp.innerHTML = raw;
 
           return {
-            title: item.title,
-            link: item.link,
-            pubDate: this.formatDate(item.pubDate || item.isoDate || ''),
+            title:       item.title,
+            link:        item.link,
+            pubDate:     this.formatDate(item.pubDate || item.isoDate || ''),
             description: (tmp.textContent || tmp.innerText || '').trim()
           };
         });
-      } catch (error) {
-        console.error('Error fetching or parsing the feed:', error);
+      } catch (err) {
+        console.error('Failed to load feed:', err);
       } finally {
         this.loading = false;
       }

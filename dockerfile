@@ -40,7 +40,13 @@ ${DOMAIN} {
     path /feed.xml
   }
   handle @feed {
-    root * /app/data/feed
+    root * /data/feed
+    
+    # allow any origin to fetch the feed, and expose caching headers
+    header {
+      Access-Control-Allow-Origin   *
+      Access-Control-Expose-Headers ETag, Last-Modified
+    }
     file_server
   }
 }
