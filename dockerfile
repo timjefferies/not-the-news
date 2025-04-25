@@ -17,7 +17,7 @@ RUN apk add --no-cache \
 
 # 4. Copy app code
 WORKDIR /app
-COPY run.py merge_feeds.py clean_feed.py filter_feed.py /rss/
+COPY rss/ /rss/
 
 # 5. Copy static site & existing feed data
 COPY www/ /app/www/
