@@ -21,7 +21,7 @@ COPY rss/ /rss/
 
 # 5. Copy static site & existing feed data
 COPY www/ /app/www/
-COPY data/ /app/data/
+COPY data/ /data/
 
 # 7. Generate a *single* site block—Caddy will auto-enable HTTPS
 RUN cat <<EOF > /etc/caddy/Caddyfile
