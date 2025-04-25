@@ -2,9 +2,12 @@
 window.rssApp = function() {
   const FEED_URL = 'https://news.loveopenly.net/feed.xml';
   const STORAGE_ETAG = 'feed-etag';
+  const HIDDEN_KEY   = 'hidden';
 
   return {
     entries: [],
+    // load saved closed items (or default to empty array)
+    hidden: JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]'), 
     loading: true,
 
     async init() {
@@ -157,7 +160,7 @@ window.rssApp = function() {
     hide(link) {
       if (!this.hidden.includes(link)) {
         this.hidden.push(link);
-        localStorage.setItem('hidden', JSON.stringify(this.hidden));
+        localStorage.setItem(HIDDEN_KEY, JSON.stringify(this.hidden));
       }
       // actually remove from entries so x-for tears it out of the DOM
       this.entries = this.entries.filter(entry => entry.link !== link);
