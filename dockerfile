@@ -17,7 +17,8 @@ RUN apk add --no-cache \
 
 # 4. Copy app code
 WORKDIR /app
-COPY run.py merge_feeds.py watchdog.sh ./
+COPY run.py ./ 
+COPY merge_feeds.py clean_feed.py filter_feed.py /rss/
 
 # 5. Copy static site & existing feed data
 COPY www/ /app/www/
@@ -36,15 +37,11 @@ ${DOMAIN} {
 }
 EOF
 
-# 7. Make updater + scripts executable
-RUN chmod +x watchdog.sh run.py
-
 # 8. Expose standard HTTP(S) ports
 EXPOSE 80 443
 
 # 9. Start the RSS updater loop, then run Caddy
 CMD ["sh","-c","\
-    while true; do ./watchdog.sh; sleep 300; done & \
+    python3 run.py --daemon & \
     exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile\
 "]
-
