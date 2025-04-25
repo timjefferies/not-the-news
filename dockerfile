@@ -49,6 +49,11 @@ ${DOMAIN} {
     }
     file_server
   }
+
+  # set letsencrypt to staging while testing
+  {
+    acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+  }
 }
 EOF
 
@@ -57,6 +62,6 @@ EXPOSE 80 443
 
 # 9. Start the RSS updater loop, then run Caddy
 CMD ["sh","-c","\
-    python3 ./rss/run.py --daemon & \
+    python3 /rss/run.py --daemon & \
     exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile\
 "]
