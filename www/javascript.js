@@ -1,4 +1,3 @@
-// javascript.js
 window.rssApp = function() {
   const FEED_URL = '/feed.xml';
   const STORAGE_ETAG = 'feed-etag';
@@ -7,31 +6,38 @@ window.rssApp = function() {
   return {
     entries: [],
     // load saved closed items (or default to empty array)
-    hidden: JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]'), 
+    hidden: JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]'),
     loading: true,
 
     async init() {
       this.initTheme();
-      await this.loadFeed();
+      // On first load, fetch full feed (ignore etag); subsequent loads will use etag
+      await this.loadFeed(true);
 
-      // every N minutes, check for updates
+      // every N minutes, check for updates (use etag for conditional requests)
       setInterval(() => this.loadFeed(), 5 * 60 * 1000);
     },
 
-    async loadFeed() {
+    /**
+     * @param {boolean} ignoreEtag  If true, always fetch full feed without conditional header
+     */
+    async loadFeed(ignoreEtag = false) {
       this.loading = true;
 
-      // get stored ETag (if any)
       const prevEtag = localStorage.getItem(STORAGE_ETAG);
-
-      // build conditional headers
       const headers = {};
-      if (prevEtag) {
+      // Only add If-None-Match header when not ignoring etag and we have an etag AND entries already loaded
+      if (!ignoreEtag && prevEtag && this.entries.length > 0) {
         headers['If-None-Match'] = prevEtag;
       }
 
       try {
         const res = await fetch(FEED_URL, { method: 'GET', headers });
+
+        // Handle 304 Not Modified: keep existing entries, no deletion
+        if (res.status === 304) {
+          return;
+        }
 
         if (!res.ok) {
           if (res.status === 404) {
@@ -53,7 +59,8 @@ window.rssApp = function() {
         const parser = new RSSParser();
         const feed   = await parser.parseString(xml);
 
-        this.entries = feed.items.map(item => {
+        // Map items and strip HTML
+        const mapped = feed.items.map(item => {
           const raw = item.content || item.contentSnippet || item.summary || item.description || '';
           const tmp = document.createElement('div');
           tmp.innerHTML = raw;
@@ -65,6 +72,9 @@ window.rssApp = function() {
             description: (tmp.textContent || tmp.innerText || '').trim()
           };
         });
+
+        // Filter out any hidden items so they stay hidden on reload
+        this.entries = mapped.filter(entry => !this.hidden.includes(entry.link));
       } catch (err) {
         console.error('Failed to load feed:', err);
       } finally {
@@ -127,6 +137,11 @@ window.rssApp = function() {
     },
 
     animateClose(event, link) {
+      // Prevent multiple hides for the same entry
+      if (this.hidden.includes(link)) {
+        return;
+      }
+
       const itemEl = event.target.closest('.item');
 
       // Set the max-height to current full height to enable collapse animation
@@ -157,7 +172,7 @@ window.rssApp = function() {
         this.hidden.push(link);
         localStorage.setItem(HIDDEN_KEY, JSON.stringify(this.hidden));
       }
-      // actually remove from entries so x-for tears it out of the DOM
+      // remove from entries so x-for tears it out of the DOM
       this.entries = this.entries.filter(entry => entry.link !== link);
     },
 
@@ -166,4 +181,3 @@ window.rssApp = function() {
     }
   };
 };
-
