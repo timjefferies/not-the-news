@@ -1,6 +1,6 @@
 // javascript.js
 window.rssApp = function() {
-  const FEED_URL = 'https://news.loveopenly.net/feed.xml';
+  const FEED_URL = '/feed.xml';
   const STORAGE_ETAG = 'feed-etag';
   const HIDDEN_KEY   = 'hidden';
 
