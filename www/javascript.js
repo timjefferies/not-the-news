@@ -5,37 +5,32 @@ window.rssApp = function() {
 
   return {
     entries: [],
-    // load saved closed items (or default to empty array)
     hidden: JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]'),
     loading: true,
 
     async init() {
       this.initTheme();
-      // On first load, fetch full feed (ignore etag); subsequent loads will use etag
-      await this.loadFeed(true);
+      // Initial load of feed (uses ETag if present)
+      await this.loadFeed();
 
-      // every N minutes, check for updates (use etag for conditional requests)
+      // Periodically refresh feed
       setInterval(() => this.loadFeed(), 5 * 60 * 1000);
     },
 
-    /**
-     * @param {boolean} ignoreEtag  If true, always fetch full feed without conditional header
-     */
-    async loadFeed(ignoreEtag = false) {
+    async loadFeed() {
       this.loading = true;
 
       const prevEtag = localStorage.getItem(STORAGE_ETAG);
       const headers = {};
-      // Only add If-None-Match header when not ignoring etag and we have an etag AND entries already loaded
-      if (!ignoreEtag && prevEtag && this.entries.length > 0) {
+      if (prevEtag) {
         headers['If-None-Match'] = prevEtag;
       }
 
       try {
         const res = await fetch(FEED_URL, { method: 'GET', headers });
 
-        // Handle 304 Not Modified: keep existing entries, no deletion
         if (res.status === 304) {
+          // No changes; nothing to update
           return;
         }
 
@@ -48,23 +43,22 @@ window.rssApp = function() {
           return;
         }
 
-        // store new ETag for next time
+        // Store new ETag
         const newEtag = res.headers.get('ETag');
         if (newEtag) {
           localStorage.setItem(STORAGE_ETAG, newEtag);
         }
 
-        // parse the updated feed
-        const xml   = await res.text();
+        // Parse RSS feed
+        const xml    = await res.text();
         const parser = new RSSParser();
         const feed   = await parser.parseString(xml);
 
-        // Map items and strip HTML
+        // Map and strip HTML
         const mapped = feed.items.map(item => {
           const raw = item.content || item.contentSnippet || item.summary || item.description || '';
           const tmp = document.createElement('div');
           tmp.innerHTML = raw;
-
           return {
             title:       item.title,
             link:        item.link,
@@ -73,7 +67,7 @@ window.rssApp = function() {
           };
         });
 
-        // Filter out any hidden items so they stay hidden on reload
+        // Filter out any entries the user has hidden
         this.entries = mapped.filter(entry => !this.hidden.includes(entry.link));
       } catch (err) {
         console.error('Failed to load feed:', err);
@@ -88,14 +82,12 @@ window.rssApp = function() {
       const themeText = document.getElementById('theme-text');
       if (!toggle || !themeText) return;
 
-      // Initialize theme
       const saved = localStorage.getItem('theme');
       const useDark = saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
       html.classList.add(useDark ? 'dark' : 'light');
       toggle.checked = useDark;
       themeText.textContent = useDark ? 'dark' : 'light';
 
-      // Listen for toggle changes
       toggle.addEventListener('change', () => {
         const newTheme = toggle.checked ? 'dark' : 'light';
         html.classList.remove(toggle.checked ? 'light' : 'dark');
@@ -137,42 +129,32 @@ window.rssApp = function() {
     },
 
     animateClose(event, link) {
-      // Prevent multiple hides for the same entry
-      if (this.hidden.includes(link)) {
-        return;
-      }
+      // If already hidden, do nothing
+      if (this.hidden.includes(link)) return;
 
       const itemEl = event.target.closest('.item');
-
-      // Set the max-height to current full height to enable collapse animation
       const fullHeight = itemEl.scrollHeight + 'px';
       itemEl.style.maxHeight = fullHeight;
-
-      // Trigger a reflow so transition kicks in
       void itemEl.offsetHeight;
 
-      // Collapse the item
       itemEl.style.transition = 'max-height 0.25s ease';
       itemEl.style.maxHeight = '0';
 
-      // After the collapse animation, trigger the slide-right transition
       setTimeout(() => {
         itemEl.classList.add('slide-right');
-
-        itemEl.addEventListener('transitionend', (e) => {
+        itemEl.addEventListener('transitionend', e => {
           if (e.propertyName === 'transform') {
             this.hide(link);
           }
         }, { once: true });
       }, 250);
     },
-    
+
     hide(link) {
       if (!this.hidden.includes(link)) {
         this.hidden.push(link);
         localStorage.setItem(HIDDEN_KEY, JSON.stringify(this.hidden));
       }
-      // remove from entries so x-for tears it out of the DOM
       this.entries = this.entries.filter(entry => entry.link !== link);
     },
 
