@@ -130,22 +130,30 @@ window.rssApp = function() {
 
     animateClose(event, link) {
       const itemEl = event.target.closest('.item');
-      // Collapse the container so its height animates to zero
-      itemEl.classList.add('collapsed');
 
-      // wait for collapse animation (~250ms)
+      // Set the max-height to current full height to enable collapse animation
+      const fullHeight = itemEl.scrollHeight + 'px';
+      itemEl.style.maxHeight = fullHeight;
+
+      // Trigger a reflow so transition kicks in
+      void itemEl.offsetHeight;
+
+      // Collapse the item
+      itemEl.style.transition = 'max-height 0.25s ease';
+      itemEl.style.maxHeight = '0';
+
+      // After the collapse animation, trigger the slide-right transition
       setTimeout(() => {
         itemEl.classList.add('slide-right');
 
-        // after slide transform ends, hide the item
-        itemEl.addEventListener('transitionend', e => {
+        itemEl.addEventListener('transitionend', (e) => {
           if (e.propertyName === 'transform') {
             this.hide(link);
           }
         }, { once: true });
       }, 250);
     },
-
+    
     hide(link) {
       if (!this.hidden.includes(link)) {
         this.hidden.push(link);

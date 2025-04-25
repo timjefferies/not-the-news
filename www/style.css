@@ -335,9 +335,8 @@ h3 { margin-top: 2em; font-size: large; }
 
 /* 1. Collapse description from bottom to top */
 .item {
-  overflow: hidden;
-  /* a big enough max-height to cover any description */
-  max-height: 1000px;
+  overflow: visible;
+  max-height: none;
   transition: max-height 0.25s ease, padding 0.25s ease; /* CSS transitions animate between states  */
 }
 .item.collapsed {
