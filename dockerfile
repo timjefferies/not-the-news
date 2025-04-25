@@ -17,8 +17,7 @@ RUN apk add --no-cache \
 
 # 4. Copy app code
 WORKDIR /app
-COPY run.py ./ 
-COPY merge_feeds.py clean_feed.py filter_feed.py /rss/
+COPY run.py merge_feeds.py clean_feed.py filter_feed.py /rss/
 
 # 5. Copy static site & existing feed data
 COPY www/ /app/www/
@@ -42,6 +41,6 @@ EXPOSE 80 443
 
 # 9. Start the RSS updater loop, then run Caddy
 CMD ["sh","-c","\
-    python3 run.py --daemon & \
+    python3 ./rss/run.py --daemon & \
     exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile\
 "]
