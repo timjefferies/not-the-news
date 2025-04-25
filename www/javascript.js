@@ -36,7 +36,12 @@ window.rssApp = function() {
           return;
         }
         if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
+          if (res.status === 404) {
+            this.errorMessage = 'Feed not found (404).';
+          } else {
+            this.errorMessage = `Feed request failed with status ${res.status}.`;
+          }
+          return;
         }
 
         // store new ETag for next time
