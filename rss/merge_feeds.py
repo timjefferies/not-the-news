@@ -27,6 +27,7 @@ def validate_url(url):
 def merge_feeds(feeds_file, output_file):
     """Fetch multiple RSS/Atom feeds, merge entries, and write to an output file."""
     total_entries = 0
+    seen_entries = set()  # Store keys we've seen (link or fallback ID)
 
     fg = FeedGenerator()
     fg.title('Merged Feed')
@@ -80,13 +81,25 @@ def merge_feeds(feeds_file, output_file):
             continue
 
         for entry in feed.entries:
+            entry_link = entry.get('link')
+            entry_title = entry.get('title', '')
+            entry_published = entry.get('published', '')
+            
+            # Use link if available, otherwise fall back to title+published
+            entry_key = entry_link if entry_link else f"{entry_title}_{entry_published}"
+            if entry_key in seen_entries:
+                continue  # Skip duplicates
+            seen_entries.add(entry_key)
+
             fe = fg.add_entry()
-            fe.title(entry.get('title', 'No Title'))
-            fe.link(
-                href=entry['link'],
-                rel='alternate',
-                type='text/html'
-            )
+            fe.title(entry_title or 'No Title')
+            if entry_link:
+                fe.link(
+                    href=entry_link,
+                    rel='alternate',
+                    type='text/html'
+                )            
+            
             fe.pubDate(entry.get('published', datetime.now(timezone.utc).strftime('%a, %d %b %Y %H:%M:%S +0000')))
             fe.description(entry.get('summary', ''))
             total_entries += 1

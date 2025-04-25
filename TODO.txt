@@ -1,12 +1,4 @@
-- The hovering jump to top button doesn't appear for some reason
-- The localstorage.json isn't being saved
-	Uncaught SyntaxError: Unexpected token '<', "<?
-error_r"... is not valid JSON
-    at JSON.parse (<anonymous>)
-    at xhr.onreadystatechange (localstorage.js:25:49)
-
-- clean up the style.css file - a lot of divs you don't use in there now
-
+- The hovering jump to top button looks ugly on mobile.
 
 NOTES
 
@@ -23,7 +15,7 @@ I need help refining and implementing state-saving and restoration functionality
 2. **Implementation Requirements**:
 
    #### JavaScript:
-   - Save the state to the file:
+   - Run the save state to the file whenever an rss item is closed:
      ```javascript
      export function saveStateToFile(filename) {
        const appState = JSON.stringify(localStorage, null, 2);
