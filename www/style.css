@@ -352,7 +352,9 @@ h3 { margin-top: 2em; font-size: large; }
   transform: translateX(100vw);
 }
 
-
+ul.feed-list, .feed-container {
+  overflow-x: hidden;  /* clip any child transform that goes beyond the right edge */
+}
 
 /* Responsive breakpoints */
 @media (max-width: 480px) {

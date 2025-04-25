@@ -151,6 +151,8 @@ window.rssApp = function() {
         this.hidden.push(link);
         localStorage.setItem('hidden', JSON.stringify(this.hidden));
       }
+      // actually remove from entries so x-for tears it out of the DOM
+      this.entries = this.entries.filter(entry => entry.link !== link);
     },
 
     scrollToTop() {
