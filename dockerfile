@@ -28,6 +28,9 @@ RUN cat <<EOF > /etc/caddy/Caddyfile
 {
   # Global options: register LE email
   email ${EMAIL}
+  
+  # set letsencrypt to staging while testing
+  acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
 }
 
 ${DOMAIN} {
@@ -48,11 +51,6 @@ ${DOMAIN} {
       Access-Control-Expose-Headers ETag, Last-Modified
     }
     file_server
-  }
-
-  # set letsencrypt to staging while testing
-  {
-    acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
   }
 }
 EOF
