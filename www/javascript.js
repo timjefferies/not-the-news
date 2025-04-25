@@ -130,8 +130,8 @@ window.rssApp = function() {
 
     animateClose(event, link) {
       const itemEl = event.target.closest('.item');
-      const desc   = itemEl.querySelector('.itemdescription');
-      desc.classList.add('collapsed');
+      // Collapse the container so its height animates to zero
+      itemEl.classList.add('collapsed');
 
       // wait for collapse animation (~250ms)
       setTimeout(() => {

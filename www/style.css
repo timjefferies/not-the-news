@@ -349,7 +349,7 @@ h3 { margin-top: 2em; font-size: large; }
 /* 2. Slide item off to the right */
 .item.slide-right {
   transition: transform 0.25s ease; /* animate transform property  */
-  transform: translateX(100%);
+  transform: translateX(100vw);
 }
 
 
