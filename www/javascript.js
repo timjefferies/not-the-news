@@ -33,11 +33,6 @@ window.rssApp = function() {
       try {
         const res = await fetch(FEED_URL, { method: 'GET', headers });
 
-        if (res.status === 304 && this.entries.length > 0) {
-          // feed hasn’t changed — nothing to do
-          console.log('Feed not modified');
-          return;
-        }
         if (!res.ok) {
           if (res.status === 404) {
             this.errorMessage = 'Feed not found (404).';
