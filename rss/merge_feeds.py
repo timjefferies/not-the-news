@@ -100,7 +100,18 @@ def merge_feeds(feeds_file, output_file):
                     type='text/html'
                 )            
             
-            fe.pubDate(entry.get('published', datetime.now(timezone.utc).strftime('%a, %d %b %Y %H:%M:%S +0000')))
+            # pick published or updated timestamp string
+            date_str = entry.get('published') or entry.get('updated')
+            if date_str:
+                # parse into a datetime (handles RFC-822, ISO8601, etc.)
+                pub_dt = parse(date_str)              # :contentReference[oaicite:1]{index=1}
+            else:
+                # fallback to a true datetime object
+                pub_dt = datetime.now(timezone.utc)
+
+            # feedgen.pubDate accepts a datetime, and will format it correctly
+            fe.pubDate(pub_dt)
+
             fe.description(entry.get('summary', ''))
             total_entries += 1
 
