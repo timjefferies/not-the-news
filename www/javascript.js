@@ -134,24 +134,26 @@ window.rssApp = function() {
     },
 
     animateClose(event, link) {
-      // If already hidden, do nothing
+      // If already hidden, bail
       if (this.hidden.includes(link)) return;
 
       const itemEl = event.target.closest('.item');
-      const fullHeight = itemEl.scrollHeight + 'px';
-      itemEl.style.maxHeight = fullHeight;
-      void itemEl.offsetHeight;
 
-      itemEl.classList.add('collapsing');
+      // 1) Prepare for collapse: set its current height as max-height
+      const fullH = itemEl.scrollHeight + 'px';
+      itemEl.style.maxHeight = fullH;
+      void itemEl.offsetHeight;    // force a reflow
 
-      setTimeout(() => {
-        itemEl.classList.add('slide-right');
-        itemEl.addEventListener('transitionend', e => {
-          if (e.propertyName === 'transform') {
-            this.hide(link);
-          }
-        }, { once: true });
-      }, 250);
+      // 2) Slide right AND collapse height at the same time
+      itemEl.style.transform = 'translateX(100vw)';
+      itemEl.style.maxHeight = '0';
+
+      // 3) When collapse ends, finally remove it from the list
+      itemEl.addEventListener('transitionend', e => {
+        if (e.propertyName === 'max-height') {
+          this.hide(link);
+        }
+      }, { once: true });
     },
 
     hide(link) {
