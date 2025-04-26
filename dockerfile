@@ -47,6 +47,15 @@ ${DOMAIN} {
   root * /app/www
   file_server
 
+  # API state endpoints → Flask at 127.0.0.1:3000
+  @api {
+      path /load-state*
+      path /save-state*
+  }
+  handle @api {
+      reverse_proxy 127.0.0.1:3000
+  }
+
   # Special case: /feed.xml → data/feed/feed.xml
   @feed {
     path /feed.xml
