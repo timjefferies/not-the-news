@@ -69,7 +69,7 @@ EXPOSE 80 443 3000
 
 # 9. Start the RSS updater loop, then run Caddy
 CMD ["sh","-c","\
-    python3 /www/api.py & \
+    python3 /app/www/api.py & \
     python3 /rss/run.py --daemon & \
     exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile\
 "]
