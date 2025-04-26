@@ -3,6 +3,7 @@ import { restoreStateFromFile, saveStateToFile } from "./api.js";
 
 window.rssApp = () => {
   const HIDDEN_KEY = "hidden";
+  const STORAGE_ETAG = "feedEtag";
   return {
     entries: [],
     hidden: JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]"),
@@ -22,11 +23,17 @@ window.rssApp = () => {
       }
 
       // Load the feed
-      await this.loadFeed();
-      this.loading = false;
+      try {
+    	await this.loadFeed();
+  	} catch (err) {
+    	console.error("loadFeed failed", err);
+    	this.errorMessage = "Could not load feed.";
+  	} finally {
+    	this.loading = false;
+  	}
 
       // Poll every 5 minutes
-      setInterval(() => this.loadFeed(), 5 * 60 * 1000);
+      setInterval(() => this.loadFeed(), 5*60*1000);
     },
 
     hide(link) {

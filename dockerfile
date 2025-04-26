@@ -61,6 +61,13 @@ ${DOMAIN} {
     }
     file_server
   }
+  # Persisted state API → Flask on port 3000
+  @api {
+    path /save-state* /load-state*
+  }
+  handle @api {
+    reverse_proxy localhost:3000
+  }
 }
 EOF
 

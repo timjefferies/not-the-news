@@ -51,7 +51,7 @@
       <div class="itemtitle">
         <a :href="entry.link" target="_blank" x-text="entry.title"></a>
         <!-- Single click handler here -->
-        <button class="close" @click="hidden.push(entry.link)">✕</button>
+	<button class="close" @click="hide(entry.link)">✕</button>
       </div>
       <div class="itemdescription">
         <div class="itemfrom">
