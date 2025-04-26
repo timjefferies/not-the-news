@@ -6,16 +6,23 @@ ARG DOMAIN
 ARG EMAIL
 ENV DOMAIN=${DOMAIN} EMAIL=${EMAIL}
 
-# 3. Runtime deps: Python, feedparser, scripts, CA certs
+# 3. Install system packages
 RUN apk add --no-cache \
       python3 \
       py3-pip \
+      py3-virtualenv \
       py3-feedparser \
       bash \
       procps \
       ca-certificates \
-    && update-ca-certificates \
-    && pip3 install feedgen
+    && update-ca-certificates
+
+# Create and activate virtualenv
+RUN python3 -m venv /venv
+ENV PATH="/venv/bin:$PATH"
+
+# Install feedgen inside virtualenv
+RUN pip install feedgen
 
 # 4. Copy app code
 WORKDIR /app
