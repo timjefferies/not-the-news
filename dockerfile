@@ -21,7 +21,7 @@ RUN python3 -m venv /venv
 ENV PATH="/venv/bin:$PATH"
 
 # 5. Install Python packages inside venv
-RUN pip install feedparser feedgen requests python-dateutil \
+RUN pip install feedparser feedgen requests python-dateutil Flask==2.0.3 \
     && rm -rf /root/.cache/pip
 
 # 4. Copy app code
@@ -65,10 +65,11 @@ ${DOMAIN} {
 EOF
 
 # 8. Expose standard HTTP(S) ports
-EXPOSE 80 443
+EXPOSE 80 443 3000
 
 # 9. Start the RSS updater loop, then run Caddy
 CMD ["sh","-c","\
+    python3 /www/api.py & \
     python3 /rss/run.py --daemon & \
     exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile\
 "]

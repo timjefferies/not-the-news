@@ -3,6 +3,8 @@ window.rssApp = function() {
   const STORAGE_ETAG  = 'feed-etag';
   const HIDDEN_KEY    = 'hidden';
 
+  import { restoreStateFromFile } from './api.js';
+
   return {
     entries:  [],
     hidden:   JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]'),
@@ -15,6 +17,25 @@ window.rssApp = function() {
       setInterval(() => this.loadFeed(), 5 * 60 * 1000);
     },
 
+    async function initApp() {
+  	const loadingEl = document.getElementById('loading-screen');
+  	loadingEl.style.display = 'block';
+
+	  try {
+	    // Restore previous state (if any)
+	    await restoreStateFromFile('appState.json');
+	    console.log('State restored.');
+	  } catch (err) {
+	    console.warn('No previous state to restore:', err);
+	  } finally {
+	    // Initialize your RSS UI here, e.g., render feeds
+	    // renderFeeds();
+	    loadingEl.style.display = 'none';
+	  }
+	}
+
+window.addEventListener('load', initApp);
+	  
     async loadFeed() {
       this.loading = true;
       this.errorMessage = null;
