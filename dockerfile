@@ -14,7 +14,8 @@ RUN apk add --no-cache \
       bash \
       procps \
       ca-certificates \
-    && update-ca-certificates
+    && update-ca-certificates \
+    && pip3 install feedgen
 
 # 4. Copy app code
 WORKDIR /app
