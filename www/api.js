@@ -1,10 +1,9 @@
 // api.js
 
 /**
- * Save current localStorage contents to a JSON file on the server.
- * @param {string} filename - Name of the file to save (e.g. "appState.json").
+ * Load app state JSON from the server and restore into localStorage.
+ * @param {string} filename - Name of the file to load (e.g. "appState.json").
  */
-// api.js
 export async function restoreStateFromFile(filename) {
   const res = await fetch(`/load-state?filename=${filename}`);
   if (!res.ok) throw new Error(`Failed to load state: ${res.status}`);
@@ -14,6 +13,11 @@ export async function restoreStateFromFile(filename) {
   );
 }
 
+/**
+ * Save current localStorage contents to a JSON file on the server.
+ * @param {string} filename - Name of the file to save (e.g. "appState.json").
+ */
+// api.js
 export function saveStateToFile(filename) {
   const appState = JSON.stringify(
     Object.fromEntries(Object.entries(localStorage)), 
@@ -26,16 +30,3 @@ export function saveStateToFile(filename) {
   }).then(r => { if (!r.ok) throw new Error(r.statusText); });
 }
 
-/**
- * Load app state JSON from the server and restore into localStorage.
- * @param {string} filename - Name of the file to load (e.g. "appState.json").
- */
-export async function restoreStateFromFile(filename) {
-  const response = await fetch(`/load-state?filename=${filename}`);
-  if (!response.ok) throw new Error("Failed to load state");
-
-  const appState = await response.json();
-  Object.entries(appState).forEach(([key, value]) => {
-    localStorage.setItem(key, value);
-  });
-}
