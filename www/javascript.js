@@ -11,6 +11,7 @@ window.rssApp = () => {
     loading: true,
 
     async init() {
+      this.initTheme();
       // Show loading…
       this.loading = true;
 
