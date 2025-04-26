@@ -8,12 +8,14 @@ import subprocess
 import shutil
 
 # --- Paths
-feed_dir         = '../data/feed/'
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+feed_dir         = os.path.join(SCRIPT_DIR, '../data/feed/')
 merged_file      = os.path.join(feed_dir, 'merged_feed.xml')
 filtered_file    = os.path.join(feed_dir, 'filtered_feed.xml')
 final_feed_file  = os.path.join(feed_dir, 'feed.xml')
-feeds_path       = '../data/config/feeds.txt'
-keywords_path    = '../data/config/filter_keywords.txt'
+feeds_path       = os.path.join(SCRIPT_DIR, '../data/config/feeds.txt')
+keywords_path    = os.path.join(SCRIPT_DIR, '../data/config/filter_keywords.txt')
 
 # --- Ensure feed directory exists ---
 if not os.path.exists(feed_dir):
@@ -29,7 +31,7 @@ def generate_feed():
         'python3', 'merge_feeds.py',
         '--feeds',   feeds_path,
         '--output',  merged_file
-    ], check=True)
+    ], check=True, cwd=SCRIPT_DIR)
 
     # 2) Filter
     subprocess.run([
@@ -37,14 +39,14 @@ def generate_feed():
         '--input',   merged_file,
         '--output',  filtered_file,
         '--keywords', keywords_path
-    ], check=True)
+    ], check=True, cwd=SCRIPT_DIR)
 
     # 3) Clean
     subprocess.run([
         'python3', 'clean_feed.py',
         '--input',  filtered_file,
         '--output', final_feed_file
-    ], check=True)
+    ], check=True, cwd=SCRIPT_DIR)
 
     # 4) Post‐processing (same sed calls)
     subprocess.run(
