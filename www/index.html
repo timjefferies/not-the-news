@@ -8,12 +8,14 @@
   <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css" />
 
-  <!-- RSS Parser -->
-  <script defer src="https://cdn.jsdelivr.net/npm/rss-parser@3.13.0/dist/rss-parser.min.js"></script>
+  <!-- RSS Parser v3.13.0 -->
+  <!-- https://cdn.jsdelivr.net/npm/rss-parser@3.13.0/dist/rss-parser.min.js -->
+  <script defer src="rss-parser.min.js"></script>
   <!-- App logic (defines window.rssApp) -->
   <script defer src="javascript.js"></script>
-  <!-- Alpine.js -->
-  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Alpine.js v3.x.x -->
+  <!-- https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" -->
+  <script defer src="alpine.3.x.x.js"></script>
 </head>
 <body x-data="rssApp()" x-init="init()">
   <!-- Loading screen -->
