@@ -161,12 +161,6 @@ window.rssApp = () => {
       }
     },
 
-    hide(link) {
-      if (this.hidden.includes(link)) return;
-      this.hidden.push(link);
-      localStorage.setItem(HIDDEN_KEY, JSON.stringify(this.hidden));
-    },
-
     scrollToTop() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
