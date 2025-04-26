@@ -21,7 +21,8 @@ RUN python3 -m venv /venv
 ENV PATH="/venv/bin:$PATH"
 
 # 5. Install Python packages inside venv
-RUN pip install feedparser feedgen requests python-dateutil
+RUN pip install feedparser feedgen requests python-dateutil \
+    && rm -rf /root/.cache/pip
 
 # 4. Copy app code
 WORKDIR /app
