@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 import feedparser
 from feedgen.feed import FeedGenerator
 from datetime import datetime, timezone
+from dateutil.parser import parse
 import argparse
 import requests
 import pprint
