@@ -223,7 +223,7 @@ h2, h3 {
 }
 h3 { margin-top: 2em; font-size: large; }
 
-#items { width: 100%; display: block; }
+#items { width: 100%; display: block; overflow-x: hidden; }
 
 .itembox { margin-top: 2em; }
 

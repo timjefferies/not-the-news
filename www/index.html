@@ -40,27 +40,26 @@
   <main id="items" x-show="!loading">
     <!-- Repeat each entry -->
     <template x-for="(entry, idx) in entries" :key="entry.link + idx">
-      <div class="item" x-show="!hidden.includes(entry.link)">
-      <div
-        class="item"
-        x-show="!hidden.includes(entry.link)"
-        x-cloak
-        x-transition:leave.opacity.duration.500ms
-        x-transition:leave.transform.origin.right.duration.500ms.scale.75
-      >
+    <div
+      class="item"
+      x-show="!hidden.includes(entry.link)"
+      x-transition:leave="transition ease-in duration-200 transform"
+      x-transition:leave-start="opacity-100 translate-x-0"
+      x-transition:leave-end="opacity-0 translate-x-full"
+    >
+      <div class="itemtitle">
+        <a :href="entry.link" target="_blank" x-text="entry.title"></a>
+        <!-- Single click handler here -->
+        <button class="close" @click="hidden.push(entry.link)">✕</button>
       </div>
-        <div class="itemtitle">
-          <a :href="entry.link" target="_blank" x-text="entry.title"></a>
-          <button class="close" @click="hide(entry.link)">✕</button>
-        </div>
-        <div class="itemdescription">
+      <div class="itemdescription">
         <div class="itemfrom">
           <p x-text="entry.pubDate"></p>
         </div>
-          <span x-text="entry.description"></span>
-        </div>
+        <span x-text="entry.description"></span>
       </div>
-    </template>
+    </div>
+  </template>
   </main>
 </body>
 </html>
