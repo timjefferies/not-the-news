@@ -1,64 +1,62 @@
 window.rssApp = function() {
-  const FEED_URL = '/feed.xml';
-  const STORAGE_ETAG = 'feed-etag';
-  const HIDDEN_KEY   = 'hidden';
+  const FEED_URL      = '/feed.xml';
+  const STORAGE_ETAG  = 'feed-etag';
+  const HIDDEN_KEY    = 'hidden';
 
   return {
-    entries: [],
-    hidden: JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]'),
-    loading: true,
+    entries:  [],
+    hidden:   JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]'),
+    loading:  true,
+    errorMessage: null,
 
     async init() {
       this.initTheme();
-      // Initial load of feed (uses ETag if present)
       await this.loadFeed();
-
-      // Periodically refresh feed
       setInterval(() => this.loadFeed(), 5 * 60 * 1000);
     },
 
     async loadFeed() {
       this.loading = true;
+      this.errorMessage = null;
 
       const prevEtag = localStorage.getItem(STORAGE_ETAG);
-      const headers = {};
-      if (prevEtag) {
+      const headers  = {};
+
+      // Only send If-None-Match if we've already populated entries
+      if (prevEtag && this.entries.length > 0) {
         headers['If-None-Match'] = prevEtag;
       }
 
       try {
         const res = await fetch(FEED_URL, { method: 'GET', headers });
 
+        // If nothing changed, bail out (keep existing this.entries)
         if (res.status === 304) {
-          // No changes; nothing to update
+          console.log('Feed not modified');
           return;
         }
 
         if (!res.ok) {
-          if (res.status === 404) {
-            this.errorMessage = 'Feed not found (404).';
-          } else {
-            this.errorMessage = `Feed request failed with status ${res.status}.`;
-          }
+          this.errorMessage = res.status === 404
+            ? 'Feed not found (404).'
+            : `Feed request failed with status ${res.status}.`;
           return;
         }
 
-        // Store new ETag
-        const newEtag = res.headers.get('ETag');
-        if (newEtag) {
-          localStorage.setItem(STORAGE_ETAG, newEtag);
-        }
-
-        // Parse RSS feed
+        // 200 → parse, map, filter, assign
         const xml    = await res.text();
         const parser = new RSSParser();
         const feed   = await parser.parseString(xml);
 
-        // Map and strip HTML
         const mapped = feed.items.map(item => {
-          const raw = item.content || item.contentSnippet || item.summary || item.description || '';
+          const raw = item.content
+                   || item.contentSnippet
+                   || item.summary
+                   || item.description
+                   || '';
           const tmp = document.createElement('div');
           tmp.innerHTML = raw;
+
           return {
             title:       item.title,
             link:        item.link,
@@ -67,10 +65,17 @@ window.rssApp = function() {
           };
         });
 
-        // Filter out any entries the user has hidden
-        this.entries = mapped.filter(entry => !this.hidden.includes(entry.link));
+        this.entries = mapped.filter(e => !this.hidden.includes(e.link));
+
+        // Save the fresh ETag
+        const newEtag = res.headers.get('ETag');
+        if (newEtag) {
+          localStorage.setItem(STORAGE_ETAG, newEtag);
+        }
+
       } catch (err) {
         console.error('Failed to load feed:', err);
+        this.errorMessage = 'Error loading feed.';
       } finally {
         this.loading = false;
       }
