@@ -22,7 +22,6 @@ window.rssApp = function() {
       const prevEtag = localStorage.getItem(STORAGE_ETAG);
       const headers  = {};
 
-      // Only send If-None-Match if we've already populated entries
       if (prevEtag && this.entries.length > 0) {
         headers['If-None-Match'] = prevEtag;
       }
@@ -30,7 +29,6 @@ window.rssApp = function() {
       try {
         const res = await fetch(FEED_URL, { method: 'GET', headers });
 
-        // If nothing changed, bail out (keep existing this.entries)
         if (res.status === 304) {
           console.log('Feed not modified');
           return;
@@ -43,7 +41,6 @@ window.rssApp = function() {
           return;
         }
 
-        // 200 → parse, map, filter, assign
         const xml    = await res.text();
         const parser = new RSSParser();
         const feed   = await parser.parseString(xml);
@@ -67,7 +64,6 @@ window.rssApp = function() {
 
         this.entries = mapped.filter(e => !this.hidden.includes(e.link));
 
-        // Save the fresh ETag
         const newEtag = res.headers.get('ETag');
         if (newEtag) {
           localStorage.setItem(STORAGE_ETAG, newEtag);
@@ -133,35 +129,10 @@ window.rssApp = function() {
       }
     },
 
-    animateClose(event, link) {
-      // If already hidden, bail
-      if (this.hidden.includes(link)) return;
-
-      const itemEl = event.target.closest('.item');
-
-      // 1) Prepare for collapse: set its current height as max-height
-      const fullH = itemEl.scrollHeight + 'px';
-      itemEl.style.maxHeight = fullH;
-      void itemEl.offsetHeight;    // force a reflow
-
-      // 2) Slide right AND collapse height at the same time
-      itemEl.style.transform = 'translateX(100vw)';
-      itemEl.style.maxHeight = '0';
-
-      // 3) When collapse ends, finally remove it from the list
-      itemEl.addEventListener('transitionend', e => {
-        if (e.propertyName === 'max-height') {
-          this.hide(link);
-        }
-      }, { once: true });
-    },
-
     hide(link) {
-      if (!this.hidden.includes(link)) {
-        this.hidden.push(link);
-        localStorage.setItem(HIDDEN_KEY, JSON.stringify(this.hidden));
-      }
-      this.entries = this.entries.filter(entry => entry.link !== link);
+      if (this.hidden.includes(link)) return;
+      this.hidden.push(link);
+      localStorage.setItem(HIDDEN_KEY, JSON.stringify(this.hidden));
     },
 
     scrollToTop() {

@@ -344,24 +344,6 @@ h3 { margin-top: 2em; font-size: large; }
   padding 0.25s ease;
 }
 
-.item.collapsing {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.25s ease, padding 0.25s ease; /* MATCH transitions exactly */
-}
-
-.item.collapsed {
-  max-height: 0;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-
-/* 2. Slide item off to the right */
-.item.slide-right {
-  transition: transform 0.25s ease; /* animate transform property  */
-  transform: translateX(100vw);
-}
-
 ul.feed-list, .feed-container {
   overflow-x: hidden;  /* clip any child transform that goes beyond the right edge */
 }
