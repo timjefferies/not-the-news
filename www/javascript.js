@@ -4,6 +4,7 @@ import { restoreStateFromFile, saveStateToFile } from "./api.js";
 window.rssApp = () => {
   const HIDDEN_KEY = "hidden";
   const STORAGE_ETAG = "feedEtag";
+  const FEED_URL = '/feed.xml';
   return {
     entries: [],
     hidden: JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]"),
