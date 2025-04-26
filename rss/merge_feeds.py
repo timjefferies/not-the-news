@@ -46,7 +46,7 @@ def merge_feeds(feeds_file, output_file):
     domain_cache = {}
     feed_urls.sort(key=lambda url: extract_domain(url, domain_cache))
 
-    headers = {'User-Agent': 'Mozilla/5.0'}  # Add a custom User-Agent
+    headers = {'User-Agent': 'not-the-news/1.0 (by /u/azureuser)'}
     domain_requests = {}
     for url in feed_urls:
         if not validate_url(url):
@@ -64,6 +64,7 @@ def merge_feeds(feeds_file, output_file):
             try:
                 # Use requests to fetch the feed with a custom User-Agent
                 response = requests.get(url, headers=headers)
+                time.sleep(1)
                 if response.status_code == 429:  # Too Many Requests
                     print(f"429 Too Many Requests for {url}. Retrying in 30 seconds...")
                     time.sleep(30)  # Wait before retrying
