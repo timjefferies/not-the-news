@@ -142,7 +142,7 @@ window.rssApp = function() {
       itemEl.style.maxHeight = fullHeight;
       void itemEl.offsetHeight;
 
-      itemEl.style.transition = 'max-height 0.25s ease';
+      itemEl.style.transition = 'max-height 0.25s ease, transform 0.25s ease';
       itemEl.style.maxHeight = '0';
 
       setTimeout(() => {
