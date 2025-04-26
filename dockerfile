@@ -43,40 +43,31 @@ RUN cat <<EOF > /etc/caddy/Caddyfile
 }
 
 ${DOMAIN} {
-  # Default: serve your static site
-  root * /app/www
-  file_server
-
-  # API state endpoints → Flask at 127.0.0.1:3000
-  @api {
-      path /load-state*
-      path /save-state*
-  }
-  handle @api {
-      reverse_proxy 127.0.0.1:3000
-  }
-
-  # Special case: /feed.xml → data/feed/feed.xml
-  @feed {
-    path /feed.xml
-  }
-  handle @feed {
-    root * /data/feed
-    
-    # allow any origin to fetch the feed, and expose caching headers
-    header {
-      Access-Control-Allow-Origin   *
-      Access-Control-Expose-Headers ETag, Last-Modified
-    }
+    # 1) Serve your static site by default
+    root * /app/www
     file_server
-  }
-  # Persisted state API → Flask on port 3000
-  @api {
-    path /save-state* /load-state*
-  }
-  handle @api {
-    reverse_proxy localhost:3000
-  }
+
+    # 2) Proxy both state endpoints to Flask on port 3000
+    @api {
+        path /load-state*
+        path /save-state*
+    }
+    handle @api {
+        reverse_proxy 127.0.0.1:3000
+    }
+
+    # 3) Special case: /feed.xml → data/feed/feed.xml
+    @feed {
+        path /feed.xml
+    }
+    handle @feed {
+        root * /data/feed
+        header {
+            Access-Control-Allow-Origin   *
+            Access-Control-Expose-Headers ETag, Last-Modified
+        }
+        file_server
+    }
 }
 EOF
 
