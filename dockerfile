@@ -11,18 +11,17 @@ RUN apk add --no-cache \
       python3 \
       py3-pip \
       py3-virtualenv \
-      py3-feedparser \
       bash \
       procps \
       ca-certificates \
     && update-ca-certificates
 
-# Create and activate virtualenv
+# 4. Set up virtualenv
 RUN python3 -m venv /venv
 ENV PATH="/venv/bin:$PATH"
 
-# Install feedgen inside virtualenv
-RUN pip install feedgen
+# 5. Install Python packages inside venv
+RUN pip install feedparser feedgen
 
 # 4. Copy app code
 WORKDIR /app
