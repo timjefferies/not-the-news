@@ -9,6 +9,7 @@ ENV DOMAIN=${DOMAIN} EMAIL=${EMAIL}
 # 3. Runtime deps: Python, feedparser, scripts, CA certs
 RUN apk add --no-cache \
       python3 \
+      py3-pip \
       py3-feedparser \
       bash \
       procps \
