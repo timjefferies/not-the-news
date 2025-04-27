@@ -8,6 +8,7 @@ from feedgen.feed import FeedGenerator
 from dateutil.parser import parse
 from datetime import datetime, timezone
 import argparse
+import markdown
 
 # ——— bleach whitelist ———
 ALLOWED_TAGS       = ['p','br','ul','ol','li','strong','em','a','img','blockquote','code','pre']
@@ -72,8 +73,12 @@ def parse_and_sanitize_entries(entries):
     for entry in entries:
         title = entry.get('title', 'No Title')
         link = entry.get('link', '')
-        raw_html    = entry.get('summary','No Description')
-        description = sanitize_html(raw_html) 
+        # prefer the full HTML body if available, otherwise fall back to summary
+        raw_html    = entry.get('content', [{'value': entry.get('summary','')}])[0]['value']
+        # —–– FIRST convert any Markdown bullets (or other MD) into real HTML
+        html_with_lists = markdown.markdown(raw_html)
+        # —–– THEN sanitize that HTML to only your allowed tags/attrs
+        description     = sanitize_html(html_with_lists)
         summary = strip_html_to_text(raw_html)
         
         # Use the get_pub_date function to retrieve the correct pubDate
@@ -163,10 +168,8 @@ def clean_feed(input_file, output_file):
             type='text/html'
         )
         fe.pubDate(entry['pubDate'])
-        # plain-text summary
-        fe.description(entry['summary'], isSummary=True)
-        # full HTML in CDATA
-        fe.content(entry['description'], type='CDATA')
+        # use the full sanitized HTML as the description
+        fe.description(entry['description'], type='CDATA')
 
     cleaned_feed = fg.rss_str(pretty=True)
     with open(output_file, 'wb') as out:

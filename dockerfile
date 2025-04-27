@@ -21,7 +21,7 @@ RUN python3 -m venv /venv
 ENV PATH="/venv/bin:$PATH"
 
 # 5. Install Python packages inside venv
-RUN pip install feedparser feedgen requests python-dateutil Flask==2.2.5 Werkzeug==2.3.7 bleach \
+RUN pip install feedparser feedgen requests python-dateutil Flask==2.2.5 Werkzeug==2.3.7 bleach markdown \
     && rm -rf /root/.cache/pip
 
 # 4. Copy app code
