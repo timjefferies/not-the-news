@@ -11,18 +11,18 @@ window.rssApp = () => {
     loading: true,
 
     async init() {
-      this.initTheme();
       // Show loading…
       this.loading = true;
-
-      // Restore persisted state
+      // 1) Restore persisted state *before* initializing UI
       try {
         await restoreStateFromFile("appState.json");
-        this.hidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
         console.log("State restored.");
       } catch {
         console.warn("No previous state to restore.");
       }
+      // 2) Now apply theme & hidden list
+      this.initTheme();
+      this.hidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
 
       // Load the feed
       try {
@@ -185,6 +185,10 @@ window.rssApp = () => {
         html.classList.add(newTheme);
         localStorage.setItem('theme', newTheme);
         themeText.textContent = newTheme;
+
+        // Save theme change to server
+        saveStateToFile("appState.json")
+        .catch(err => console.error("Save failed:", err));
       });
     },
 

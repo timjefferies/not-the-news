@@ -6,20 +6,17 @@ app = Flask(__name__)
 DATA_DIR = "/data"
 os.makedirs(DATA_DIR, exist_ok=True)
 
-@app.route("/save-state", methods=["POST"])
 def save_state():
     filename = request.args.get("filename", "appState.json")
     filepath = os.path.join(DATA_DIR, filename)
     try:
-        data = request.get_data(as_text=True)
-        # or use request.json for parsed JSON: state = request.json
+        state = request.get_json(force=True)
         with open(filepath, "w", encoding="utf-8") as f:
-            f.write(data)
+            json.dump(state, f, ensure_ascii=False, indent=2)
         return jsonify({"status": "ok"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/load-state", methods=["GET"])
 def load_state():
     filename = request.args.get("filename", "appState.json")
     filepath = os.path.join(DATA_DIR, filename)
@@ -27,8 +24,8 @@ def load_state():
         return jsonify({}), 200
     try:
         with open(filepath, "r", encoding="utf-8") as f:
-            state = f.read()
-        return jsonify(request.json or json.loads(state)), 200
+            state = json.load(f)
+        return jsonify(state), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
