@@ -45,19 +45,30 @@ def generate_feed():
         print("merge_feeds.py is already running; skipping this cycle.")
         return
     """Run the original pipeline via CLI scripts and sed replacements."""
+
     # 1) Merge
     with open(merged_log_file, 'w') as log_file:
-    subprocess.run(
-        [
-            'python3', 'merge_feeds.py',
-            '--feeds', feeds_path,
-            '--output', merged_file
-        ],
-        check=True,
-        cwd=SCRIPT_DIR,
-        stdout=log_file,
-        stderr=subprocess.STDOUT
-    )
+        process = subprocess.Popen(
+            [
+                'python3', 'merge_feeds.py',
+                '--feeds', feeds_path,
+                '--output', merged_file
+            ],
+            cwd=SCRIPT_DIR,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True  # to get strings instead of bytes
+        )
+
+        # Stream output line by line
+        for line in process.stdout:
+            print(line, end='')        # print to screen
+            log_file.write(line)        # write to file
+
+        process.wait()
+
+        if process.returncode != 0:
+            raise subprocess.CalledProcessError(process.returncode, process.args)
 
     # 2) Filter
     subprocess.run([
