@@ -2,9 +2,12 @@
 
 # not-the-news
 Browser based single page scroll rss reader with keyword filtering.
+Multiple rss feeds are regularly aggregated into a single rss feed, rss items that flag up with filtered keywords are then removed.
 
-Multiple rss feeds are aggregated into a single rss feed, rss items that flag up with filtered keywords are then removed.
-On the website, closing an item will permanently remain closed. Hidden items are kept in localstorage
+Features:
+- Auto reload when new rss items are available
+- Keyword filtering - only see the news you want to see.
+- Night/Day mode
 
 # configuration
 
