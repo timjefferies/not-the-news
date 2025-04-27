@@ -27,27 +27,31 @@ _bucket_lock = threading.Lock()
 def _consume_token():
     """Block until a token is available from the bucket, then consume one."""
     global _tokens, _last_refill
-    now     = time.monotonic()
-    elapsed = now - _last_refill
-    with _bucket_lock:
-        # refill
-        _tokens = min(BUCKET_CAPACITY, _tokens + elapsed * REFILL_RATE)
-        _last_refill = now
-        if _tokens < 1:
-            wait = (1 - _tokens) / REFILL_RATE
-            time.sleep(wait)
-            _tokens = 0
-            _last_refill = time.monotonic()
-        else:
-            _tokens -= 1
+    while True:
+        now     = time.monotonic()
+        elapsed = now - _last_refill
+        with _bucket_lock:
+            # refill
+            _tokens = min(BUCKET_CAPACITY, _tokens + elapsed * REFILL_RATE)
+            _last_refill = now
+            if _tokens >= 1:
+                _tokens -= 1
+                return
+            # else: not enough tokens, will sleep outside lock
+        # compute how long until at least one token
+        to_wait = (1 - _tokens) / REFILL_RATE
+        time.sleep(to_wait)
 
 # Exponential backoff parameters
 INITIAL_BACKOFF = 1    # seconds
 MAX_BACKOFF     = 60   # seconds
 BACKOFF_FACTOR  = 2
 
-# Track per-domain “extra” delays
-domain_requests = {}
+# Track per-domain last-request timestamps (for fixed spacing)
+domain_last_request = {}
+
+# minimum delay between requests to the same domain
+DOMAIN_DELAY = 1.0   # seconds
 
 # Create a single Session with your custom User-Agent
 session = requests.Session()
@@ -70,17 +74,15 @@ def fetch_with_backoff(url):
     _consume_token()
     # 1) Domain-based delay
     domain = extract_domain(url)
-    count = domain_requests.setdefault(domain, 0) + 1
-    domain_requests[domain] = count
-
-    extra_delay = DOMAIN_DELAY * (count - 1)
+    
+    last = domain_last_request.get(domain, 0)
+    now_ts  = time.monotonic()
+    extra_delay = max(0, DOMAIN_DELAY - (now_ts - last))
     if extra_delay > 0:
-        # get current time as HH:MM:SS
-        now = datetime.now().strftime('%H:%M:%S')
-        msg = f"{now}: [{domain}] same-domain hit #{count}, waiting extra {extra_delay}s… {url}"
-        # clear the entire line then print the new one
-        print('\r\033[K' + msg, end='\r', flush=True)
+        ts = datetime.now().strftime('%H:%M:%S')
+        print(f"{ts}: [{domain}] waiting {extra_delay:.2f}s before request… {url}")
         time.sleep(extra_delay)
+    domain_last_request[domain] = time.monotonic()
 
     # 2) Exponential retry/backoff loop
     backoff = INITIAL_BACKOFF
@@ -91,10 +93,9 @@ def fetch_with_backoff(url):
             resp = session.get(url)
             if resp.status_code == 429:
                 # honor Retry-After if given, else use backoff
-                ra = resp.headers.get('Retry-After')
+                ra   = resp.headers.get('Retry-After')
                 wait = int(ra) if ra and ra.isdigit() else backoff
-                wait += extra_delay
-                print(f"429 from {url}, sleeping {wait}s (backoff={backoff}s + extra={extra_delay}s)…")
+                print(f"429 from {url}, sleeping {wait}s (backoff={backoff}s)…")
                 time.sleep(wait)
                 backoff = min(backoff * BACKOFF_FACTOR, MAX_BACKOFF)
                 continue
