@@ -25,7 +25,12 @@ def load_state():
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             state = json.load(f)
-        return jsonify(state), 200
+        # Return the file contents verbatim as JSON
+        return app.response_class(
+            state,
+            status=200,
+            mimetype="application/json"
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

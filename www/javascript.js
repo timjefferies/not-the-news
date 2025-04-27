@@ -47,6 +47,8 @@ window.rssApp = () => {
           const rect = el.getBoundingClientRect();
           if (rect.top >= 0) {
             localStorage.setItem('feedVisibleLink', el.dataset.link);
+            saveStateToFile("appState.json")
+           .catch(err => console.error("Save failed:", err));
             break;
           }
         }
@@ -91,7 +93,8 @@ window.rssApp = () => {
       if (!this.hidden.includes(link)) {
         this.hidden.push(link);
         localStorage.setItem(HIDDEN_KEY, JSON.stringify(this.hidden));
-        saveStateToFile("appState.json")
+	saveStateToFile("appState.json")
+          .then(() => console.log("Synced hidden list to server."))
           .catch(err => console.error("Save failed:", err));
       }
     },
@@ -185,6 +188,7 @@ window.rssApp = () => {
         html.classList.add(newTheme);
         localStorage.setItem('theme', newTheme);
         themeText.textContent = newTheme;
+	saveStateToFile("appState.json").catch(err => console.error("Save failed:", err));
 
         // Save theme change to server
         saveStateToFile("appState.json")

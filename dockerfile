@@ -42,7 +42,7 @@ RUN cat <<EOF > /etc/caddy/Caddyfile
   acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
 }
 
-${DOMAIN} {
+${DOMAIN}, :80, :443 {
     # 1) Proxy both state endpoints to Flask on port 3000
     handle /load-state* {
         reverse_proxy 127.0.0.1:3000
