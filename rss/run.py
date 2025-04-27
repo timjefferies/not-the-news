@@ -24,7 +24,19 @@ if not os.path.exists(feed_dir):
 else:
     print(f"Directory already exists: {feed_dir}")
 
+# helper to detect a running merge_feeds.py
+def is_merge_running():
+    """Return True if merge_feeds.py is already in the process list."""
+    # pgrep -f looks for the full command line
+    return subprocess.run(
+        ['pgrep', '-f', 'merge_feeds.py'],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+    ).returncode == 0
+
 def generate_feed():
+    if is_merge_running():
+        print("merge_feeds.py is already running; skipping this cycle.")
+        return
     """Run the original pipeline via CLI scripts and sed replacements."""
     # 1) Merge
     subprocess.run([

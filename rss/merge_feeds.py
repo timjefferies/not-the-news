@@ -1,6 +1,7 @@
 import time
 from urllib.parse import urlparse
 import feedparser
+import threading
 from feedgen.feed import FeedGenerator
 from datetime import datetime, timezone
 from dateutil.parser import parse
@@ -8,15 +9,102 @@ import argparse
 import requests
 import pprint
 
+# ─── Global backoff & rate-limit settings ─────────────────────────────────────
+
+# ─── Token-bucket rate limiter for QPM limits ─────────────────────────────────
+USE_OAUTH       = False             # True if you’ve authenticated via OAuth
+API_QPM         = 100 if USE_OAUTH else 10
+FRONTEND_QPM    = 60
+RATE_LIMIT_QPM  = min(API_QPM, FRONTEND_QPM)
+BUCKET_CAPACITY = 18               # max burst capacity
+REFILL_RATE     = RATE_LIMIT_QPM/60  # tokens per second
+
+# token-bucket state
+_tokens      = BUCKET_CAPACITY
+_last_refill = time.monotonic()
+_bucket_lock = threading.Lock()
+
+def _consume_token():
+    """Block until a token is available from the bucket, then consume one."""
+    global _tokens, _last_refill
+    now     = time.monotonic()
+    elapsed = now - _last_refill
+    with _bucket_lock:
+        # refill
+        _tokens = min(BUCKET_CAPACITY, _tokens + elapsed * REFILL_RATE)
+        _last_refill = now
+        if _tokens < 1:
+            wait = (1 - _tokens) / REFILL_RATE
+            time.sleep(wait)
+            _tokens = 0
+            _last_refill = time.monotonic()
+        else:
+            _tokens -= 1
+
+# Exponential backoff parameters
+INITIAL_BACKOFF = 1    # seconds
+MAX_BACKOFF     = 60   # seconds
+BACKOFF_FACTOR  = 2
+
+# Track per-domain “extra” delays
+domain_requests = {}
+
+# Create a single Session with your custom User-Agent
+session = requests.Session()
+session.headers.update({
+    'User-Agent': 'not-the-news/1.0 (by /u/not-the-news-app)'
+})
 
 def extract_domain(url, cache={}):
     """Extract the domain from a URL with basic caching."""
     if url in cache:
         return cache[url]
-    parsed_url = urlparse(url)
-    domain = parsed_url.netloc
-    cache[url] = domain
-    return domain
+    parsed = urlparse(url)
+    cache[url] = parsed.netloc
+    return cache[url]
+
+
+def fetch_with_backoff(url):
+    """Fetch the URL, applying per-domain delay + retry/backoff on 429."""
+    # 0) Global QPM rate-limit
+    _consume_token()
+    # 1) Domain-based delay
+    domain = extract_domain(url)
+    count = domain_requests.setdefault(domain, 0) + 1
+    domain_requests[domain] = count
+
+    extra_delay = DOMAIN_DELAY * (count - 1)
+    if extra_delay > 0:
+        # get current time as HH:MM:SS
+        now = datetime.now().strftime('%H:%M:%S')
+        msg = f"{now}: [{domain}] same-domain hit #{count}, waiting extra {extra_delay}s… {url}"
+        # clear the entire line then print the new one
+        print('\r\033[K' + msg, end='\r', flush=True)
+        time.sleep(extra_delay)
+
+    # 2) Exponential retry/backoff loop
+    backoff = INITIAL_BACKOFF
+    while True:
+        try:
+            # re-apply rate limit on each retry
+            _consume_token()
+            resp = session.get(url)
+            if resp.status_code == 429:
+                # honor Retry-After if given, else use backoff
+                ra = resp.headers.get('Retry-After')
+                wait = int(ra) if ra and ra.isdigit() else backoff
+                wait += extra_delay
+                print(f"429 from {url}, sleeping {wait}s (backoff={backoff}s + extra={extra_delay}s)…")
+                time.sleep(wait)
+                backoff = min(backoff * BACKOFF_FACTOR, MAX_BACKOFF)
+                continue
+
+            resp.raise_for_status()
+            return feedparser.parse(resp.content)
+
+        except requests.RequestException as e:
+            print(f"Error fetching {url}: {e}")
+            return None
 
 
 def validate_url(url):
@@ -46,36 +134,15 @@ def merge_feeds(feeds_file, output_file):
     domain_cache = {}
     feed_urls.sort(key=lambda url: extract_domain(url, domain_cache))
 
-    headers = {'User-Agent': 'not-the-news/1.0 (by /u/azureuser)'}
-    domain_requests = {}
     for url in feed_urls:
         if not validate_url(url):
             print(f"Skipping invalid URL: {url}")
             continue
 
-        current_domain = extract_domain(url, domain_cache)
-        domain_requests[current_domain] = domain_requests.get(current_domain, 0) + 1
-        if domain_requests[current_domain] > 5:
-            print(f"Rate-limiting domain: {current_domain}. Waiting for 10 seconds...", end='\r', flush=True)
-            time.sleep(10)
-            domain_requests[current_domain] = 0  # Reset counter for domain
-
-        while True:  # Retry loop
-            try:
-                # Use requests to fetch the feed with a custom User-Agent
-                response = requests.get(url, headers=headers)
-                time.sleep(1)
-                if response.status_code == 429:  # Too Many Requests
-                    print(f"429 Too Many Requests for {url}. Retrying in 30 seconds...")
-                    time.sleep(30)  # Wait before retrying
-                    continue
-                response.raise_for_status()  # Raise HTTP errors other than 429
-                feed = feedparser.parse(response.content)
-                break  # Exit loop if successful
-            except requests.exceptions.RequestException as e:
-                # this will print an error *and* force a newline
-                print(f"Error fetching feed {url}: {e}")
-                break  # Exit loop for other errors
+        feed = fetch_with_backoff(url)
+        if not feed or not feed.entries:
+            print(f"No entries for {url}, skipping.")
+            continue
 
         print(f"Importing: {url} ({len(feed.entries)} entries)", end='\r', flush=True)
         if len(feed.entries) == 0:
