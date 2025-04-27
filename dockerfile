@@ -44,10 +44,10 @@ RUN cat <<EOF > /etc/caddy/Caddyfile
 
 ${DOMAIN} {
     # 1) Proxy both state endpoints to Flask on port 3000
-    handle_path /load-state* {
+    handle /load-state* {
         reverse_proxy 127.0.0.1:3000
     }
-    handle_path /save-state* {
+    handle /save-state* {
         reverse_proxy 127.0.0.1:3000
     }
     # 2) Serve your static site by default
