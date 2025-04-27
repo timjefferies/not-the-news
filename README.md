@@ -2,12 +2,13 @@
 
 # not-the-news
 Browser based single page scroll rss reader with keyword filtering.
-Multiple rss feeds are regularly aggregated into a single rss feed, rss items that flag up with filtered keywords are then removed.
+Multiple rss feeds are regularly aggregated into a single scrollable feed, rss items that flag up with filtered keywords are removed.
 
 Features:
-- Auto reload when new rss items are available
-- Keyword filtering - only see the news you want to see.
+- Keyword filtering - only see the information you want to see.
 - Night/Day mode
+- Auto reload when new rss items are available
+- Automatic cross browser/device syncing
 
 # configuration
 
@@ -19,7 +20,7 @@ www/config/
 
 # running it
 
-## Create a persisten storage volume for the data
+## Create a persistent storage volume for the data
 docker volume create app_state_volume
 
 # Build and run the container
