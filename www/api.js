@@ -35,7 +35,7 @@ export async function saveStateToFile(filename) {
   const remoteTS = parseInt(remoteState.appStateTS || '0', 10);                   // :contentReference[oaicite:8]{index=8}
 
   // 3. Skip if local isn’t strictly newer
-  if (localOldTS <= remoteTS) {
+  if (localOldTS < remoteTS) {
     console.log('Skipping save: local state is older or equal to remote.');
     return;  // no-op :contentReference[oaicite:9]{index=9}
   }
