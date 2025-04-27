@@ -109,7 +109,7 @@ def clean_feed(input_file, output_file):
     """Read a merged feed, clean its entries, remove invalid tags, and write a new RSS-compliant feed."""
     feed = feedparser.parse(input_file)
     entries = feed.entries
-    cleaned_entries = parse_and_santize_entries(entries)
+    cleaned_entries = parse_and_sanitize_entries(entries)
 
     # Sort cleaned entries by date
     cleaned_entries.sort(key=lambda x: parse(x['pubDate']))
