@@ -34,9 +34,23 @@ window.rssApp = () => {
     	this.loading = false;
   	}
 
-      // Light HEAD-based poll every 5 minutes
+      // Light HEAD-based poll every 5 minutes, but preserve scroll/item state
       let lastEtag, lastModified;
+
       setInterval(async () => {
+        // 0. Capture scrollY and the first entry in view
+        const scrollY = window.scrollY;
+        localStorage.setItem('feedScrollY', String(scrollY));
+        // Find the first entry whose top edge is visible
+        const entries = document.querySelectorAll('.entry');
+        for (const el of entries) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top >= 0) {
+            localStorage.setItem('feedVisibleLink', el.dataset.link);
+            break;
+          }
+        }
+
         // 1. Send HEAD with validators if available
         const headRes = await fetch('/feed.xml', {
           method: 'HEAD',
@@ -47,9 +61,25 @@ window.rssApp = () => {
         });
         // 2a. If changed, update validators and fetch full feed
         if (headRes.status === 200) {
-          lastEtag     = headRes.headers.get('ETag');
           lastModified = headRes.headers.get('Last-Modified');
-          this.loadFeed();
+
+          await this.loadFeed();
+          // 2. After reload, restore scroll/item state
+          window.requestAnimationFrame(() => {
+            // Try to scroll the previously visible entry into view
+            const link = localStorage.getItem('feedVisibleLink');
+            if (link) {
+              const target = document.querySelector(`.entry[data-link="${link}"]`);
+              if (target) {
+                target.scrollIntoView({ block: 'start' });
+                return;
+              }
+            }
+            // Fallback: raw scrollY
+            const y = parseInt(localStorage.getItem('feedScrollY') || '0', 10);
+            if (y) window.scrollTo({ top: y });
+          });
+
         }
         // 2b. If 304, feed unchanged—do nothing
       }, 5*60*1000);
