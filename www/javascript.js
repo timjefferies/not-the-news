@@ -34,8 +34,25 @@ window.rssApp = () => {
     	this.loading = false;
   	}
 
-      // Poll every 5 minutes
-      setInterval(() => this.loadFeed(), 5*60*1000);
+      // Light HEAD-based poll every 5 minutes
+      let lastEtag, lastModified;
+      setInterval(async () => {
+        // 1. Send HEAD with validators if available
+        const headRes = await fetch('/feed.xml', {
+          method: 'HEAD',
+          headers: {
+            ...(lastEtag       && { 'If-None-Match': lastEtag }),
+            ...(lastModified   && { 'If-Modified-Since': lastModified })
+          }
+        });
+        // 2a. If changed, update validators and fetch full feed
+        if (headRes.status === 200) {
+          lastEtag     = headRes.headers.get('ETag');
+          lastModified = headRes.headers.get('Last-Modified');
+          this.loadFeed();
+        }
+        // 2b. If 304, feed unchanged—do nothing
+      }, 5*60*1000);
     },
 
     hide(link) {
