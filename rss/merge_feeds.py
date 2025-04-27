@@ -183,7 +183,16 @@ def merge_feeds(feeds_file, output_file):
             # feedgen.pubDate accepts a datetime, and will format it correctly
             fe.pubDate(pub_dt)
 
-            fe.description(entry.get('summary', ''))
+            # Prefer full HTML <content:encoded> if present, otherwise fallback to summary
+            if 'content' in entry and entry.content:
+                raw_html = entry.content[0].value
+            else:
+                raw_html = entry.get('summary', '')
+
+            # Emit raw HTML inside CDATA so subsequent cleaning/bleaching
+            # can re-sanitize and preserve your <p>, <ul>, <li>, etc.
+            fe.description(raw_html, cdata=True)
+            
             total_entries += 1
 
     merged_feed = fg.rss_str(pretty=True)
