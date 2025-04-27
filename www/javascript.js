@@ -86,11 +86,20 @@ window.rssApp = () => {
           const tmp = document.createElement('div');
           tmp.innerHTML = raw;
 
+	  // Extract the hostname from the link to use as the source
+          let sourceHost = '';
+          try {
+            sourceHost = new URL(item.link).hostname;
+          } catch (e) {
+            console.warn('Could not parse URL for source:', item.link);
+          }
+
           return {
             title:       item.title,
             link:        item.link,
             pubDate:     this.formatDate(item.pubDate || item.isoDate || ''),
-            description: (tmp.textContent || tmp.innerText || '').trim()
+            description: (tmp.textContent || tmp.innerText || '').trim(),
+	    source:      sourceHost
           };
         });
 

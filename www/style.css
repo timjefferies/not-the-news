@@ -101,14 +101,29 @@ button.close:hover {
   background: steelblue;
 }
 
-.pubdate, .itemfrom {
+.pubdate,
+.itemfrom {
+  /* shared padding, font & background */
   padding-right: 1em;
   padding-bottom: 0.5em;
-  text-align: right;
   color: gray;
   font-style: italic;
   font-size: medium;
   background-color: var(--card-bg);
+}
+
+.pubdate {
+  /* the date itself stays right‐aligned */
+  text-align: right;
+}
+
+.itemfrom {
+  /* source on left, date on right */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* reset text‐align so flex positioning wins */
+  text-align: left;
 }
 
 .pubdate p, .itemfrom p {
@@ -353,7 +368,14 @@ ul.feed-list, .feed-container {
   body, html { font-size: 14px; }
   p { font-size: 1rem !important; line-height: 1.4 !important; }
   .pubdate p, .itemfrom p { font-size: x-small !important; }
-  .pubdate, .itemfrom { padding-right: 0.5em; }
+  .pubdate,.itemfrom { padding-right: 0.5em; }
+  /* preserve flex layout on mobile */
+  .itemfrom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   .item { max-width: 100%; border-radius: 10px; margin: 1em auto; float: none; }
   .itemtitle { font-size: 1.25rem !important;
     padding: 1em 3rem 0.5em 0.75em;
