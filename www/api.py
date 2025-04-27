@@ -6,6 +6,7 @@ app = Flask(__name__)
 DATA_DIR = "/data"
 os.makedirs(DATA_DIR, exist_ok=True)
 
+@app.route("/save-state", methods=["POST"])
 def save_state():
     filename = request.args.get("filename", "appState.json")
     filepath = os.path.join(DATA_DIR, filename)
@@ -17,6 +18,7 @@ def save_state():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/load-state", methods=["GET"])
 def load_state():
     filename = request.args.get("filename", "appState.json")
     filepath = os.path.join(DATA_DIR, filename)
