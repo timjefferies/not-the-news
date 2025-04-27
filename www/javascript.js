@@ -61,7 +61,9 @@ window.rssApp = () => {
         });
         // 2a. If changed, update validators and fetch full feed
         if (headRes.status === 200) {
-          lastModified = headRes.headers.get('Last-Modified');
+          // update both validators
+          lastEtag     = headRes.headers.get('ETag');          // ← newly added
+          lastModified = headRes.headers.get('Last-Modified'); // ← existing
 
           await this.loadFeed();
           // 2. After reload, restore scroll/item state
