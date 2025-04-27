@@ -169,7 +169,7 @@ def clean_feed(input_file, output_file):
         )
         fe.pubDate(entry['pubDate'])
         # use the full sanitized HTML as the description
-        fe.description(entry['description'], type='CDATA')
+        fe.content(content=entry['description'], type='CDATA')
 
     cleaned_feed = fg.rss_str(pretty=True)
     with open(output_file, 'wb') as out:
