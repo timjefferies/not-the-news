@@ -48,7 +48,12 @@ window.rssApp = () => {
           if (rect.top >= 0) {
             localStorage.setItem('feedVisibleLink', el.dataset.link);
             saveStateToFile("appState.json")
-           .catch(err => console.error("Save failed:", err));
+              .then(async () => {
+                // After saving to server, re-pull and reapply state
+                await restoreStateFromFile("appState.json");
+                this.hidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
+              })
+              .catch(err => console.error("Save failed:", err));
             break;
           }
         }
@@ -93,8 +98,13 @@ window.rssApp = () => {
       if (!this.hidden.includes(link)) {
         this.hidden.push(link);
         localStorage.setItem(HIDDEN_KEY, JSON.stringify(this.hidden));
-	saveStateToFile("appState.json")
-          .then(() => console.log("Synced hidden list to server."))
+        saveStateToFile("appState.json")
+          .then(async () => {
+            console.log("Synced hidden list to server.");
+            // Pull back down so all tabs/devices stay in sync
+            await restoreStateFromFile("appState.json");
+            this.hidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
+          })
           .catch(err => console.error("Save failed:", err));
       }
     },
