@@ -145,7 +145,8 @@ def merge_feeds(feeds_file, output_file):
             print(f"No entries for {url}, skipping.")
             continue
 
-        print(f"Importing: {url} ({len(feed.entries)} entries)", end='\r', flush=True)
+        ts = datetime.now().strftime('%H:%M:%S')
+        print(f"{ts}: Importing: {url} ({len(feed.entries)} entries)", end='\r', flush=True)
         if len(feed.entries) == 0:
             print(f"Debug: No entries found in feed {url}. Feed content: {pprint.pformat(feed)}")
             continue
