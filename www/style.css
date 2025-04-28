@@ -346,9 +346,21 @@ h3 { margin-top: 2em; font-size: large; }
   width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.5);
 }
 
-.modal-content { background-color: var(--card-bg); margin: 10% auto;
-  padding: 2em; border-radius: 40px; border: 1px solid var(--card-border);
-  width: 80%; position: relative;
+.modal-content { 
+  background-color: var(--card-bg); margin: 10% auto;
+  border-radius: 40px;
+  border: 1px solid var(--card-border);
+
+  display: flex;                /* enable column flex layout */
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--fg);
+  padding: 1.5rem;
+  width: 90%;
+  max-width: none;              /* remove 400px cap */
+  max-height: 90vh;             /* constrain total modal height */
+  overflow: hidden;             /* children will scroll internally */
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 .modal-content > button.close {
   /* reuse your existing close-button styling + override placement */
@@ -408,6 +420,30 @@ ul.feed-list, .feed-container {
   width: 90%;
   box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
+/* Grouping & spacing */
+.settings-group {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* Textareas for settings */
+
+/* Keywords & RSS boxes: min 5 lines tall, scrollable */
+.settings-textarea {
+  width: 100%;
+  flex: 1;                      /* fill available vertical space */
+  min-height: 5em;              /* at least five lines tall */
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: none;                 /* lock size to layout */
+  overflow-y: scroll;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.4;
+}
 
 /* Settings button style */
 .settings-btn {
@@ -432,7 +468,8 @@ ul.feed-list, .feed-container {
 
 /* style the label to match your other text */
 .modal-content .theme-label {
-  font-size: x-large;
+  font-size: 1rem;
+  font-family: inherit;
   color: var(--fg);
 }
 
@@ -509,5 +546,30 @@ ul.feed-list, .feed-container {
     margin-left: auto;
     margin-right: 1rem;  /* match your padding */
   }
+    .modal-content {
+    width: 60% !important;
+    /* mirror .item’s 20% left/right margins */
+    margin-left: 20% !important;
+    margin-right: 20% !important;
+  }
 }
 
+/* Make modal full-screen on small devices */
+@media (max-width: 640px) {
+  .modal-content {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+}
+/* Mirror .item’s width at different breakpoints */
+@media (min-width: 1024px) {
+  .modal-content { width: 60%; }      /* same as .item’s 20% margins */
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .modal-content { width: 85%; }      /* .item max-width:85% */
+}
+@media (min-width: 481px) and (max-width: 767px) {
+  .modal-content { width: 90%; }      /* .item max-width:90% */
+}
