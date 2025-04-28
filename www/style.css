@@ -337,8 +337,16 @@ h3 { margin-top: 2em; font-size: large; }
 }
 
 .modal-content { background-color: var(--card-bg); margin: 10% auto;
-  padding: 2em; border-radius: 20px; border: 1px solid var(--card-border);
-  width: 80%;
+  padding: 2em; border-radius: 40px; border: 1px solid var(--card-border);
+  width: 80%; position: relative;
+}
+.modal-content > button.close {
+  /* reuse your existing close-button styling + override placement */
+  float: none;               /* cancel any float */
+  margin: 0;                 /* reset default margins */
+  position: absolute;
+  top: 0.5rem;               /* adjust to taste */
+  right: 0.5rem;             /* adjust to taste */
 }
 
 .modal-content form { padding: 1px; line-height: 1.6; }
@@ -386,7 +394,6 @@ ul.feed-list, .feed-container {
   background: var(--bg);
   color: var(--fg);
   padding: 1.5rem;
-  border-radius: 0.5rem;
   max-width: 400px;
   width: 90%;
   box-shadow: 0 2px 10px rgba(0,0,0,0.3);
@@ -424,6 +431,7 @@ ul.feed-list, .feed-container {
   }
 
   .item { box-shadow: 1px 1px 50px 1px var(--card-shadow-color !important); max-width: 100%; border-radius: 10px; margin: 1em auto; float: none; }
+  .modal-content { border-radius:10px; }
   .itemtitle { font-size: 1.25rem !important;
     padding: 1em 3rem 0.5em 0.75em;
   }
@@ -431,6 +439,12 @@ ul.feed-list, .feed-container {
     opacity: 0.6; position: absolute; top: 0.5rem; right: 0.5rem; margin-top: -0.85rem; }
   .itemdescription { padding: 1em 1.8em 2em !important; }
   #header { padding: 0rem 1rem; }
+  .modal-content > button.close {
+    font-size: 1.25rem;
+    top: 0.75rem;
+    right: 0.75rem;
+    opacity: 0.8;
+  }
 }
 
 @media (min-width: 481px) and (max-width: 767px) {

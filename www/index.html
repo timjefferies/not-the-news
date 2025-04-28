@@ -93,6 +93,8 @@
       @click.self="openSettings = false"
     >
       <div class="modal-content">
+	 <!-- ✕ close button, styled via button.close -->
++        <button class="close" @click="openSettings = false">✕</button>
         <h2>Settings</h2>
         <!-- Theme toggle inside modal -->
 	<div class="theme-switch">
@@ -102,7 +104,6 @@
           <span class="slider"></span>
         </label>
 	</div>
-        <button @click="openSettings = false">Close</button>
       </div>
     </div>
   </template>
