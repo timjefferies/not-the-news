@@ -189,9 +189,9 @@ def merge_feeds(feeds_file, output_file):
             else:
                 raw_html = entry.get('summary', '')
 
-            # Emit raw HTML inside CDATA so subsequent cleaning/bleaching
-            # can re-sanitize and preserve your <p>, <ul>, <li>, etc.
-            fe.description(raw_html, cdata=True)
+            # Emit the HTML inside a CDATA-wrapped <content:encoded> element
+            # (so the downstream cleaner can pick up real <p>, <ul>, <li>, etc.)
+            fe.content(raw_html, type='CDATA')
             
             total_entries += 1
 
