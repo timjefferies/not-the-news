@@ -204,6 +204,10 @@ a:hover { color: darkslateblue; }
   display: inline-block;
   width: 50px;
   height: 24px;
+  font-size: 1rem;
+  font-family: inherit;
+  margin-left: -3em;
+  margin-top: -0.3em;
 }
 .switch input {
   opacity: 0;
@@ -238,7 +242,7 @@ a:hover { color: darkslateblue; }
 .switch input:checked + .slider::before {
   transform: translateX(26px);
 }
-#theme-text {
+#theme-text, #sync-text {
   font-size: 1rem;
   font-family: inherit;
   margin-left: -3em;
@@ -433,7 +437,7 @@ ul.feed-list, .feed-container {
 /* 3) Within those groups, let the textarea itself fill the group */
 .settings-group.grow .settings-textarea {
   flex: 1;                          /* textarea expands to fill its .grow parent */  /* :contentReference[oaicite:3]{index=3} */
-  min-height: 5em;                  /* still at least 5 lines tall */
+  min-height: 3em;                  /* still at least 3 lines tall */
   overflow-y: auto;                 /* scroll when content overflows */
 }
 
@@ -486,7 +490,7 @@ ul.feed-list, .feed-container {
   background-color: cornflowerblue; /* changes color on hover */
 }
 /* make the label sit left and the switch sit right on one line */
-.modal-content .theme-switch {
+.modal-content .theme-switch, .modal-content .sync-switch {
   display: flex;                  /* switch to flex layout */
   justify-content: space-between; /* push children to the ends */
   align-items: center;            /* vertical-center them */
@@ -495,7 +499,7 @@ ul.feed-list, .feed-container {
 }
 
 /* style the label to match your other text */
-.modal-content .theme-label {
+.modal-content .settings-label {
   font-size: 1rem;
   font-family: inherit;
   color: var(--fg);

@@ -88,9 +88,18 @@
       <button class="close" @click="openSettings = false">✕</button>
       <h2>SETTINGS</h2>
 
+      <!-- Auto Sync -->
+      <div class="sync-switch">
+	<span class="settings-label">AutoSync Feed? (off to save data)</span>
+        <label class="switch" for="sync-toggle">
+          <span id="sync-text">on</span>
+          <input type="checkbox" id="sync-toggle">
+          <span class="slider"></span>
+        </label>
+      </div>
       <!-- Theme toggle inside modal -->
       <div class="theme-switch">
-	<span class="theme-label">Display theme:</span>
+	<span class="settings-label">Display theme:</span>
         <label class="switch" for="theme-toggle">
           <span id="theme-text">light</span>
           <input type="checkbox" id="theme-toggle">
