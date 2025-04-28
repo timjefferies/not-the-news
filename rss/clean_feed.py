@@ -5,6 +5,7 @@ from dateutil.parser import parse
 import feedparser
 from feedgen.feed import FeedGenerator
 import bleach
+import re
 
 # ===== Configuration =====
 ALLOWED_TAGS = [
@@ -59,6 +60,28 @@ def clean_feed_entries(entries):
         title = clean_text(title)
 
         description = clean_text(description)
+
+        # ————— auto-paragraph if no <p> or <br> tags —————
+        # look for any existing paragraph or line-break tags
+        if not re.search(r'<p\b|<br\s*/?>', description):
+            # 1) protect common abbreviations by replacing their dots with a placeholder
+            abbreviations = [
+                'Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Prof.', 'Sr.', 'Jr.',
+                'St.', 'vs.', 'etc.', 'e.g.', 'i.e.', 'U.S.', 'U.K.'
+            ]
+            placeholder = '[DOT]'
+            for abbr in abbreviations:
+                description = description.replace(abbr, abbr.replace('.', placeholder))
+
+            # 2) split into sentences on ., ! or ? followed by whitespace
+            sentences = re.split(r'(?<=[.!?])\s+', description.strip())
+
+            # 3) restore the dots in the abbreviations
+            sentences = [s.replace(placeholder, '.') for s in sentences]
+
+            # 4) group every 5 sentences into one <p>…</p>
+            paras = [' '.join(sentences[i:i+5]) for i in range(0, len(sentences), 5)]
+            description = ''.join(f'<p>{p}</p>' for p in paras)
 
         entry_cleaned = {
             'title': title,
