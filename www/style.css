@@ -570,7 +570,7 @@ ul.feed-list, .feed-container {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    font-size: x-large;
+    font-size: 1rem;
     margin-top: 0.5em;
   }
 
