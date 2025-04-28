@@ -24,6 +24,7 @@ ENV PATH="/venv/bin:$PATH"
 RUN pip install \
       feedparser feedgen requests python-dateutil \
       Flask==2.2.5 Werkzeug==2.3.7 bleach markdown \
+      gunicorn \
     && rm -rf /root/.cache/pip
 
 ##############################################################################
@@ -39,7 +40,7 @@ RUN mkdir -p /usr/local/bin && \
     echo '#!/usr/bin/env bash' > /usr/local/bin/docker-entrypoint.sh && \
     echo 'set -e' >> /usr/local/bin/docker-entrypoint.sh && \
     echo '' >> /usr/local/bin/docker-entrypoint.sh && \
-    echo 'python3 /app/www/api.py &' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'gunicorn --chdir /app/www --bind 127.0.0.1:3000 --workers 1 --threads 3 api:app &' >> /usr/local/bin/docker-entrypoint.sh && \
     echo 'python3 /rss/run.py --daemon &' >> /usr/local/bin/docker-entrypoint.sh && \
     echo '' >> /usr/local/bin/docker-entrypoint.sh && \
     echo 'if [ ! -f "/data/autosave.json" ]; then' >> /usr/local/bin/docker-entrypoint.sh && \

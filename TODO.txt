@@ -1,10 +1,7 @@
 # TODO
-- fix the device restore state syncing
-- add ssl certs to permanent storage, and only generate a new one if you have to. if there is an error start caddy in dev mode
 - seperate merge_feeds, into fetch_feeds.py and merge_feeds.py with one just getting feeds, and the other handling combining them
 - cache feeds in /data/feed/cache, and make it so that new feeds are only downloaded if there is a change.
 - once feeds are cached, add an extra var to feeds.txt to tell the fetch_feeds.py how often to try to get a feed.
 - fix the close animation
 - add a screen in the ui to see feeds.txt and allow updating it and saving it to permanent storage via the api.
 - add a password screen, to block bots and scrapers.
-- add a method to backup the permanent storage
