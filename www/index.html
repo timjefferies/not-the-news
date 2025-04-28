@@ -7,14 +7,6 @@
 
   <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css" />
-
-  <!-- RSS Parser v3.13.0 -->
-  <!-- https://cdn.jsdelivr.net/npm/rss-parser@3.13.0/dist/rss-parser.min.js -->
-  <script defer src="libs/rss-parser.min.js"></script>
-  <script type="module" defer src="javascript.js"></script>
-  <!-- Alpine.js v3.x.x -->
-  <!-- https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" -->
-  <script defer src="libs/alpine.3.x.x.js"></script>
 </head>
 <body x-data="rssApp()" x-init="init()">
   <!-- Loading screen -->
@@ -70,10 +62,9 @@
       x-transition:leave-start="opacity-100 translate-x-0"
       x-transition:leave-end="opacity-0 translate-x-full"
     >
+      <button class="close" @click="hide(entry.link)">✕</button>
       <div class="itemtitle">
         <a :href="entry.link" target="_blank" x-text="entry.title"></a>
-        <!-- Single click handler here -->
-	<button class="close" @click="hide(entry.link)">✕</button>
       </div>
       <div class="itemdescription">
         <div class="itemfrom">
@@ -87,26 +78,32 @@
   </main>
 
   <!-- Settings modal -->
-  <template x-if="openSettings">
-    <div
-      class="modal-overlay"
-      @click.self="openSettings = false"
-    >
-      <div class="modal-content">
-	 <!-- ✕ close button, styled via button.close -->
-+        <button class="close" @click="openSettings = false">✕</button>
-        <h2>Settings</h2>
-        <!-- Theme toggle inside modal -->
-	<div class="theme-switch">
-	  <label class="switch" for="theme-toggle">
+  <div
+    x-show="openSettings"
+    x-cloak
+    class="modal-overlay"
+    @click.self="openSettings = false"
+  >
+    <div class="modal-content">
+      <button class="close" @click="openSettings = false">✕</button>
+      <h2>Settings</h2>
+
+      <!-- Theme toggle inside modal -->
+      <div class="theme-switch">
+        <label class="switch" for="theme-toggle">
           <span id="theme-text">light</span>
           <input type="checkbox" id="theme-toggle">
           <span class="slider"></span>
         </label>
-	</div>
       </div>
-    </div>
-  </template>
+
+  <!-- RSS Parser v3.13.0 -->
+  <!-- https://cdn.jsdelivr.net/npm/rss-parser@3.13.0/dist/rss-parser.min.js -->
+  <script defer src="libs/rss-parser.min.js"></script>
+  <script type="module" defer src="javascript.js"></script>
+  <!-- Alpine.js v3.x.x -->
+  <!-- https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" -->
+  <script defer src="libs/alpine.3.x.x.js"></script>
 </body>
 </html>
 

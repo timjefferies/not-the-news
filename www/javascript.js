@@ -34,8 +34,6 @@ window.rssApp = () => {
   	} finally {
     	this.loading = false;
   	}
-      // Attach delegated theme‐switch listener
-      this.attachThemeSwitchDelegate();
 
       // Light HEAD-based poll every 5 minutes, but preserve scroll/item state
       let lastEtag, lastModified;
@@ -180,34 +178,6 @@ window.rssApp = () => {
       } finally {
         this.loading = false;
       }
-    },
-
-     /**
-     * Listen for clicks on anything with .theme-switch
-     * and toggle light/dark exactly as initTheme()'s handler did.
-     */
-    attachThemeSwitchDelegate() {
-      document.body.addEventListener('click', event => {
-        if (!event.target.classList.contains('theme-switch')) return;
-
-        const html = document.documentElement;
-        // flip between .dark and .light
-        const wasDark = html.classList.contains('dark');
-        html.classList.toggle('dark', !wasDark);
-        html.classList.toggle('light', wasDark);
-
-        // persist
-        const newTheme = wasDark ? 'light' : 'dark';
-        localStorage.setItem('theme', newTheme);
-
-        // update any UI text
-        const themeText = document.getElementById('theme-text');
-        if (themeText) themeText.textContent = newTheme;
-
-        // sync up to server
-        saveStateToFile("appState.json")
-          .catch(err => console.error("Save failed:", err));
-      });
     },
 
     initTheme() {
