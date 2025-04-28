@@ -5,8 +5,12 @@
 }
 
 {$DOMAIN} {
-  handle_path /load-state* { reverse_proxy 127.0.0.1:3000 }
-  handle_path /save-state* { reverse_proxy 127.0.0.1:3000 }
+  handle_path /load-state* {
+	reverse_proxy 127.0.0.1:3000
+  }
+  handle_path /save-state* {
+	reverse_proxy 127.0.0.1:3000
+  }
   root * /app/www
   file_server
 
