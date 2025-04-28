@@ -230,11 +230,9 @@ a:hover { color: darkslateblue; }
   transform: translateX(26px);
 }
 #theme-text {
-  margin-left: -10px;
   font-size: medium;
   vertical-align: middle;
-  padding-top: 0.5em;
-  padding-left: 0.5em;
+  margin-left: -3em;
 }
 
 h2, h3 {
@@ -394,14 +392,22 @@ ul.feed-list, .feed-container {
   box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
-/* Settings button style (optional) */
+/* Settings button style */
 .settings-btn {
-  background: var(--bg);
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  margin-left: auto;
+  width: 3em;
+  height: 3em;
+  background-color: var(--bg);
   color: var(--fg);
+  margin-left: auto;
+  border: none;
+}
+.settings-icon:hover {
+  background-color: cornflowerblue; /* changes color on hover */
+}
+.theme-switch {
+    display: block;
+    position: relative;
+    justify-self: flex-end;
 }
 
 /* Responsive breakpoints */
