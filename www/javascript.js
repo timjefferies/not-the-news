@@ -4,7 +4,7 @@ import {
   attachScrollToTopHandler,
   formatDate
 } from "./js/functions.js";
-import { initSync, initTheme } from "./js/settings.js";
+import { initSync, initTheme, initImages } from "./js/settings.js";
 
 window.rssApp = () => {
   const HIDDEN_KEY = "hidden";
@@ -14,6 +14,7 @@ window.rssApp = () => {
     openSettings: false, // Controls visibility of the settings modal
     entries: [],
     hidden: JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]"),
+    imagesEnabled: JSON.parse(localStorage.getItem("imagesEnabled") ?? "true"),
     loading: true,
 
     // map-in our external helpers
@@ -33,8 +34,10 @@ window.rssApp = () => {
       // 2) Now apply theme & hidden list & sync
       this.hidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
       this.syncEnabled = JSON.parse(localStorage.getItem("syncEnabled") ?? "true");
+      this.imagesEnabled = JSON.parse(localStorage.getItem("imagesEnabled") ?? "true"),
       initTheme();
       initSync(this);
+      initImages(this);
 
       // 0) Initialize our ETag/Last-Modified validators so the very first poll
       //    can send If-None-Match right away
@@ -169,8 +172,15 @@ window.rssApp = () => {
           } catch (e) {
             console.warn('Could not parse URL for source:', item.link);
           }
+	  // ✂︎ extract the first <img src="…"> from the HTML snippet
+          let imageUrl = null;
+          const imgMatch = raw.match(/<img[^>]+src="([^">]+)"/);
+          if (imgMatch) {
+            imageUrl = imgMatch[1];
+          }
 
           return {
+	    image:       imageUrl,
             title:       item.title,
             link:        item.link,
             pubDate:     this.formatDate(item.pubDate || item.isoDate || ''),

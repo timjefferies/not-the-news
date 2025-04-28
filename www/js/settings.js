@@ -24,6 +24,29 @@ export function initSync(app) {
   });
 }
 
+const IMAGES_KEY = "imagesEnabled";
+
+// initialize the “Show images” toggle
+export function initImages(app) {
+  const toggle   = document.getElementById('images-toggle');
+  const imagesText = document.getElementById('images-text');
+  if (!toggle || !imagesText) return;
+
+  // reflect saved state
+  toggle.checked        = app.imagesEnabled;
+  imagesText.textContent = app.imagesEnabled ? 'yes' : 'no';
+
+  toggle.addEventListener('change', () => {
+    app.imagesEnabled      = toggle.checked;
+    localStorage.setItem(IMAGES_KEY, JSON.stringify(app.imagesEnabled));
+    imagesText.textContent  = app.imagesEnabled ? 'yes' : 'no';
+
+    // Save sync change to server
+    saveStateToFile("appState.json")
+      .catch(err => console.error("Save show images setting failed:", err));
+  });
+}
+
 // initialize the theme toggle
 export function initTheme() {
   const html      = document.documentElement;

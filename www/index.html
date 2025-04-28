@@ -71,6 +71,10 @@
 	  <p class="source" x-text="`Source: ${entry.source}`"></p>
           <p class="pubdate" x-text="entry.pubDate"></p>
         </div>
+	<template x-if="imagesEnabled && entry.image">
+        <img :src="entry.image" alt=""
+             class="entry-image" />
+        </template>
         <span x-html="entry.description"></span>
       </div>
     </div>
