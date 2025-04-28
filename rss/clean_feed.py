@@ -35,7 +35,6 @@ def clean_text(text: str) -> str:
     """Sanitize HTML using bleach, preserving only allowed tags and attributes."""
     if not text:
         return ''
-    text = unescape(text)
     cleaned = bleach.clean(
         text,
         tags=ALLOWED_TAGS,
@@ -43,7 +42,7 @@ def clean_text(text: str) -> str:
         protocols=ALLOWED_PROTOCOLS,
         strip=True
     )
-    return cleaned
+    return unescape(cleaned)
 
 
 def clean_feed_entries(entries):
@@ -58,6 +57,7 @@ def clean_feed_entries(entries):
         pub_date = get_pub_date(entry)
 
         title = clean_text(title)
+
         description = clean_text(description)
 
         entry_cleaned = {
