@@ -21,9 +21,9 @@ www/config/
 # running it
 
 ## Create a persistent storage volume for the data
-docker volume create app_state_volume
+docker volume create not-the-news_volume
 
 # Build and run the container
 export DOCKER_BUILDKIT=1
 docker buildx build --build-arg DOMAIN=yourdomain.tld --build-arg EMAIL=you@yourdomain.tld -t not-the-news .
-docker run -d -p 80:80 -p 443:443 -p 3000:3000 -v app_state_volume:/data --name ntn not-the-news
+docker run -d -p 80:80 -p 443:443 -p 3000:3000 -v not-the-news_volume:/data --name ntn not-the-news

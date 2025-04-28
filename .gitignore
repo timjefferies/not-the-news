@@ -7,4 +7,5 @@ data/config/filter_keywords.txt
 data/feed/*
 www/feed.xml
 rebuild.sh
+backup
 
