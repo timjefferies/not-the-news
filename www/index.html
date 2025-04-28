@@ -64,7 +64,7 @@
     >
       <button class="close" @click="hide(entry.link)">✕</button>
       <div class="itemtitle">
-        <a :href="entry.link" target="_blank" x-text="entry.title"></a>
+	      <h1><a :href="entry.link" target="_blank" x-text="entry.title"></a></h1>
       </div>
       <div class="itemdescription">
         <div class="itemfrom">
@@ -90,9 +90,9 @@
 
       <!-- Auto Sync -->
       <div class="sync-switch">
-	<span class="settings-label">AutoSync Feed? (off to save data)</span>
+	<span class="settings-label">AutoSync Feed? (no to save data)</span>
         <label class="switch" for="sync-toggle">
-          <span id="sync-text">on</span>
+          <span id="sync-text">yes</span>
           <input type="checkbox" id="sync-toggle">
           <span class="slider"></span>
         </label>
@@ -103,6 +103,15 @@
         <label class="switch" for="theme-toggle">
           <span id="theme-text">light</span>
           <input type="checkbox" id="theme-toggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <!-- Images toggle inside modal -->
+      <div class="images-switch">
+	<span class="settings-label">Show images?</span>
+        <label class="switch" for="images-toggle">
+          <span id="images-text">no</span>
+          <input type="checkbox" id="images-toggle">
           <span class="slider"></span>
         </label>
       </div>

@@ -1,14 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Prata&display=swap');
 
-/* Theme variables */
-:root {
-  --bg: #f5f5f5;
-  --fg: darkslategrey;
-  --card-bg: #ffffff;
-  --card-border: #EEE;
-  --card-shadow-color: lightgrey;
-}
-
 /* Tell browser we support both light & dark */
 html {
   color-scheme: light dark;
@@ -19,6 +10,8 @@ html {
   :root {
   --bg: #f5f5f5;
   --fg: darkslategrey;
+  --primary: cornflowerblue;
+  --secondary: aliceblue;
   --card-bg: #ffffff;
   --card-border: #EEE;
   --card-shadow-color: lightgrey;
@@ -33,35 +26,31 @@ html {
 html.light {
   --bg: #f5f5f5;
   --fg: darkslategrey;
+  --primary: cornflowerblue;
+  --secondary: slategrey;
   --card-bg: #ffffff;
   --card-border: #EEE;
   --card-shadow-color: lightgrey;
-  p { color: darkslategray; }
-  .itemtitle a { color: darkslategray; }
-  .itemtitle a:hover { color: black; }
   /* show noise background */
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><defs><filter id='tileableNoise' x='0%' y='0%' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch' result='noise'/><feColorMatrix in='noise' type='saturate' values='0'/><feComponentTransfer><feFuncA type='linear' slope='0.05'/></feComponentTransfer></filter></defs><rect width='100%' height='100%' fill='%23f5f5f5'/><rect width='100%' height='100%' filter='url(%23tileableNoise)'/></svg>");
   background-repeat: repeat;
+  button.close { background: aliceblue; }
+  button.close:hover { color: aliceblue; }
 }
 
 html.dark {
   --bg: #1A1A1B;
-  --fg: #D7DADC;
+  --fg: gainsboro;
+  --primary: cornflowerblue;
+  --secondary: aliceblue;
   --card-bg: #1E1E1E;
   --card-border: #343536;
   --card-shadow-color: rgba(0,0,0,0.5);
-  a { color: #0079D3; }
   a:visited { color: #0060A8; }
   background-image: none;
-  p { color: gainsboro; }
-  .itemtitle a { color: gainsboro; }
-  .itemtitle a:hover { color: white; }
   button.close {
-  	background: var(--bg);
 	box-shadow: -1px 1px 0 1px var(--card-shadow-color);
-	color: var(--fg);
   }
-  button.close:hover { background: var(--fg); color: var(--bg); }
   #header { text-shadow: 2px 2px black; }
 }
 /* make the cog button match your dark theme */
@@ -76,7 +65,7 @@ html.dark .cog-wheel-button:hover {
 }
 
 html.dark .switch input:checked + .slider {
-  background-color: #4c4c4c;
+  background-color: #2c4c4c;
 }
 
 
@@ -89,13 +78,15 @@ body, html {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><defs><filter id='tileableNoise' x='0%' y='0%' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch' result='noise'/><feColorMatrix in='noise' type='saturate' values='0'/><feComponentTransfer><feFuncA type='linear' slope='0.05'/></feComponentTransfer></filter></defs><rect width='100%' height='100%' fill='%23f5f5f5'/><rect width='100%' height='100%' filter='url(%23tileableNoise)'/></svg>");
   background-repeat: repeat;
 }
+p, h1, a { color: var(--fg); }
+.itemdescription a { color: var(--secondary); }
 
 title { display: none; }
 
 button.close {
   font-size: xx-large;
-  color: steelblue;
-  background: aliceblue;
+  background: var(--bg);
+  color: var(--fg);
   border-radius: 0 40px 0 20px;
   opacity: 0.8;
   box-shadow: -1px 1px 0 1px whitesmoke;
@@ -110,8 +101,8 @@ button.close {
 }
 
 button.close:hover {
-  color: aliceblue;
-  background: steelblue;
+  color: var(--secondary);
+  background: var(--primary);
 }
 
 .pubdate,
@@ -121,7 +112,7 @@ button.close:hover {
   padding-bottom: 0.5em;
   color: gray;
   font-style: italic;
-  font-size: smaller;
+  font-size: 1rem;
   background-color: var(--card-bg);
 }
 
@@ -177,9 +168,11 @@ td a { line-height: 1.6; }
 
 p { line-height: 1.6 !important; }
 
-a { text-decoration: none; transition: color .3s linear; color: steelblue; }
+h1 { line-height: 1.6; font-size: 1.3em; font-weight: lighter; }
+
+a { text-decoration: none; transition: color .3s linear; }
 a:visited { color: grey; }
-a:hover { color: darkslateblue; }
+a:hover { color: var(--primary); }
 
 /* Updated header: sticky and flex */
 #header {
@@ -242,7 +235,7 @@ a:hover { color: darkslateblue; }
 .switch input:checked + .slider::before {
   transform: translateX(26px);
 }
-#theme-text, #sync-text {
+#theme-text, #sync-text, #images-text {
   font-size: 1rem;
   font-family: inherit;
   margin-left: -3em;
@@ -288,8 +281,8 @@ h3 { margin-top: 2em; font-size: large; }
   margin-top: 0;
 }
 
-.itemtitle a { flex: 1; word-break: break-word; }
-.itemtitle a:hover { color: cornflowerblue; }
+.itemtitle h1 { flex: 1; word-break: break-word; }
+.itemtitle h1:hover { color: var(--primary); }
 
 .itemtitle .close {
   position: static;
@@ -465,7 +458,7 @@ ul.feed-list, .feed-container {
 .settings-textarea {
   width: 100%;
   flex: 1;                      /* fill available vertical space */
-  min-height: 5em;              /* at least five lines tall */
+  min-height: 3em;              /* at least five lines tall */
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -487,10 +480,10 @@ ul.feed-list, .feed-container {
   border: none;
 }
 .settings-btn:hover {
-  background-color: cornflowerblue; /* changes color on hover */
+  background-color: var(--primary); /* changes color on hover */
 }
 /* make the label sit left and the switch sit right on one line */
-.modal-content .theme-switch, .modal-content .sync-switch {
+.modal-content .theme-switch, .modal-content .sync-switch, .modal-content .images-switch {
   display: flex;                  /* switch to flex layout */
   justify-content: space-between; /* push children to the ends */
   align-items: center;            /* vertical-center them */
