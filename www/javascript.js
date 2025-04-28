@@ -1,4 +1,9 @@
-import { restoreStateFromFile, saveStateToFile } from "./api.js";
+import { restoreStateFromFile, saveStateToFile } from "./js/api.js";
+import {
+  scrollToTop,
+  attachScrollToTopHandler,
+  formatDate
+} from "./js/functions.js";
 
 window.rssApp = () => {
   const HIDDEN_KEY = "hidden";
@@ -9,6 +14,11 @@ window.rssApp = () => {
     entries: [],
     hidden: JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]"),
     loading: true,
+
+    // map-in our external helpers
+    scrollToTop,                         // now uses imported scrollToTop()
+    _attachScrollToTopHandler: attachScrollToTopHandler,
+    formatDate,                         // now uses imported formatDate()
 
     async init() {
       // Show loading…
@@ -94,31 +104,6 @@ window.rssApp = () => {
         // 2b. If 304, feed unchanged—do nothing
       }, 5*60*1000);
       this._attachScrollToTopHandler();
-    },
-    // this just scrolls:
-    scrollToTop() {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    },
-
-    // new helper: wires up the fade-in/out behavior
-    _attachScrollToTopHandler() {
-      const btn = document.getElementById("scroll-to-top");
-      if (!btn) return;
-
-      let idleTimeout = null;
-
-      window.addEventListener("scroll", () => {
-        // fade in immediately
-        btn.classList.add("visible");
-
-        // clear any pending fade-out
-        clearTimeout(idleTimeout);
-
-        // fade out after 1200ms of no scroll events
-        idleTimeout = setTimeout(() => {
-          btn.classList.remove("visible");
-        }, 1200);
-      });
     },
 
     hide(link) {
@@ -230,37 +215,6 @@ window.rssApp = () => {
         saveStateToFile("appState.json")
         .catch(err => console.error("Save failed:", err));
       });
-    },
-
-    formatDate(dateString) {
-      const now = new Date();
-      const date = new Date(dateString);
-      const diffInSeconds = Math.floor((now - date) / 1000);
-      const twoWeeks = 2 * 7 * 24 * 60 * 60;
-
-      if (diffInSeconds > twoWeeks) {
-        return date.toLocaleString('en-GB', {
-          weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
-          hour: '2-digit', minute: '2-digit'
-        });
-      }
-
-      const minutes = Math.floor(diffInSeconds / 60);
-      const hours   = Math.floor(minutes / 60);
-      const days    = Math.floor(hours / 24);
-
-      if (diffInSeconds < 60) {
-        return 'Just now';
-      } else if (minutes < 60) {
-        return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
-      } else if (hours < 24) {
-        return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
-      } else if (days < 7) {
-        return `${days} day${days !== 1 ? 's' : ''} ago`;
-      } else {
-        const weeks = Math.floor(days / 7);
-        return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
-      }
     },
   };
 };
