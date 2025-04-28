@@ -107,8 +107,10 @@ def clean_feed(input_file: str, output_file: str):
         fe.title(entry['title'])
         fe.link(href=entry['link'])
         fe.pubDate(entry['pubDate'])
-        # Emit raw HTML safely inside CDATA
-        fe.description(entry['description'], cdata=True)
+        # Emit the HTML inside a CDATA-wrapped <content:encoded> element
+        # (so the downstream cleaner can pick up real <p>, <ul>, <li>, etc.)
+        fe.content(raw_html, type='CDATA')
+
 
     rss_bytes = fg.rss_str(pretty=True)
     with open(output_file, 'wb') as f:
