@@ -139,14 +139,13 @@ window.rssApp = () => {
         const parser = new RSSParser();
         const feed   = await parser.parseString(xml);
 
-        const mapped = feed.items.map(item => {
-          const raw = item.content
-                   || item.contentSnippet
-                   || item.summary
-                   || item.description
-                   || '';
-          const tmp = document.createElement('div');
-          tmp.innerHTML = raw;
+	const mapped = feed.items.map(item => {
+        // keep the already-sanitized HTML instead of stripping it
+        const raw = item.content
+                 || item.contentSnippet
+                 || item.summary
+                 || item.description
+                 || '';
 
 	  // Extract the hostname from the link to use as the source
           let sourceHost = '';
@@ -160,7 +159,7 @@ window.rssApp = () => {
             title:       item.title,
             link:        item.link,
             pubDate:     this.formatDate(item.pubDate || item.isoDate || ''),
-            description: (tmp.textContent || tmp.innerText || '').trim(),
+            description: raw.trim(),
 	    source:      sourceHost
           };
         });
