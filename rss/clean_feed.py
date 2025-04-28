@@ -32,14 +32,10 @@ def get_pub_date(entry):
 
 
 def clean_text(text: str) -> str:
-    """
-    Sanitize HTML using bleach, preserving only allowed tags and attributes.
-    """
+    """Sanitize HTML using bleach, preserving only allowed tags and attributes."""
     if not text:
         return ''
-    # Decode HTML entities
     text = unescape(text)
-    # Clean with bleach, stripping disallowed tags but keeping their content
     cleaned = bleach.clean(
         text,
         tags=ALLOWED_TAGS,
@@ -54,32 +50,27 @@ def clean_feed_entries(entries):
     """Clean feed entries and extract valid RSS fields."""
     cleaned = []
     for entry in entries:
+        if not entry.get('link'):
+            continue
         title = entry.get('title', '')
         description = entry.get('summary', '')
         link = entry.get('link', '')
         pub_date = get_pub_date(entry)
 
-        # Extract images (if still needed)
-        images = []
-
-        # Sanitize
         title = clean_text(title)
         description = clean_text(description)
 
-        # Build cleaned entry
         entry_cleaned = {
             'title': title,
             'link': link,
             'description': description,
             'pubDate': pub_date,
-            'images': images
         }
         cleaned.append(entry_cleaned)
     return cleaned
 
 
 def validate_rss_fields(entry: dict) -> dict:
-    """Ensure only valid RSS fields are used."""
     valid_keys = {'title', 'link', 'description', 'pubDate'}
     return {k: entry[k] for k in entry if k in valid_keys}
 
@@ -90,27 +81,48 @@ def clean_feed(input_file: str, output_file: str):
     entries = feed.entries
 
     cleaned_entries = clean_feed_entries(entries)
-    # Sort by publication date
     cleaned_entries.sort(key=lambda x: parse(x['pubDate']))
-    # Filter to valid keys
     cleaned_entries = [validate_rss_fields(e) for e in cleaned_entries]
 
     fg = FeedGenerator()
     fg.title(feed.feed.get('title', 'Cleaned Feed'))
-    fg.link(href=feed.feed.get('link', ''), rel='alternate')
+
+    # ————— Normalize the feed’s “link” into a string —————
+    raw_link = feed.feed.get('link', '')
+    if isinstance(raw_link, dict):
+        feed_link = raw_link.get('href', '')
+    elif isinstance(raw_link, list):
+        # pick the first alternate link (or fall back to its href)
+        feed_link = next(
+            (l.get('href', '') for l in raw_link
+             if isinstance(l, dict) and l.get('rel') == 'alternate'),
+            raw_link[0].get('href', '') if raw_link and isinstance(raw_link[0], dict) else ''
+        )
+    else:
+        feed_link = raw_link  # already a string
+
+    if not feed_link:
+        # fallback default — you should set this to your site’s home URL
+        feed_link = 'https://example.com/'
+
+    fg.link(href=feed_link, rel='alternate')
+    fg.id(feed_link)
+    # ————————————————————————————————————————————————
     fg.description(feed.feed.get('description', ''))
     fg.language(feed.feed.get('language', 'en'))
     fg.generator('python-feedgen-cleaner')
 
     for entry in cleaned_entries:
         fe = fg.add_entry()
+        # Every entry gets an <id> (required internally) and a proper <link>
+        fe.id(entry['link'])
         fe.title(entry['title'])
-        fe.link(href=entry['link'])
+        fe.link(href=entry['link'], rel='alternate')
         fe.pubDate(entry['pubDate'])
-        # Emit the HTML inside a CDATA-wrapped <content:encoded> element
-        # (so the downstream cleaner can pick up real <p>, <ul>, <li>, etc.)
+        # Use cleaned HTML description from bleach
+        raw_html = entry['description']
+        # Emit the cleaned HTML inside a CDATA-wrapped <content:encoded> element
         fe.content(raw_html, type='CDATA')
-
 
     rss_bytes = fg.rss_str(pretty=True)
     with open(output_file, 'wb') as f:
@@ -119,9 +131,13 @@ def clean_feed(input_file: str, output_file: str):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Clean a merged RSS/Atom feed file using bleach.")
-    parser.add_argument('--input', '-i', required=True, help="Path to the merged feed XML.")
-    parser.add_argument('--output', '-o', required=True, help="Path to save the cleaned feed XML.")
+    parser = argparse.ArgumentParser(
+        description="Clean a merged RSS/Atom feed file using bleach."
+    )
+    parser.add_argument('--input', '-i', required=True,
+                        help="Path to the merged feed XML.")
+    parser.add_argument('--output', '-o', required=True,
+                        help="Path to save the cleaned feed XML.")
     args = parser.parse_args()
     clean_feed(args.input, args.output)
 
