@@ -26,11 +26,15 @@
   <header id="header" x-show="!loading" class="header">
     <h2>Not The News</h2>
 
-    <label class="switch" for="theme-toggle">
-        <input type="checkbox" id="theme-toggle">
-        <span class="slider"></span>
-    	<span id="theme-text">light</span>
-    </label>
+    <!-- Settings cog opens modal -->
+    <button
+      id="settings-button"
+      @click="openSettings = true"
+      class="settings-btn"
+      aria-label="Settings"
+    >
+      ⚙️
+    </button>
 
     <button id="scroll-to-top-button" @click="scrollToTop()">↑</button>
   </header>
@@ -62,6 +66,25 @@
     </div>
   </template>
   </main>
+
+  <!-- Settings modal -->
+  <template x-if="openSettings">
+    <div
+      class="modal-overlay"
+      @click.self="openSettings = false"
+    >
+      <div class="modal-content">
+        <h2>Settings</h2>
+        <!-- Theme toggle inside modal -->
+        <label class="switch" for="theme-toggle">
+          <input type="checkbox" id="theme-toggle">
+          <span class="slider"></span>
+          <span id="theme-text">light</span>
+        </label>
+        <button @click="openSettings = false">Close</button>
+      </div>
+    </div>
+  </template>
 </body>
 </html>
 

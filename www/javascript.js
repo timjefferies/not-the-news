@@ -6,6 +6,7 @@ window.rssApp = () => {
   const STORAGE_ETAG = "feedEtag";
   const FEED_URL = '/feed.xml';
   return {
+    openSettings: false, // Controls visibility of the settings modal
     entries: [],
     hidden: JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]"),
     loading: true,
