@@ -1,4 +1,3 @@
-
 import { restoreStateFromFile, saveStateToFile } from "./api.js";
 
 window.rssApp = () => {
@@ -25,9 +24,14 @@ window.rssApp = () => {
       this.initTheme();
       this.hidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
 
+      // 0) Initialize our ETag/Last-Modified validators so the very first poll
+      //    can send If-None-Match right away
+      let lastEtag     = localStorage.getItem(STORAGE_ETAG);
+      let lastModified = null;
+
       // Load the feed
       try {
-    	await this.loadFeed();
+	await this.loadFeed({ showLoading: true });
   	} catch (err) {
     	console.error("loadFeed failed", err);
     	this.errorMessage = "Could not load feed.";
@@ -35,10 +39,9 @@ window.rssApp = () => {
     	this.loading = false;
   	}
 
-      // Light HEAD-based poll every 5 minutes, but preserve scroll/item state
-      let lastEtag, lastModified;
-
       setInterval(async () => {
+	// don’t do any feed work if settings modal is open
+        if (this.openSettings) return;
         // 0. Capture scrollY and the first entry in view
         const scrollY = window.scrollY;
         localStorage.setItem('feedScrollY', String(scrollY));
@@ -60,7 +63,7 @@ window.rssApp = () => {
         }
 
         // 1. Send HEAD with validators if available
-        const headRes = await fetch('/feed.xml', {
+	const headRes = await fetch(FEED_URL, {
           method: 'HEAD',
           headers: {
             ...(lastEtag       && { 'If-None-Match': lastEtag }),
@@ -73,20 +76,17 @@ window.rssApp = () => {
           lastEtag     = headRes.headers.get('ETag');          // ← newly added
           lastModified = headRes.headers.get('Last-Modified'); // ← existing
 
-          await this.loadFeed();
+	  await this.loadFeed({ showLoading: false });
           // 2. After reload, restore scroll/item state
           window.requestAnimationFrame(() => {
             // Try to scroll the previously visible entry into view
             const link = localStorage.getItem('feedVisibleLink');
             if (link) {
-              const target = document.querySelector(`.entry[data-link="${link}"]`);
-              if (target) {
-                target.scrollIntoView({ block: 'start' });
-                return;
-              }
+	        const target = document.querySelector(`.entry[data-link="${link}"]`);
+                if (target) return target.scrollIntoView({ block: 'start' });
             }
             // Fallback: raw scrollY
-            const y = parseInt(localStorage.getItem('feedScrollY') || '0', 10);
+	    const y = +localStorage.getItem('feedScrollY') || 0;
             if (y) window.scrollTo({ top: y });
           });
 
@@ -110,8 +110,8 @@ window.rssApp = () => {
       }
     },
 	  
-    async loadFeed() {
-      this.loading = true;
+    async loadFeed({ showLoading = false } = {}) {
+      if (showLoading) this.loading = true;
       this.errorMessage = null;
 
       const prevEtag = localStorage.getItem(STORAGE_ETAG);
@@ -176,7 +176,7 @@ window.rssApp = () => {
         console.error('Failed to load feed:', err);
         this.errorMessage = 'Error loading feed.';
       } finally {
-        this.loading = false;
+	if (showLoading) this.loading = false;
       }
     },
 

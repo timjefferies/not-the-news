@@ -104,7 +104,7 @@ button.close {
   top: 0;
   right: 0;
   margin: 0;
-  padding: 0 0.5em 0 0.5em;
+  padding: 0 1rem 0 1rem;
   border: none;
   cursor: pointer;
 }
@@ -482,7 +482,7 @@ ul.feed-list, .feed-container {
   margin-left: auto;
   border: none;
 }
-.settings-icon:hover {
+.settings-btn:hover {
   background-color: cornflowerblue; /* changes color on hover */
 }
 /* make the label sit left and the switch sit right on one line */
@@ -520,7 +520,7 @@ ul.feed-list, .feed-container {
     padding: 1em 3rem 0.5em 0.75em;
   }
   button.close { font-size: 1.25rem; border-radius: 0 10px 0 10px;
-    opacity: 0.6; position: absolute; top: 0.5rem; right: 0.5rem; margin-top: -0.85rem; }
+    opacity: 0.6; position: absolute; }
   .itemdescription { padding: 1em 1.8em 2em !important; }
   #header { padding: 0rem 1rem; }
   .modal-content > button.close {

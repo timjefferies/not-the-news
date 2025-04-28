@@ -1,7 +1,14 @@
 # TODO
+- don't reload if settings modal is open
+- fix scroll to top icon and only show it when scrolling
+- flash a toast messagw if something went wrong saving the state
+- reload the feed in the background so the user isn't being disturbed
 - seperate merge_feeds, into fetch_feeds.py and merge_feeds.py with one just getting feeds, and the other handling combining them
 - cache feeds in /data/feed/cache, and make it so that new feeds are only downloaded if there is a change.
 - once feeds are cached, add an extra var to feeds.txt to tell the fetch_feeds.py how often to try to get a feed.
 - fix the close animation
 - add a screen in the ui to see feeds.txt and allow updating it and saving it to permanent storage via the api.
 - add a password screen, to block bots and scrapers.
+- rework styles.css and turn all the sizing into relative variables.
+- add stars to items and a drop down display filter
+- migrate from localstorage to indexedDB 
