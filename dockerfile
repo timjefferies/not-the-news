@@ -57,9 +57,9 @@ RUN mkdir -p /usr/local/bin && \
 # 7. Generate Caddyfile (persist to /data, allow ACME_CA override)
 RUN cat <<EOF > /etc/caddy/Caddyfile
 {
-  email {env.EMAIL}
+  email {$EMAIL}
   storage file_system /data
-  acme_ca {env.ACME_CA}
+  acme_ca {$ACME_CA:https://acme-v02.api.letsencrypt.org/directory}
 }
 
 ${DOMAIN} {
