@@ -4,6 +4,7 @@ import {
   attachScrollToTopHandler,
   formatDate
 } from "./js/functions.js";
+import { initSync, initTheme } from "./js/settings.js";
 
 window.rssApp = () => {
   const HIDDEN_KEY = "hidden";
@@ -21,8 +22,7 @@ window.rssApp = () => {
     formatDate,                         // now uses imported formatDate()
 
     async init() {
-      // Show loading…
-      this.loading = true;
+      this.loading = true; //loading screen
       // 1) Restore persisted state *before* initializing UI
       try {
         await restoreStateFromFile("appState.json");
@@ -30,9 +30,11 @@ window.rssApp = () => {
       } catch {
         console.warn("No previous state to restore.");
       }
-      // 2) Now apply theme & hidden list
-      this.initTheme();
+      // 2) Now apply theme & hidden list & sync
       this.hidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
+      this.syncEnabled = JSON.parse(localStorage.getItem("syncEnabled") ?? "true");
+      initTheme();
+      initSync(this);
 
       // 0) Initialize our ETag/Last-Modified validators so the very first poll
       //    can send If-None-Match right away
@@ -50,8 +52,9 @@ window.rssApp = () => {
   	}
 
       setInterval(async () => {
-	// don’t do any feed work if settings modal is open
+	// don’t do any feed work if settings modal is open or sync is off
         if (this.openSettings) return;
+	if (!this.syncEnabled) return;
         // 0. Capture scrollY and the first entry in view
         const scrollY = window.scrollY;
         localStorage.setItem('feedScrollY', String(scrollY));
@@ -189,32 +192,6 @@ window.rssApp = () => {
       } finally {
 	if (showLoading) this.loading = false;
       }
-    },
-
-    initTheme() {
-      const html = document.documentElement;
-      const toggle = document.getElementById('theme-toggle');
-      const themeText = document.getElementById('theme-text');
-      if (!toggle || !themeText) return;
-
-      const saved = localStorage.getItem('theme');
-      const useDark = saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      html.classList.add(useDark ? 'dark' : 'light');
-      toggle.checked = useDark;
-      themeText.textContent = useDark ? 'dark' : 'light';
-
-      toggle.addEventListener('change', () => {
-        const newTheme = toggle.checked ? 'dark' : 'light';
-        html.classList.remove(toggle.checked ? 'light' : 'dark');
-        html.classList.add(newTheme);
-        localStorage.setItem('theme', newTheme);
-        themeText.textContent = newTheme;
-	saveStateToFile("appState.json").catch(err => console.error("Save failed:", err));
-
-        // Save theme change to server
-        saveStateToFile("appState.json")
-        .catch(err => console.error("Save failed:", err));
-      });
     },
   };
 };
