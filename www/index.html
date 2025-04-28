@@ -76,11 +76,13 @@
       <div class="modal-content">
         <h2>Settings</h2>
         <!-- Theme toggle inside modal -->
-        <label class="switch" for="theme-toggle">
+	<div class="theme-switch">
+	  <label class="switch" for="theme-toggle">
+          <span id="theme-text">light</span>
           <input type="checkbox" id="theme-toggle">
           <span class="slider"></span>
-          <span id="theme-text">light</span>
         </label>
+	</div>
         <button @click="openSettings = false">Close</button>
       </div>
     </div>

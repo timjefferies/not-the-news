@@ -383,9 +383,10 @@ ul.feed-list, .feed-container {
 }
 
 /* Modal content box */
+.modal-content h2 { font-size: smaller; }
 .modal-content {
-  background: var(--bg-color);
-  color: var(--text-color);
+  background: var(--bg);
+  color: var(--fg);
   padding: 1.5rem;
   border-radius: 0.5rem;
   max-width: 400px;
@@ -395,11 +396,12 @@ ul.feed-list, .feed-container {
 
 /* Settings button style (optional) */
 .settings-btn {
-  background: none;
+  background: var(--bg);
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
   margin-left: auto;
+  color: var(--fg);
 }
 
 /* Responsive breakpoints */
