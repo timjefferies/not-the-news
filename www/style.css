@@ -239,9 +239,10 @@ a:hover { color: darkslateblue; }
   transform: translateX(26px);
 }
 #theme-text {
-  font-size: medium;
-  vertical-align: middle;
+  font-size: 1rem;
+  font-family: inherit;
   margin-left: -3em;
+  margin-top: -0.3em;
 }
 
 h2, h3 {
@@ -419,6 +420,15 @@ ul.feed-list, .feed-container {
   display: flex;
   flex-direction: column;
   flex: 1;
+}
+/* Style all buttons inside .settings-group */
+.settings-group button {
+  font-size: 1rem;            /* Make text easy to read */
+  min-width: 8rem;            /* Ensure buttons are wide enough */
+  align-self: flex-end;       /* Push buttons to the right edge */
+  margin-top: -0.5rem;        /* Visually tuck button upward */
+  padding-top: 0;             /* Remove extra top padding */
+  border-radius: 5px;         /* Round the corners */
 }
 
 /* Textareas for settings */
