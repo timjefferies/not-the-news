@@ -352,6 +352,7 @@ h3 { margin-top: 2em; font-size: large; }
   border: 1px solid var(--card-border);
 
   display: flex;                /* enable column flex layout */
+  position: relative;
   flex-direction: column;
   background: var(--bg);
   color: var(--fg);
@@ -361,14 +362,6 @@ h3 { margin-top: 2em; font-size: large; }
   max-height: 90vh;             /* constrain total modal height */
   overflow: hidden;             /* children will scroll internally */
   box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
-.modal-content > button.close {
-  /* reuse your existing close-button styling + override placement */
-  float: none;               /* cancel any float */
-  margin: 0;                 /* reset default margins */
-  position: absolute;
-  top: 0.5rem;               /* adjust to taste */
-  right: 0.5rem;             /* adjust to taste */
 }
 
 .modal-content form { padding: 1px; line-height: 1.6; }
@@ -547,7 +540,7 @@ ul.feed-list, .feed-container {
     margin-right: 1rem;  /* match your padding */
   }
     .modal-content {
-    width: 60% !important;
+    min-width: 60% !important;
     /* mirror .item’s 20% left/right margins */
     margin-left: 20% !important;
     margin-right: 20% !important;
@@ -564,9 +557,6 @@ ul.feed-list, .feed-container {
   }
 }
 /* Mirror .item’s width at different breakpoints */
-@media (min-width: 1024px) {
-  .modal-content { width: 60%; }      /* same as .item’s 20% margins */
-}
 @media (min-width: 768px) and (max-width: 1023px) {
   .modal-content { width: 85%; }      /* .item max-width:85% */
 }
