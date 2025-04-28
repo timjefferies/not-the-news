@@ -54,36 +54,8 @@ RUN mkdir -p /usr/local/bin && \
     chmod +x /usr/local/bin/docker-entrypoint.sh
 
 ##############################################################################
-# 7. Generate Caddyfile (persist to /data, allow ACME_CA override)
-RUN cat <<EOF > /etc/caddy/Caddyfile
-{
-  email {$EMAIL}
-  storage file_system /data
-  acme_ca {$ACME_CA:https://acme-v02.api.letsencrypt.org/directory}
-}
-
-${DOMAIN} {
-  handle /load-state* {
-	reverse_proxy 127.0.0.1:3000 
-  }
-  handle /save-state* {
-	reverse_proxy 127.0.0.1:3000
-  }
-
-  root * /app/www
-  file_server
-
-  @feed path /feed.xml
-  handle @feed {
-    root * /data/feed
-    header {
-      Access-Control-Allow-Origin   *
-      Access-Control-Expose-Headers ETag, Last-Modified
-    }
-    file_server
-  }
-}
-EOF
+# 7. copy Caddyfile (persist to /data, allow ACME_CA override)
+COPY Caddyfile /etc/caddy/Caddyfile
 
 ##############################################################################
 # 8. Declare the data volume & expose ports
