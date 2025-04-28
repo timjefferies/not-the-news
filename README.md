@@ -7,7 +7,7 @@ Multiple rss feeds are regularly aggregated into a single scrollable feed, rss i
 Features:
 - Keyword filtering - only see the information you want to see.
 - Night/Day mode
-- Auto reload when new rss items are available
+- Auto reload in the background when new rss items are available
 - Automatic cross browser/device syncing
 
 # configuration
@@ -24,6 +24,9 @@ www/config/
 docker volume create not-the-news_volume
 
 # Build and run the container
-export DOCKER_BUILDKIT=1
 docker buildx build --build-arg DOMAIN=yourdomain.tld --build-arg EMAIL=you@yourdomain.tld -t not-the-news .
 docker run -d -p 80:80 -p 443:443 -p 3000:3000 -v not-the-news_volume:/data --name ntn not-the-news
+
+# Optional - set up a cron to backup the data every 12 hours
+
+sudo echo "0 */12 * * * cd <FOLDER WHERE NOT-THE-NEWS IS LOCATED> && sh backup.sh" >> /var/spool/cron/crontabs/root
