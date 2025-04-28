@@ -93,6 +93,32 @@ window.rssApp = () => {
         }
         // 2b. If 304, feed unchanged—do nothing
       }, 5*60*1000);
+      this._attachScrollToTopHandler();
+    },
+    // this just scrolls:
+    scrollToTop() {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+
+    // new helper: wires up the fade-in/out behavior
+    _attachScrollToTopHandler() {
+      const btn = document.getElementById("scroll-to-top");
+      if (!btn) return;
+
+      let idleTimeout = null;
+
+      window.addEventListener("scroll", () => {
+        // fade in immediately
+        btn.classList.add("visible");
+
+        // clear any pending fade-out
+        clearTimeout(idleTimeout);
+
+        // fade out after 1200ms of no scroll events
+        idleTimeout = setTimeout(() => {
+          btn.classList.remove("visible");
+        }, 1200);
+      });
     },
 
     hide(link) {
@@ -236,9 +262,5 @@ window.rssApp = () => {
         return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
       }
     },
-
-    scrollToTop() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
   };
 };

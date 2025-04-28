@@ -307,7 +307,26 @@ h3 { margin-top: 2em; font-size: large; }
   font-size: xx-large;
 }
 
-#scroll-to-top-button,
+/* hide by default */
+#scroll-to-top {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  font-size: xx-large;
+  color: var(--primary);
+  background: var(--secondary);
+  width: 2em;
+  border-radius: 100px;
+}
+
+/* when visible, fade in */
+#scroll-to-top.visible {
+  opacity: 1;
+}
+
+#scroll-to-top,
 .cog-wheel-button {
   position: fixed;
   bottom: 20px;
@@ -322,13 +341,13 @@ h3 { margin-top: 2em; font-size: large; }
   border-color: whitesmoke;
 }
 
-#scroll-to-top-button {
+#scroll-to-top {
   right: 20px;
   font-size: 40px;
   line-height: 1.6;
 }
 
-#scroll-to-top-button:hover,
+#scroll-to-top:hover,
 .cog-wheel-button:hover {
   background-color: #555;
   color: white;
@@ -478,6 +497,7 @@ ul.feed-list, .feed-container {
   color: var(--fg);
   margin-left: auto;
   border: none;
+  border-radius: 100px;
 }
 .settings-btn:hover {
   background-color: var(--primary); /* changes color on hover */
