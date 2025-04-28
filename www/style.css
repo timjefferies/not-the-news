@@ -418,10 +418,11 @@ ul.feed-list, .feed-container {
 }
 /* Grouping & spacing */
 .settings-group {
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   display: flex;
   flex-direction: column;
   flex: 1;
+  gap: 0.5rem;
 }
 .settings-group.grow {
   flex: 1;                          /* allow group to grow */
