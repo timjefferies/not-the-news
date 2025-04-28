@@ -421,10 +421,19 @@ ul.feed-list, .feed-container {
 .settings-icon:hover {
   background-color: cornflowerblue; /* changes color on hover */
 }
-.theme-switch {
-    display: block;
-    position: relative;
-    justify-self: flex-end;
+/* make the label sit left and the switch sit right on one line */
+.modal-content .theme-switch {
+  display: flex;                  /* switch to flex layout */
+  justify-content: space-between; /* push children to the ends */
+  align-items: center;            /* vertical-center them */
+  width: 100%;                    /* fill the modal’s content width */
+  margin-top: 1rem;               /* optional spacing above */
+}
+
+/* style the label to match your other text */
+.modal-content .theme-label {
+  font-size: x-large;
+  color: var(--fg);
 }
 
 /* Responsive breakpoints */
@@ -451,8 +460,6 @@ ul.feed-list, .feed-container {
   #header { padding: 0rem 1rem; }
   .modal-content > button.close {
     font-size: 1.25rem;
-    top: 0.75rem;
-    right: 0.75rem;
     opacity: 0.8;
   }
 }
