@@ -11,6 +11,12 @@
   handle /save-state* {
 	reverse_proxy 127.0.0.1:3000
   }
+  handle /load-config* {
+	reverse_proxy 127.0.0.1:3000
+  }
+  handle /save-config* {
+	reverse_proxy 127.0.0.1:3000
+  }
   root * /app/www
   file_server
   # — Compression & caching for HTML/JS/XML/JSON assets —
