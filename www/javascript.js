@@ -34,6 +34,7 @@ window.rssApp = () => {
       initTheme();
       initSync(this);
       initImages(this);
+      initConfigComponent(this);
 
       // 0) Initialize our ETag/Last-Modified validators so the very first poll
       //    can send If-None-Match right away

@@ -113,3 +113,55 @@ export async function initScrollPos(app) {
     if (y) window.scrollTo({ top: y });
   });
 }
+function initConfigComponent() {
+  // 1) When the modal opens, load the two config files:
+  this.$watch("openSettings", value => {
+    if (!value) return;
+
+    // Load keywords blacklist
+    fetch(`/load-config?filename=filter_keywords.txt`)
+      .then(r => r.json())
+      .then(data => {
+        this.keywords = data.content || "";
+      })
+      .catch(e => console.error("Error loading keywords:", e));
+
+    // Load RSS feeds
+    fetch(`/load-config?filename=feeds.txt`)
+      .then(r => r.json())
+      .then(data => {
+        this.feeds = data.content || "";
+      })
+      .catch(e => console.error("Error loading feeds:", e));
+  });
+
+  // 2) Wire up save actions:
+  document
+    .getElementById("save-keywords-btn")
+    .addEventListener("click", () => {
+      fetch(`/save-config?filename=filter_keywords.txt`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: this.keywords }),
+      })
+        .then(r => {
+          if (!r.ok) throw new Error("Failed to save keywords");
+          console.log("Keywords saved");
+        })
+        .catch(e => console.error(e));
+    });
+
+  document
+    .getElementById("save-rss-btn")
+    .addEventListener("click", () => {
+      fetch(`/save-config?filename=feeds.txt`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: this.feeds }),
+      })
+        .then(r => {
+          if (!r.ok) throw new Error("Failed to save feeds");
+          console.log("Feeds saved");
+        })
+        .catch(e => console.error(e));
+    });
