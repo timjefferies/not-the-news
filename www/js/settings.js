@@ -113,9 +113,9 @@ export async function initScrollPos(app) {
     if (y) window.scrollTo({ top: y });
   });
 }
-export async function initConfigComponent() {
+export function initConfigComponent(app) {
   // 1) When the modal opens, load the two config files:
-  this.$watch("openSettings", value => {
+  app.$watch("openSettings", value => {
     if (!value) return;
 
     // Load keywords blacklist
@@ -141,7 +141,7 @@ export async function initConfigComponent() {
       fetch(`/save-config?filename=filter_keywords.txt`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: this.keywords }),
+        body: JSON.stringify({ content: app.keywords }),
       })
         .then(r => {
           if (!r.ok) throw new Error("Failed to save keywords");
