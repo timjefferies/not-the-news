@@ -1,5 +1,5 @@
 // js/settings.js
-import { saveStateToFile } from "./api.js";
+import { restoreStateFromFile, saveStateToFile } from "./api.js";
 
 const SYNC_KEY = "syncEnabled";
 
@@ -75,4 +75,40 @@ export function initTheme() {
       .catch(err => console.error("Save theme setting failed:", err));
   });
 }
+export async function initScrollPos(app) {
+  // 1. Capture current scroll and the first visible entry
+  const scrollY = window.scrollY;
+  localStorage.setItem('feedScrollY', String(scrollY));
+  const entries = document.querySelectorAll('.entry');
+  for (const el of entries) {
+    const { top } = el.getBoundingClientRect();
+    if (top >= 0) {
+      localStorage.setItem('feedVisibleLink', el.dataset.link || '');
+      break;
+    }
+  }
 
+  try {
+    // 2. Persist to server and immediately restore state
+    await saveStateToFile("appState.json");
+    await restoreStateFromFile("appState.json");
+    const hiddenItems = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
+    app.hidden = hiddenItems;
+  } catch (err) {
+    console.error("State save/restore failed:", err);
+  }
+
+  // 3. On next frame, scroll back into view
+  window.requestAnimationFrame(() => {
+    const link = localStorage.getItem('feedVisibleLink');
+    if (link) {
+      const target = document.querySelector(`.entry[data-link="${link}"]`);
+      if (target) {
+        target.scrollIntoView({ block: 'start' });
+        return;
+      }
+    }
+    const y = Number(localStorage.getItem('feedScrollY')) || 0;
+    if (y) window.scrollTo({ top: y });
+  });
+}

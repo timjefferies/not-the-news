@@ -1,10 +1,6 @@
 import { restoreStateFromFile, saveStateToFile } from "./js/api.js";
-import {
-  scrollToTop,
-  attachScrollToTopHandler,
-  formatDate
-} from "./js/functions.js";
-import { initSync, initTheme, initImages } from "./js/settings.js";
+import { scrollToTop, attachScrollToTopHandler, formatDate } from "./js/functions.js";
+import { initSync, initTheme, initImages, initScrollPos } from "./js/settings.js";
 
 window.rssApp = () => {
   const HIDDEN_KEY = "hidden";
@@ -58,25 +54,6 @@ window.rssApp = () => {
 	// don’t do any feed work if settings modal is open or sync is off
         if (this.openSettings) return;
 	if (!this.syncEnabled) return;
-        // 0. Capture scrollY and the first entry in view
-        const scrollY = window.scrollY;
-        localStorage.setItem('feedScrollY', String(scrollY));
-        // Find the first entry whose top edge is visible
-        const entries = document.querySelectorAll('.entry');
-        for (const el of entries) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top >= 0) {
-            localStorage.setItem('feedVisibleLink', el.dataset.link);
-            saveStateToFile("appState.json")
-              .then(async () => {
-                // After saving to server, re-pull and reapply state
-                await restoreStateFromFile("appState.json");
-                this.hidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
-              })
-              .catch(err => console.error("Save failed:", err));
-            break;
-          }
-        }
 
         // 1. Send HEAD with validators if available
 	const headRes = await fetch(FEED_URL, {
@@ -93,19 +70,6 @@ window.rssApp = () => {
           lastModified = headRes.headers.get('Last-Modified'); // ← existing
 
 	  await this.loadFeed({ showLoading: false });
-          // 2. After reload, restore scroll/item state
-          window.requestAnimationFrame(() => {
-            // Try to scroll the previously visible entry into view
-            const link = localStorage.getItem('feedVisibleLink');
-            if (link) {
-	        const target = document.querySelector(`.entry[data-link="${link}"]`);
-                if (target) return target.scrollIntoView({ block: 'start' });
-            }
-            // Fallback: raw scrollY
-	    const y = +localStorage.getItem('feedScrollY') || 0;
-            if (y) window.scrollTo({ top: y });
-          });
-
         }
         // 2b. If 304, feed unchanged—do nothing
       }, 5*60*1000);
@@ -202,6 +166,7 @@ window.rssApp = () => {
       } finally {
 	if (showLoading) this.loading = false;
       }
+      initScrollPos(this);
     },
   };
 };
