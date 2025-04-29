@@ -1,6 +1,6 @@
 import { restoreStateFromFile, saveStateToFile } from "./js/api.js";
 import { scrollToTop, attachScrollToTopHandler, formatDate } from "./js/functions.js";
-import { initSync, initTheme, initImages, initScrollPos } from "./js/settings.js";
+import { initSync, initTheme, initImages, initScrollPos, initConfigComponent } from "./js/settings.js";
 
 window.rssApp = () => {
   const HIDDEN_KEY = "hidden";
