@@ -40,9 +40,16 @@
   }
 
   # instruct browsers and intermediate caches to keep for 1 hour
-  header {
-    Cache-Control "public, max-age=3600"
+  #header {
+  #  Cache-Control "public, max-age=3600"
+  #}
+
+  # Bypass cache for /data/config files
+  @nocache {
+    path /data/config/*
   }
+  header @nocache Cache-Control "no-cache, no-store, must-revalidate"
+
   @feed {
     path /feed.xml
   }
