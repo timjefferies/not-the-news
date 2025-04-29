@@ -133,6 +133,7 @@ export function initConfigComponent(app) {
         this.feeds = data.content || "";
       })
       .catch(e => console.error("Error loading feeds:", e));
+    });
 
   // 2) Wire up save actions:
   document
