@@ -113,7 +113,7 @@ export async function initScrollPos(app) {
     if (y) window.scrollTo({ top: y });
   });
 }
-export function initConfigComponent(app) {
+export async function initConfigComponent(app) {
   // 1) When the modal opens, load the two config files:
   app.$watch("openSettings", value => {
     if (!value) return;
@@ -122,7 +122,9 @@ export function initConfigComponent(app) {
     fetch(`/load-config?filename=filter_keywords.txt`)
       .then(r => r.json())
       .then(data => {
-        this.keywords = data.content || "";
+        app.keywords = data.content || "";
+        const kwArea = document.getElementById("keywords-blacklist");
+        if (kwArea) kwArea.value = app.keywords;
       })
       .catch(e => console.error("Error loading keywords:", e));
 
@@ -130,15 +132,41 @@ export function initConfigComponent(app) {
     fetch(`/load-config?filename=feeds.txt`)
       .then(r => r.json())
       .then(data => {
-        this.feeds = data.content || "";
+        app.feeds = data.content || "";
+        const rssArea = document.getElementById("rss-feeds");
+        if (rssArea) rssArea.value = app.feeds;
       })
       .catch(e => console.error("Error loading feeds:", e));
-    });
+  }); // end app.$watch
+
+  // Create inline "Saved." message spans if they're not already in the DOM
+  const kwBtn = document.getElementById("save-keywords-btn");
+  let kwMsg = document.getElementById("keywords-save-msg");
+  if (kwBtn && !kwMsg) {
+    kwMsg = document.createElement("span");
+    kwMsg.id = "keywords-save-msg";
+    kwMsg.className = "save-message";
+    kwMsg.style.marginLeft = "0.5em";
+    kwMsg.style.display = "none";
+    kwBtn.parentNode.insertBefore(kwMsg, kwBtn);
+  }
+
+  const rssBtn = document.getElementById("save-rss-btn");
+  let rssMsg = document.getElementById("rss-save-msg");
+  if (rssBtn && !rssMsg) {
+    rssMsg = document.createElement("span");
+    rssMsg.id = "rss-save-msg";
+    rssMsg.className = "save-message";
+    rssMsg.style.marginLeft = "0.5em";
+    rssMsg.style.display = "none";
+    rssBtn.parentNode.insertBefore(rssMsg, rssBtn);
+  }
 
   // 2) Wire up save actions:
-  document
-    .getElementById("save-keywords-btn")
+  document.getElementById("save-keywords-btn")
     .addEventListener("click", () => {
+      const kwArea = document.getElementById("keywords-blacklist");
+      app.keywords = kwArea ? kwArea.value : app.keywords;
       fetch(`/save-config?filename=filter_keywords.txt`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -147,22 +175,34 @@ export function initConfigComponent(app) {
         .then(r => {
           if (!r.ok) throw new Error("Failed to save keywords");
           console.log("Keywords saved");
+          if (kwMsg) {
+            kwMsg.textContent = "Saved.";
+            kwMsg.style.display = "inline";
+            setTimeout(() => kwMsg.style.display = "none", 2000);
+          }
         })
         .catch(e => console.error(e));
     });
 
-  document
-    .getElementById("save-rss-btn")
+  document.getElementById("save-rss-btn")
     .addEventListener("click", () => {
+      const rssArea = document.getElementById("rss-feeds");
+      app.feeds = rssArea ? rssArea.value : app.feeds;
       fetch(`/save-config?filename=feeds.txt`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: this.feeds }),
+        body: JSON.stringify({ content: app.feeds }),
       })
         .then(r => {
           if (!r.ok) throw new Error("Failed to save feeds");
           console.log("Feeds saved");
+          if (rssMsg) {
+            rssMsg.textContent = "Saved.";
+            rssMsg.style.display = "inline";
+            setTimeout(() => rssMsg.style.display = "none", 2000);
+          }
         })
         .catch(e => console.error(e));
     });
 }
+
