@@ -113,7 +113,7 @@ export async function initScrollPos(app) {
     if (y) window.scrollTo({ top: y });
   });
 }
-function initConfigComponent() {
+export async function initConfigComponent() {
   // 1) When the modal opens, load the two config files:
   this.$watch("openSettings", value => {
     if (!value) return;
@@ -133,7 +133,6 @@ function initConfigComponent() {
         this.feeds = data.content || "";
       })
       .catch(e => console.error("Error loading feeds:", e));
-  });
 
   // 2) Wire up save actions:
   document
