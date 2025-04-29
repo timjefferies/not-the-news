@@ -13,7 +13,30 @@
   }
   root * /app/www
   file_server
+  # — Compression & caching for HTML/JS/XML/JSON assets —
+  encode {
+    br 11
+    gzip 5
 
+    # only compress these MIME types
+    match {
+      header Content-Type text/html
+      header Content-Type text/css
+      header Content-Type application/javascript
+      header Content-Type application/rss+xml
+      header Content-Type application/xml
+      header Content-Type text/xml
+      header Content-Type application/json
+    }
+
+    # skip tiny responses
+    minimum_length 512
+  }
+
+  # instruct browsers and intermediate caches to keep for 1 hour
+  header {
+    Cache-Control "public, max-age=3600"
+  }
   @feed {
     path /feed.xml
   }

@@ -11,3 +11,25 @@
 - rework styles.css and turn all the sizing into relative variables.
 - add stars to items and a drop down display filter
 - migrate from localstorage to indexedDB 
+
+- add compression
+
+example.com {
+  encode {
+    brotli {
+      level 11
+      types text/xml application/rss+xml application/json
+    }
+    gzip
+  }
+
+  reverse_proxy localhost:3000
+
+  header {
+    Cache-Control "public, max-age=3600"
+  }
+}
+
+check it's working
+
+curl -H "Accept-Encoding: br" -I https://your-domain.com

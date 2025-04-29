@@ -1,7 +1,18 @@
 # syntax=docker/dockerfile:1.4
 ##############################################################################
+# 0. Build Caddy with Brotli & cache-handler plugins
+FROM caddy:builder-alpine AS caddy-builder
+RUN apk add --no-cache brotli-dev pkgconfig git \
+    && xcaddy build \
+         --with github.com/dunglas/caddy-cbrotli \
+         --with github.com/caddyserver/cache-handler@latest
+
+##############################################################################
 # 1. Base image
 FROM caddy:2-alpine
+
+# 1.1 Replace core caddy binary with our custom-built one
+COPY --from=caddy-builder /usr/bin/caddy /usr/bin/caddy
 
 ##############################################################################
 # 2. Build args & env
