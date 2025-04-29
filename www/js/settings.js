@@ -165,3 +165,4 @@ function initConfigComponent() {
         })
         .catch(e => console.error(e));
     });
+}
