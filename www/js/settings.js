@@ -2,6 +2,7 @@
 import { restoreStateFromFile, saveStateToFile } from "./api.js";
 
 const SYNC_KEY = "syncEnabled";
+const HIDDEN_KEY = "hidden";
 
 // initialize the “refresh feed” toggle
 export function initSync(app) {
