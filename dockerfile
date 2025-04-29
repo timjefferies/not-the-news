@@ -1,15 +1,31 @@
 # syntax=docker/dockerfile:1.4
 ##############################################################################
-# 0. Build Caddy with Brotli & cache-handler plugins
+# Build caddy with brotli compression support
 FROM caddy:builder-alpine AS caddy-builder
-RUN apk add --no-cache brotli-dev pkgconfig git \
-    && xcaddy build \
-         --with github.com/dunglas/caddy-cbrotli \
-         --with github.com/caddyserver/cache-handler@latest
+
+# Enable cgo for compiling the Brotli plugin
+ENV CGO_ENABLED=1                                                                  
+
+# Install C toolchain and Brotli plugin dependencies
+# - brotli-dev: C headers/libs
+# - pkgconfig: metadata for cgo to find Brotli
+# - git: fetch xcaddy modules
+# - build-base: gcc, musl-dev, make, etc.
+RUN apk add --no-cache \
+    brotli-dev \
+    pkgconfig \
+    git \
+    build-base \
+  && xcaddy build \
+      --with github.com/dunglas/caddy-cbrotli \
+      --with github.com/caddyserver/cache-handler@latest
 
 ##############################################################################
 # 1. Base image
 FROM caddy:2-alpine
+
+# Install Brotli runtime libraries (libbrotlidec.so.1, libbrotlienc.so.1)
+RUN apk add --no-cache brotli-libs
 
 # 1.1 Replace core caddy binary with our custom-built one
 COPY --from=caddy-builder /usr/bin/caddy /usr/bin/caddy

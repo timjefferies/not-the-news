@@ -36,8 +36,10 @@ sudo docker volume inspect not-the-news_volume >/dev/null 2>&1 || sudo docker vo
 git pull && \
     sudo docker rm -f ntn && \
     sudo docker container prune -f && \
-    sudo docker image prune -f && \
-    sudo docker builder prune -f && \
     sudo docker buildx build --build-arg DOMAIN="$DOMAIN" --build-arg EMAIL="$EMAIL" -t not-the-news . && \
-    sudo docker buildx rm caddy-builder --all-inactive --force && \
     sudo docker run -d -p 80:80 -p 443:443 -v not-the-news_volume:/data --name ntn not-the-news
+    
+# Optional Cleanup
+#sudo docker image prune -f
+#sudo docker builder prune -f
+#docker buildx rm caddy-builder --force
