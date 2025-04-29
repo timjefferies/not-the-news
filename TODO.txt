@@ -15,3 +15,4 @@
 - migrate from localstorage to indexedDB 
 - Take feed.xml, save into /data/feed/upload-cache a list of tiny json objects 5 posts long each. i.e. 1.json 2.json 3.json 4.json....
   then write a function in js to download the entire list, re-combine them save offline to localstorage and display. The idea is all the xml files will be cached in localstorage except the newest one, so less data is used when syncing. Also enables offline reading.
+- turn app into a PWA app
