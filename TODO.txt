@@ -1,35 +1,17 @@
 # TODO
 - add a screen in the ui to see feeds.txt and allow updating it and saving it to permanent storage via the api.
-- get images showing
-- flash a toast messagw if something went wrong saving the state
-- seperate merge_feeds, into fetch_feeds.py and merge_feeds.py with one just getting feeds, and the other handling combining them
-- cache feeds in /data/feed/cache, and make it so that new feeds are only downloaded if there is a change.
-- once feeds are cached, add an extra var to feeds.txt to tell the fetch_feeds.py how often to try to get a feed.
 - fix the close animation
+- get images showing
 - replace scroll to top icon with an svg (like the cog wheel)
-- add a password screen, to block bots and scrapers.
+- add a password setting and screen, to block bots and scrapers.
+- restore light mode to like in the screenshot
+
+# LATER
+- flash a toast message if something went wrong saving the state
+- seperate merge_feeds, into fetch_feeds.py and merge_feeds.py with one just getting feeds, and the other handling combining them
+- cache feeds in /data/feed/download-cache, and make it in fetch_feeds.py so that new feeds are only downloaded if there is a change.
 - rework styles.css and turn all the sizing into relative variables.
 - add stars to items and a drop down display filter
 - migrate from localstorage to indexedDB 
-
-- add compression
-
-example.com {
-  encode {
-    brotli {
-      level 11
-      types text/xml application/rss+xml application/json
-    }
-    gzip
-  }
-
-  reverse_proxy localhost:3000
-
-  header {
-    Cache-Control "public, max-age=3600"
-  }
-}
-
-check it's working
-
-curl -H "Accept-Encoding: br" -I https://your-domain.com
+- Take feed.xml, save into /data/feed/upload-cache a list of tiny json objects 5 posts long each. i.e. 1.json 2.json 3.json 4.json....
+  then write a function in js to download the entire list, re-combine them save offline to localstorage and display. The idea is all the xml files will be cached in localstorage except the newest one, so less data is used when syncing. Also enables offline reading.
