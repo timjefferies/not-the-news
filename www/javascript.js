@@ -18,7 +18,7 @@ window.rssApp = () => {
     scrollToTop,                         // now uses imported scrollToTop()
     _attachScrollToTopHandler: attachScrollToTopHandler,
     formatDate,                         // now uses imported formatDate()
-
+      
     async init() {
       this.loading = true; //loading screen
       // 1) Restore persisted state *before* initializing UI
@@ -41,7 +41,7 @@ window.rssApp = () => {
       //    can send If-None-Match right away
       let lastEtag     = localStorage.getItem(STORAGE_ETAG);
       let lastModified = null;
-
+        
       // Load the feed
       try {
 	await this.loadFeed({ showLoading: true });
@@ -155,35 +155,33 @@ window.rssApp = () => {
           };
         });
 
-        this.entries = mapped.filter(e => !this.hidden.includes(e.link));
-	// keep full list here, we'll filter in filteredEntries
+        // always store full list; filter in computed getter
         this.entries = mapped;
 
         const newEtag = res.headers.get('ETag');
         if (newEtag) {
           localStorage.setItem(STORAGE_ETAG, newEtag);
         }
-        // computed, based on our three modes + the hidden[] list
-	get filteredEntries() {
-        return this.entries.filter(entry => {
-        if (this.filterMode === 'all')    return true;
-        if (this.filterMode === 'unread') return !this.hidden.includes(entry.link);
-        if (this.filterMode === 'hidden') return this.hidden.includes(entry.link);
-        return true;
-        });
-    },
-    // handler called by @change on the <select>
-    setFilter(mode) {
-      this.filterMode = mode;
-    }
-
       } catch (err) {
         console.error('Failed to load feed:', err);
         this.errorMessage = 'Error loading feed.';
       } finally {
-	if (showLoading) this.loading = false;
+        if (showLoading) this.loading = false;
       }
       initScrollPos(this);
     },
+    // handler called by @change on the <select>
+    setFilter(mode) {
+      this.filterMode = mode;
+    },
+    // computed, based on our three modes + the hidden[] list
+    get filteredEntries() {
+      return this.entries.filter(entry => {
+        if (this.filterMode === 'all')    return true;
+        if (this.filterMode === 'unread') return !this.hidden.includes(entry.link);
+        if (this.filterMode === 'hidden') return this.hidden.includes(entry.link);
+        return true;
+      });
+    }
   };
 };
