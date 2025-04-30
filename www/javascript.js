@@ -182,7 +182,7 @@ window.rssApp = () => {
         if (this.filterMode === 'all')    return true;
         if (this.filterMode === 'unread') return !this.hidden.includes(entry.link);
         if (this.filterMode === 'hidden') return this.hidden.includes(entry.link);
-	if (this.filterMode === 'starred') return this.starred.includes(e.link);
+	if (this.filterMode === 'starred') return this.starred.includes(entry.link);
         return true;
       });
     }
