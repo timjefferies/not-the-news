@@ -9,6 +9,7 @@ Features:
 - Night/Day mode
 - Auto reload in the background when new rss items are available
 - Automatic cross browser/device syncing
+- Feed filter modes (Unread/Hidden/All)
 
 # configuration
 
@@ -16,16 +17,11 @@ edit and rename the config examples in
 www/config/
 - feeds.txt
 - filter_keywords.txt
-- config.php
 
 # running it
 
-## Create a persistent storage volume for the data
-docker volume create not-the-news_volume
-
 # Build and run the container
-docker buildx build --build-arg DOMAIN=yourdomain.tld --build-arg EMAIL=you@yourdomain.tld -t not-the-news .
-docker run -d -p 80:80 -p 443:443 -p 3000:3000 -v not-the-news_volume:/data --name ntn not-the-news
+./build.sh -d yourdomain.com -e admin@youremail.com
 
 # Optional - set up a cron to backup the data every 12 hours
 
