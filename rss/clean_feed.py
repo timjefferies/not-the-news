@@ -6,6 +6,7 @@ import feedparser
 from feedgen.feed import FeedGenerator
 import bleach
 import re
+from prettify_domains import prettify_domains
 
 # ===== Configuration =====
 ALLOWED_TAGS = [
@@ -82,6 +83,9 @@ def clean_feed_entries(entries):
             # 4) group every 5 sentences into one <p>…</p>
             paras = [' '.join(sentences[i:i+5]) for i in range(0, len(sentences), 5)]
             description = ''.join(f'<p>{p}</p>' for p in paras)
+        
+        # additional item modifications based on source domain
+        entry = prettify_domains(entry)
 
         entry_cleaned = {
             'title': title,
