@@ -1,5 +1,5 @@
 // functions.js
-import { saveStateToFile } from "./api.js";
+import { saveStateToFile, restoreStateFromFile } from "./api.js";
 
 /**
  * Smooth-scroll back to top.
@@ -96,4 +96,40 @@ export function toggleStar(state, link) {
 export function setFilter(state, mode) {
   state.filterMode = mode;
   localStorage.setItem("filterMode", mode);
+}
+
+// key under which we persist the hidden‐links array
+const HIDDEN_KEY = "hidden";
+
+/**
+ * Check if a given link is in the hidden list.
+ * @param {object} app - The Alpine.js app instance.
+ * @param {string} link - The URL to check.
+ * @returns {boolean}
+ */
+export function isHidden(app, link) {
+  return app.hidden.includes(link);
+}
+
+/**
+ * Toggle the hidden state of a given link.
+ * Adds it if missing, removes it if present.
+ * @param {object} app - The Alpine.js app instance.
+ * @param {string} link - The URL to toggle.
+ */
+export async function toggleHidden(app, link) {
+  const idx = app.hidden.indexOf(link);
+  if (idx === -1) {
+    app.hidden.push(link);
+  } else {
+    app.hidden.splice(idx, 1);
+  }
+  localStorage.setItem(HIDDEN_KEY, JSON.stringify(app.hidden));
+  try {
+    await saveStateToFile("appState.json");
+    await restoreStateFromFile("appState.json");
+    app.hidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
+  } catch (err) {
+    console.error("Save failed:", err);
+  }
 }

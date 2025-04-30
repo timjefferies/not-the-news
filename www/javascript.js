@@ -1,5 +1,5 @@
 import { restoreStateFromFile, saveStateToFile } from "./js/api.js";
-import { scrollToTop, attachScrollToTopHandler, formatDate, isStarred, toggleStar, setFilter } from "./js/functions.js";
+import { scrollToTop, attachScrollToTopHandler, formatDate, isHidden, toggleHidden, isStarred, toggleStar, setFilter } from "./js/functions.js";
 import { initSync, initTheme, initImages, initScrollPos, initConfigComponent } from "./js/settings.js";
 
 window.rssApp = () => {
@@ -83,21 +83,8 @@ window.rssApp = () => {
       }, 5*60*1000);
       this._attachScrollToTopHandler();
     },
-
-    hide(link) {
-      if (!this.hidden.includes(link)) {
-        this.hidden.push(link);
-        localStorage.setItem(HIDDEN_KEY, JSON.stringify(this.hidden));
-        saveStateToFile("appState.json")
-          .then(async () => {
-            console.log("Synced hidden list to server.");
-            // Pull back down so all tabs/devices stay in sync
-            await restoreStateFromFile("appState.json");
-            this.hidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
-          })
-          .catch(err => console.error("Save failed:", err));
-      }
-    },
+    isHidden(link) { return isHidden(this, link); },
+    toggleHidden(link) { toggleHidden(this, link); },
 	  
     async loadFeed({ showLoading = false } = {}) {
       if (showLoading) this.loading = true;

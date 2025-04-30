@@ -50,7 +50,7 @@ html.dark {
   a:visited { color: #0060A8; }
   background-image: none;
   button.close { box-shadow: -1px 1px 0 1px var(--card-shadow-color); }
-  button.star { box-shadow: -1px -1px 0 1px var(--card-shadow-color); }
+  button.star { box-shadow: -2px -2px 0 1px var(--card-shadow-color); }
   #header { text-shadow: 2px 2px black; }
 }
 /* make the cog button match your dark theme */
@@ -109,9 +109,9 @@ button.star {
   font-size: xx-large;
   background: var(--bg);
   color: var(--fg);
-  border-radius: 40px 0 0 0;
+  border-radius: 20px 0 40px 0;
   opacity: 0.6;
-  box-shadow: -1px -1px 0 1px whitesmoke;
+  box-shadow: -2px -2px 0 1px whitesmoke;
 
   float: right;
   position: absolute;
@@ -317,14 +317,14 @@ h3 { margin-top: 2em; font-size: large; }
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
   border-radius: 40px 40px 0 0;
-  padding: 0.75em 3rem 0.2em 1.2em;
+  padding: 0.75em 3.5rem 0.2em 1.2em;
   border-bottom: 1px solid var(--card-border);
   font-size: 1.5rem !important;
   font-family: 'Prata', serif;
   text-transform:capitalize;
   line-height: 1.4em;
+  min-height: calc(1.4em * 2);
   background: linear-gradient(360deg, var(--bg) 0%, transparent);
   margin-top: 0;
   position: relative;
@@ -578,9 +578,10 @@ ul.feed-list, .feed-container {
   .modal-content { border-radius:10px; }
   .itemtitle { font-size: 1.25rem !important;
     padding: 1em 3rem 0.5em 0.75em;
+    min-height: calc(1.4em * 3);
   }
   button.close { font-size: 1.25rem; border-radius: 0 10px 0 10px; opacity: 0.6; position: absolute; }
-  button.star { font-size: 1.25rem; border-radius: 10px 0 0 0; opacity: 0.6; position: absolute; }
+  button.star { font-size: 1.25rem; border-radius: 10px 0 10px 0; opacity: 0.6; position: absolute; }
   .itemdescription { padding: 1em 1.8em 2em !important; }
   #header { padding: 0rem 1rem; }
   .modal-content > button.close {
@@ -596,6 +597,7 @@ ul.feed-list, .feed-container {
   .item { box-shadow: 1px 1px 50px 1px var(--card-shadow-color !important); max-width: 90%; border-radius: 30px; margin: 1.5em auto; float: none; }
   .itemtitle { font-size: 1.5rem !important;
     padding: 0.75em 2.5rem 0.2em 1.2em;
+    min-height: calc(1.4em * 3);
   }
   .itemdescription { padding: 1em 1.8em 2em !important; }
   button.close, button.star { font-size: 1.5rem; }
@@ -621,6 +623,7 @@ ul.feed-list, .feed-container {
     justify-content: center; /* centers everything by default */
     position: relative;       /* only needed if you absolute‐center the H2 below */
   }
+  .filter-select { font-size: large; }
 
   /* absolute‐center the H2 */
   #header h2 {
