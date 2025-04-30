@@ -63,39 +63,46 @@
 
   <!-- Feed items -->
   <main id="items" x-show="!loading">
-    <!-- Repeat each entry -->
-    <template x-for="(entry, idx) in filteredEntries" :key="entry.link + idx">
-    <div
-      class="item entry"
-      x-bind:data-link="entry.link"
-      x-transition:leave="transition ease-in duration-200 transform"
-      x-transition:leave-start="opacity-100 translate-x-0"
-      x-transition:leave-end="opacity-0 translate-x-full"
+    <!-- Repeat each entry via template so Alpine’s x-for can clone it properly -->
+    <template
+      x-for="(entry, idx) in entries"
+      :key="entry.link + idx"
     >
-      <button class="close" @click="hide(entry.link)">✕</button>
-      <div class="itemtitle">
-	      <h1><a :href="entry.link" target="_blank" x-text="entry.title"></a></h1>
-      	<!-- Star/unstar button -->
-     	<button
-	       class="star"
-	       @click="toggleStar(entry.link)"
-	       :class="{'starred': isStarred(entry.link)}"
-	       aria-label="Star"
-	     >★</button>
-      </div>
-      <div class="itemdescription">
-        <div class="itemfrom">
-	  <p class="source" x-text="`Source: ${entry.source}`"></p>
-          <p class="pubdate" x-text="entry.pubDate"></p>
+      <div
+        class="item entry"
+        x-bind:data-link="entry.link"
+        x-show="
+          filterMode === 'all'
+          || (filterMode === 'unread'  && !hidden.includes(entry.link))
+          || (filterMode === 'hidden'  &&  hidden.includes(entry.link))
+          || (filterMode === 'starred' && isStarred(entry.link))
+        "
+        x-transition:leave="transition ease-in duration-200 transform"
+        x-transition:leave-start="opacity-100 translate-x-0"
+        x-transition:leave-end="opacity-0 translate-x-full"
+      >
+        <div class="itemtitle">
+        <button class="close" @click="hide(entry.link)">✕</button>
+          <h1><a :href="entry.link" target="_blank" x-text="entry.title"></a></h1>
+          <!-- Star/unstar button -->
+          <button class="star"
+                  @click="toggleStar(entry.link)"
+                  :class="{'starred': isStarred(entry.link)}"
+                  aria-label="Star"
+          >★</button>
         </div>
-	<template x-if="imagesEnabled && entry.image">
-        <img :src="entry.image" alt=""
-             class="entry-image" />
-        </template>
-        <span x-html="entry.description"></span>
+        <div class="itemdescription">
+          <div class="itemfrom">
+            <p class="source" x-text="`Source: ${entry.source}`"></p>
+            <p class="pubdate" x-text="entry.pubDate"></p>
+          </div>
+          <template x-if="imagesEnabled && entry.image">
+            <img :src="entry.image" alt="" class="entry-image" />
+          </template>
+          <span x-html="entry.description"></span>
+        </div>
       </div>
-    </div>
-  </template>
+    </template>
   </main>
 
   <!-- Settings modal -->

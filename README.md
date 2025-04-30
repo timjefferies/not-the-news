@@ -9,7 +9,7 @@ Features:
 - Night/Day mode
 - Auto reload in the background when new rss items are available
 - Automatic cross browser/device syncing
-- Feed filter modes (Unread/Hidden/All)
+- Feed filter modes (Unread/Starred/Hidden/All)
 
 # configuration
 

@@ -129,7 +129,7 @@ button.star:hover {
 }
 
 /* Turn the star gold when starred */
-button.star.starred {
+button.star.starred, button.close.hidden {
   color: gold;
   background: transparent;
 }
@@ -332,13 +332,6 @@ h3 { margin-top: 2em; font-size: large; }
 
 .itemtitle h1 { flex: 1; word-break: break-word; }
 .itemtitle h1:hover { color: var(--primary); }
-
-.itemtitle .close {
-  position: static;
-  margin-top: -0.65rem;
-  margin-right: -3rem;
-  flex-shrink: 0;
-}
 
 #loading-screen {
   font-family: 'Prata', serif;
