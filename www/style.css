@@ -109,7 +109,7 @@ button.star {
   font-size: xx-large;
   background: var(--bg);
   color: var(--fg);
-  border-radius: 20px 0 40px 0;
+  border-radius: 20px 0 0 0;
   opacity: 0.6;
   box-shadow: -2px -2px 0 1px whitesmoke;
 
@@ -618,7 +618,7 @@ ul.feed-list, .feed-container {
     min-height: calc(1.4em * 3);
   }
   button.close { font-size: 1.25rem; border-radius: 0 10px 0 10px; opacity: 0.6; position: absolute; }
-  button.star { font-size: 1.25rem; border-radius: 10px 0 10px 0; opacity: 0.6; position: absolute; }
+  button.star { font-size: 1.25rem; border-radius: 10px 0 0 0; opacity: 0.6; position: absolute; }
   .itemdescription { padding: 1em 1.8em 2em !important; }
   #header { padding: 0rem 1rem; }
   .modal-content > button.close {
