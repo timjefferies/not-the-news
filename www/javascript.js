@@ -8,6 +8,7 @@ window.rssApp = () => {
   const FEED_URL = '/feed.xml';
   return {
     openSettings: false, // Controls visibility of the settings modal
+    filterMode: 'unread', // Defaults to unread
     entries: [],
     hidden: JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]"),
     imagesEnabled: JSON.parse(localStorage.getItem("imagesEnabled") ?? "true"),
@@ -155,11 +156,26 @@ window.rssApp = () => {
         });
 
         this.entries = mapped.filter(e => !this.hidden.includes(e.link));
+	// keep full list here, we'll filter in filteredEntries
+        this.entries = mapped;
 
         const newEtag = res.headers.get('ETag');
         if (newEtag) {
           localStorage.setItem(STORAGE_ETAG, newEtag);
         }
+        // computed, based on our three modes + the hidden[] list
+	get filteredEntries() {
+        return this.entries.filter(entry => {
+        if (this.filterMode === 'all')    return true;
+        if (this.filterMode === 'unread') return !this.hidden.includes(entry.link);
+        if (this.filterMode === 'hidden') return this.hidden.includes(entry.link);
+        return true;
+        });
+    },
+    // handler called by @change on the <select>
+    setFilter(mode) {
+      this.filterMode = mode;
+    }
 
       } catch (err) {
         console.error('Failed to load feed:', err);
