@@ -1,7 +1,5 @@
 # TODO
-- fix the close animation
 - get images showing
-- replace scroll to top icon with an svg (like the cog wheel)
 - add a password setting and screen, to block bots and scrapers.
 - restore light mode theme to like in the screenshot
 - migrate from localstorage to indexedDB

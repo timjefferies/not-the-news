@@ -232,6 +232,7 @@ a:hover { color: var(--primary); }
   border-radius: 4px;
   background: var(--card-bg);
   border: 1px solid var(--card-border);
+  opacity: 0.8;
 }
 select#filter-selector {
     background: var(--card-bg);
@@ -351,7 +352,6 @@ h3 { margin-top: 2em; font-size: large; }
 
 /* hide by default */
 #scroll-to-top {
-  position: fixed;
   bottom: 1rem;
   right: 1rem;
   opacity: 0;
@@ -359,8 +359,19 @@ h3 { margin-top: 2em; font-size: large; }
   font-size: xx-large;
   color: var(--primary);
   background: var(--secondary);
-  width: 2em;
   border-radius: 100px;
+
+  position: fixed;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  z-index: 1000;
 }
 
 /* when visible, fade in */
@@ -376,15 +387,14 @@ h3 { margin-top: 2em; font-size: large; }
   background-color: #fff;
   color: darkgrey;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   border-color: whitesmoke;
 }
 
 #scroll-to-top {
-  right: 20px;
+  right: 40px;
+  bottom: 40px;
   font-size: 40px;
   line-height: 1.6;
 }
@@ -436,6 +446,32 @@ h3 { margin-top: 2em; font-size: large; }
 .translate-y-0 { transform: translateY(0); opacity: 1; }
 .translate-y-4 { transform: translateY(-1rem); opacity: 0; }
 
+
+/* Alpine x-transition classes for item leave animation */
+.transition {
+  transition-property: opacity, transform;
+}
+.duration-200 {
+  transition-duration: 0.5s;
+}
+.ease-in {
+  transition-timing-function: ease-in;
+}
+.transform {
+  /* enables transform animations */
+}
+.opacity-100 {
+  opacity: 1 !important;
+}
+.opacity-0 {
+  opacity: 0 !important;
+}
+.translate-x-0 {
+  transform: translateX(0) !important;
+}
+.translate-x-full {
+  transform: translateX(100%) !important;
+}
 /* 1. Collapse description from bottom to top */
 .item {
   overflow: visible;
@@ -540,6 +576,7 @@ ul.feed-list, .feed-container {
   margin-left: auto;
   border: none;
   border-radius: 100px;
+  opacity: 0.8;
 }
 .settings-btn:hover {
   background-color: var(--primary); /* changes color on hover */
