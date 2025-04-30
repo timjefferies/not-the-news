@@ -205,7 +205,7 @@ a:hover { color: var(--primary); }
   border: 1px solid var(--card-border);
 }
 select#filter-selector {
-    background: var(--card-fg);
+    background: var(--card-bg);
 }
 select#filter-selector option:hover {
     background: var(--primary);
