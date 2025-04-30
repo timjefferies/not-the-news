@@ -1,9 +1,10 @@
 import { restoreStateFromFile, saveStateToFile } from "./js/api.js";
-import { scrollToTop, attachScrollToTopHandler, formatDate } from "./js/functions.js";
+import { scrollToTop, attachScrollToTopHandler, formatDate, isStarred, toggleStar, setFilter } from "./js/functions.js";
 import { initSync, initTheme, initImages, initScrollPos, initConfigComponent } from "./js/settings.js";
 
 window.rssApp = () => {
   const HIDDEN_KEY = "hidden";
+  const STARRED_KEY = "starred";
   const STORAGE_ETAG = "feedEtag";
   const FEED_URL = '/feed.xml';
   return {
@@ -11,6 +12,7 @@ window.rssApp = () => {
     filterMode: 'unread', // Defaults to unread
     entries: [],
     hidden: JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]"),
+    starred: JSON.parse(localStorage.getItem(STARRED_KEY) || "[]"),
     imagesEnabled: JSON.parse(localStorage.getItem("imagesEnabled") ?? "true"),
     loading: true,
 
@@ -18,6 +20,10 @@ window.rssApp = () => {
     scrollToTop,                         // now uses imported scrollToTop()
     _attachScrollToTopHandler: attachScrollToTopHandler,
     formatDate,                         // now uses imported formatDate()
+    // STARRED helpers, wired into Alpine
+    isStarred(link)  { return isStarred(this, link); },
+    toggleStar(link) { toggleStar(this, link); },
+    setFilter(mode)  { setFilter(this, mode); },
       
     async init() {
       this.loading = true; //loading screen
@@ -170,16 +176,13 @@ window.rssApp = () => {
       }
       initScrollPos(this);
     },
-    // handler called by @change on the <select>
-    setFilter(mode) {
-      this.filterMode = mode;
-    },
     // computed, based on our three modes + the hidden[] list
     get filteredEntries() {
       return this.entries.filter(entry => {
         if (this.filterMode === 'all')    return true;
         if (this.filterMode === 'unread') return !this.hidden.includes(entry.link);
         if (this.filterMode === 'hidden') return this.hidden.includes(entry.link);
+	if (this.filterMode === 'starred') return this.starred.includes(e.link);
         return true;
       });
     }

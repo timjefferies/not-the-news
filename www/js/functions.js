@@ -1,4 +1,5 @@
 // functions.js
+import { saveStateToFile } from "./api.js";
 
 /**
  * Smooth-scroll back to top.
@@ -62,3 +63,37 @@ export function formatDate(dateString) {
   }
 }
 
+
+// key under which we persist the starred‐links array
+const STARRED_KEY = "starred";
+
+// -------- STARRED support --------
+/**
+ * @param {Object} state  The Alpine component `this`
+ * @param {string} link
+ * @returns {boolean}
+ */
+export function isStarred(state, link) {
+  return state.starred.includes(link);
+}
+
+/**
+ * Toggle starred/unstarred for a given link, persist immediately
+ */
+export function toggleStar(state, link) {
+  if (state.starred.includes(link)) {
+    state.starred = state.starred.filter(l => l !== link);
+  } else {
+    state.starred.push(link);
+  }
+  localStorage.setItem(STARRED_KEY, JSON.stringify(state.starred));
+  saveStateToFile("appState.json").catch(err => console.error("Save failed:", err));
+}
+
+/**
+ * Change filterMode (e.g. via dropdown), persist choice
+ */
+export function setFilter(state, mode) {
+  state.filterMode = mode;
+  localStorage.setItem("filterMode", mode);
+}

@@ -104,6 +104,29 @@ button.close:hover {
   color: var(--secondary);
   background: var(--primary);
 }
+/* Star button, same shape as close */
+button.star {
+  float: right;
+  border: none;
+  font-size: xx-large;
+  color: gray;
+  background: aliceblue;
+  padding: 0 0.8em;
+  border-radius: 0 40px 0 20px;
+  opacity: 0.8;
+  box-shadow: -1px 1px 0 1px whitesmoke;
+}
+
+button.star:hover {
+  color: aliceblue;
+  background: gray;
+}
+
+/* Turn the star gold when starred */
+button.star.starred {
+  color: gold;
+  background: transparent;
+}
 
 .pubdate,
 .itemfrom {

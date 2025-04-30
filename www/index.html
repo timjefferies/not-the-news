@@ -24,6 +24,7 @@
               @change="setFilter(filterMode)"
               class="filter-select">
         <option value="unread">Unread</option>
+	<option value="starred">Starred</option>
         <option value="hidden">Hidden</option>
         <option value="all">All</option>
       </select>
@@ -75,6 +76,13 @@
       <div class="itemtitle">
 	      <h1><a :href="entry.link" target="_blank" x-text="entry.title"></a></h1>
       </div>
+      <!-- Star/unstar button -->
+     <button
+       class="star"
+       @click="toggleStar(entry.link)"
+       :class="{'starred': isStarred(entry.link)}"
+       aria-label="Star"
+     >★</button>
       <div class="itemdescription">
         <div class="itemfrom">
 	  <p class="source" x-text="`Source: ${entry.source}`"></p>
