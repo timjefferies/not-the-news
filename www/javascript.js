@@ -128,14 +128,13 @@ window.rssApp = () => {
                  || item.description
                  || '';
 
-	  let sourceHost = '';
-	  try {
-	    const url = new URL(item.link);
-	    sourceHost = url.href.replace(/^https?:\/\//, '');
-	  } catch (e) {
-	    console.warn('Could not parse URL for source:', item.link);
-	  }
-	  // ✂︎ extract the first <img src="…"> from the HTML snippet
+	  let description = raw;
+	  let sourceUrl = null;
+	  const m = description.match(/^<!--<source-url>([\s\S]+?)<\/source-url>-->/);
+	  if (m) {
+            sourceUrl  = m[1].trim();
+            description = description.replace(/^<!--<source-url>[\s\S]+?<\/source-url>-->/, '').trim();
+          }
           let imageUrl = null;
           const imgMatch = raw.match(/<img[^>]+src="([^">]+)"/);
           if (imgMatch) {
@@ -143,7 +142,7 @@ window.rssApp = () => {
           }
 	  else imageUrl = '';
 	  // Remove <img> tags from raw content
-	  let description = raw.replace(/<img[^>]*>/g, '');
+	  const descText = description.replace(/<img[^>]*>/g, '').trim();
 
           return {
 	    id:		 uniqueKey,
@@ -151,8 +150,8 @@ window.rssApp = () => {
             title:       item.title,
             link:        item.link,
             pubDate:     this.formatDate(item.pubDate || item.isoDate || ''),
-            description: description.trim(),
-	    source:      sourceHost
+            description: descText,
+	    source:      sourceUrl
           };
         });
 

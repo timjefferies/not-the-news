@@ -12,13 +12,19 @@ def prettify_reddit_entry(entry):
     if len(parts) == 2:
         first_sentence, rest = parts
         entry['title'] = first_sentence
-        entry['description'] = f"<h2>{rest}</h2>\n" + description
-    # strip everything before “reddit.com/r/<subreddit>” and after it
-    entry['link'] = re.sub(
-    r'^https?://(?:old\.|www\.)?reddit\.com/r/([^/]+)/.*$',
-    r'https://reddit.com/r/\1/',
-    entry['link'])
+    else:
+        rest = ''
 
+    h2_block = f"<h2>{rest}</h2>\n" if rest else ''
+    entry['description'] = h2_block + description
+
+    # derive a clean source_url from the original link (reddit.com/r/<subreddit>)
+    raw_link = entry.get('link', '').strip()
+    m = re.search(r'(reddit\.com/r/[^/]+)', raw_link)
+    source_url = m.group(1) if m else raw_link
+    # wrap it as hidden metadata and append to the end of the description
+    metadata_tag = f"<!--<source-url>{source_url}</source-url>-->"
+    entry['description'] = description + metadata_tag
     return entry
 
 def prettify_hackernews_entry(entry):
