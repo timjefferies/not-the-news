@@ -632,7 +632,8 @@ ul.feed-list, .feed-container {
   button.close { font-size: 1.25rem; border-radius: 0 10px 0 10px; opacity: 0.6; position: absolute; }
   button.star { font-size: 1.25rem; border-radius: 10px 0 0 0; opacity: 0.6; position: absolute; }
   .itemdescription { padding: 1em 1.8em 2em !important; }
-  #header { padding: 0rem 1rem; }
+  #header { padding: 0rem 0.5rem; }
+  #header h2 { padding-right: 0.7em; }
   .modal-content > button.close {
     font-size: 1.25rem;
     opacity: 0.8;
