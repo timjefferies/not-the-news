@@ -83,11 +83,27 @@ def clean_feed_entries(entries):
             description = ''.join(f'<p>{p}</p>' for p in paras)
         
         description = clean_text(description)
+        image = re.search(r'<img[^>]+src=["\'](.*?)["\']', description, re.IGNORECASE)
+        if image:
+            img_url = image.group(1)  # Extract the image URL
+            img_extension = img_url.split('.')[-1].lower()
+            mime_type = 'image/jpeg'  # Default type
+            if img_extension == 'png':
+                mime_type = 'image/png'
+            elif img_extension == 'gif':
+                mime_type = 'image/gif'
+            elif img_extension == 'jpg' or img_extension == 'jpeg':
+                mime_type = 'image/jpeg'
+            if img_url:
+                image = f'<media:content url="{img_url}" type="{mime_type}" />'
+        else:
+            image = ''  # If no image found, leave the content empty or handle it accordingly
         # additional item modifications based on source domain
         entry = prettify_domains(entry)
 
         entry_cleaned = {
             'title': title,
+            'content': image,
             'link': link,
             'description': description,
             'pubDate': pub_date,
@@ -133,7 +149,6 @@ def clean_feed(input_file: str, output_file: str):
 
     fg.link(href=feed_link, rel='alternate')
     fg.id(feed_link)
-    # ————————————————————————————————————————————————
     fg.description(feed.feed.get('description', ''))
     fg.language(feed.feed.get('language', 'en'))
     fg.generator('python-feedgen-cleaner')

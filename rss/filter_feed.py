@@ -2,7 +2,6 @@ import feedparser
 import xml.etree.ElementTree as ET
 import argparse
 import xml.dom.minidom
-import re
 
 # Set up argument parser
 parser = argparse.ArgumentParser(description="Filter an RSS feed based on keywords.")
