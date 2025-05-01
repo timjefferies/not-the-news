@@ -177,7 +177,7 @@ window.rssApp = () => {
         if (this.filterMode === 'all')   return true;
         if (this.filterMode === 'unread') return !this.hidden.includes(entry.id);
         if (this.filterMode === 'hidden') return  this.hidden.includes(entry.id);
-        if (this.filterMode === 'starred') return  this.starred.includes(entry.link);
+        if (this.filterMode === 'starred') return  this.starred.includes(entry.id);
         return true;
       });
     }
