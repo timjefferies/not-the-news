@@ -88,6 +88,10 @@ export function toggleStar(state, link) {
   }
   localStorage.setItem(STARRED_KEY, JSON.stringify(state.starred));
   saveStateToFile("appState.json").catch(err => console.error("Save failed:", err));
+  // refresh filter counts in header
+  if (typeof state.updateCounts === 'function') {
+    state.updateCounts();
+  }
 }
 
 /**
@@ -132,4 +136,37 @@ export async function toggleHidden(app, link) {
   } catch (err) {
     console.error("Save failed:", err);
   }
+  // refresh filter counts in header
+  if (typeof state.updateCounts === 'function') {
+    state.updateCounts();
+  }
+}
+
+/**
+ * Recalculate and relabel each dropdown filter option with its current count.
+ * @param {object} app - The Alpine app instance (this)
+ */
+export function updateCounts() {
+  const allCount     = this.entries.length;
+  const hiddenCount  = this.hidden.length;
+  const starredCount = this.starred.length;
+  const unreadCount  = this.entries.filter(e => !this.hidden.includes(e.link)).length;
+  const select = document.getElementById('filter-selector');
+  if (!select) return;
+  Array.from(select.options).forEach(opt => {
+    switch (opt.value) {
+      case 'all':
+        opt.text = `All (${allCount})`;
+        break;
+      case 'hidden':
+        opt.text = `Hidden (${hiddenCount})`;
+        break;
+      case 'starred':
+        opt.text = `Starred (${starredCount})`;
+        break;
+      case 'unread':
+        opt.text = `Unread (${unreadCount})`;
+        break;
+    }
+  });
 }

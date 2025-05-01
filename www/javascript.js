@@ -1,5 +1,5 @@
 import { restoreStateFromFile, saveStateToFile } from "./js/api.js";
-import { scrollToTop, attachScrollToTopHandler, formatDate, isHidden, toggleHidden, isStarred, toggleStar, setFilter } from "./js/functions.js";
+import { scrollToTop, attachScrollToTopHandler, formatDate, isHidden, toggleHidden, isStarred, toggleStar, setFilter, updateCounts } from "./js/functions.js";
 import { initSync, initTheme, initImages, initScrollPos, initConfigComponent } from "./js/settings.js";
 
 window.rssApp = () => {
@@ -17,10 +17,10 @@ window.rssApp = () => {
     loading: true,
 
     // map-in our external helpers
-    scrollToTop,                         // now uses imported scrollToTop()
+    scrollToTop,
     _attachScrollToTopHandler: attachScrollToTopHandler,
-    formatDate,                         // now uses imported formatDate()
-    // STARRED helpers, wired into Alpine
+    formatDate,
+    updateCounts,
     isStarred(link)  { return isStarred(this, link); },
     toggleStar(link) { toggleStar(this, link); },
     setFilter(mode)  { setFilter(this, mode); },
@@ -52,11 +52,12 @@ window.rssApp = () => {
       try {
 	await this.loadFeed({ showLoading: true });
   	} catch (err) {
-    	console.error("loadFeed failed", err);
-    	this.errorMessage = "Could not load feed.";
+    	  console.error("loadFeed failed", err);
+    	  this.errorMessage = "Could not load feed.";
   	} finally {
-    	this.loading = false;
+    	  this.loading = false;
   	}
+      this.updateCounts();
 
       setInterval(async () => {
 	// don’t do any feed work if settings modal is open or sync is off
@@ -150,6 +151,7 @@ window.rssApp = () => {
 
         // always store full list; filter in computed getter
         this.entries = mapped;
+	this.updateCounts(); // after entries refresh, update dropdown labels
 
         const newEtag = res.headers.get('ETag');
         if (newEtag) {
