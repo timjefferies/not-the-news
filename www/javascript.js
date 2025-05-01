@@ -138,13 +138,16 @@ window.rssApp = () => {
           if (imgMatch) {
             imageUrl = imgMatch[1];
           }
+	  else imageUrl = '';
+	  // Remove <img> tags from raw content
+	  let description = raw.replace(/<img[^>]*>/g, '');
 
           return {
 	    image:       imageUrl,
             title:       item.title,
             link:        item.link,
             pubDate:     this.formatDate(item.pubDate || item.isoDate || ''),
-            description: raw.trim(),
+            description: description.trim(),
 	    source:      sourceHost
           };
         });
