@@ -1,5 +1,5 @@
 import { restoreStateFromFile, saveStateToFile } from "./js/api.js";
-import { scrollToTop, attachScrollToTopHandler, formatDate, isHidden, toggleHidden, isStarred, toggleStar, setFilter, updateCounts, pruneStaleHidden } from "./js/functions.js";
+import { scrollToTop, attachScrollToTopHandler, formatDate, isHidden, toggleHidden, isStarred, toggleStar, setFilter, updateCounts, pruneStaleHidden, shuffleArray } from "./js/functions.js";
 import { initSync, initTheme, initImages, initScrollPos, initConfigComponent } from "./js/settings.js";
 
 window.rssApp = () => {

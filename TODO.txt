@@ -1,10 +1,7 @@
 # TODO
 - add a password setting and screen, to block bots and scrapers.
-- restore light mode theme to like in the screenshot
 - implement redis cache
-- fix ui not updating after closing/star items
 - fix the wrong url on reddit titles
-
 
 # LATER
 - migrate from localstorage to indexedDB

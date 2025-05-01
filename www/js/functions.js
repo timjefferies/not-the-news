@@ -213,3 +213,27 @@ export function pruneStaleHidden(entries) {
    }
    return pruned;
  }
+
+/**
+ * Fisher–Yates shuffle: returns the array randomly reordered.
+ * @param {Array} arr
+ * @returns {Array}
+ */
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// Grab the shuffle button (ensure this ID matches your HTML)
+const shuffleBtn = document.getElementById('shuffleBtn');
+
+if (shuffleBtn) {
+  shuffleBtn.addEventListener('click', () => {
+    // Use a copy of the original items array to avoid mutating it
+    const randomFeed = shuffleArray(items.slice());
+    renderFeed(randomFeed);
+  });
+}
