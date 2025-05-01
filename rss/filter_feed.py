@@ -88,9 +88,21 @@ def filter_rss_entries(input_file, output_file, keywords_file):
                 'rel':  linkinfo.get('rel',''),
                 'type': linkinfo.get('type',''),
                 })
-        # Wrap description in CDATA so any <img> HTML is preserved unescaped
+        # ==== BUILD RAW HTML FOR DESCRIPTION (prefer full content over summary) ====
+        raw_html = ""
+        if entry.get('content'):
+            # Use the full content block if available
+            raw_html = entry.content[0].value
+        elif entry.get('summary'):
+            # Fallback to summary
+            raw_html = entry.summary
+        elif entry.get('description'):
+            # Some feeds use description directly
+            raw_html = entry.description
+        # Wrap in CDATA to preserve any <img> tags or markup
         description_elem = ET.SubElement(item, 'description')
-        description_elem.text = f"<![CDATA[{ entry.get('summary', '') }]]>"
+        description_elem.text = f"<![CDATA[{ raw_html }]]>"
+        # ========================================================================
         # === IMAGE SUPPORT ===
         # 1) Standard RSS <enclosure> for any image enclosures
         for enclosure in entry.get('enclosures', []):
