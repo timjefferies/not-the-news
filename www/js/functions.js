@@ -89,8 +89,8 @@ export function toggleStar(state, link) {
   localStorage.setItem(STARRED_KEY, JSON.stringify(state.starred));
   saveStateToFile("appState.json").catch(err => console.error("Save failed:", err));
   // refresh filter counts in header
-  if (typeof state.updateCounts === 'function') {
-    state.updateCounts();
+  if (typeof app.updateCounts === 'function') {
+    app.updateCounts();
   }
 }
 
@@ -137,8 +137,8 @@ export async function toggleHidden(app, link) {
     console.error("Save failed:", err);
   }
   // refresh filter counts in header
-  if (typeof state.updateCounts === 'function') {
-    state.updateCounts();
+  if (typeof app.updateCounts === 'function') {
+    app.updateCounts();
   }
 }
 
