@@ -28,7 +28,7 @@ html.light {
   --fg: darkslategrey;
   --primary: cornflowerblue;
   --secondary: slategrey;
-  --card-bg: #ffffff;
+  --card-bg: ghostwhite;
   --card-border: #EEE;
   --card-shadow-color: lightgrey;
   /* show noise background */
@@ -37,6 +37,8 @@ html.light {
   button.close, button.star { background: aliceblue; }
   button.close:hover { color: aliceblue; }
   button.star:hover { color: aliceblue; }
+  .itemtitle { background: linear-gradient(360deg, aliceblue 0%, transparent); }
+  .itemtitle a { color: steelblue; }
 }
 
 html.dark {
@@ -250,6 +252,7 @@ a:hover { color: var(--primary); }
 }
 select#filter-selector {
     background: var(--card-bg);
+    color: var(--fg);
 }
 select#filter-selector option:hover {
     background: var(--primary);
@@ -572,6 +575,7 @@ ul.feed-list, .feed-container {
   font-size: 1rem;
   line-height: 1.4;
   background: var(--card-bg);
+  color: var(--fg);
 }
 
 /* Settings button style */

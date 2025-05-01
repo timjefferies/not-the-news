@@ -171,8 +171,17 @@ window.rssApp = () => {
         if (showLoading) this.loading = false;
       }
       initScrollPos(this);
-      document.querySelectorAll("img").forEach(img => {
-  	img.addEventListener("load", () => img.classList.add("loaded"));
+      this.$nextTick?.(() => {
+        document.querySelectorAll(".entry img").forEach(img => {
+          // if already cached, mark immediately
+          if (img.complete) {
+            img.classList.add("loaded");
+          } else {
+            img.addEventListener("load", () => {
+              img.classList.add("loaded");
+            });
+          }
+        });
       });
     },
     // computed, based on our three modes + the hidden[] list
@@ -184,6 +193,12 @@ window.rssApp = () => {
         if (this.filterMode === 'starred') return  this.starred.includes(entry.id);
         return true;
       });
+    document.addEventListener("load", e => {
+      if (e.target.tagName.toLowerCase() === "img") {
+        e.target.classList.add("loaded");
+      }
+    }, true);
+      
     }
   };
 };
