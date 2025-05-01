@@ -83,6 +83,12 @@ def clean_feed_entries(entries):
             description = ''.join(f'<p>{p}</p>' for p in paras)
         
         description = clean_text(description)
+
+        # remove duplicate image tags from description
+        description = re.sub(r'<img[^>]+src=["\'](https?://[^"\']+)["\'][^>]*>', 
+                    lambda m, seen=set(): (seen.add(m.group(1)) or m.group(0) if m.group(1) not in seen else ''),
+                    description)
+        # create an image tag
         image = re.search(r'<img[^>]+src=["\'](.*?)["\']', description, re.IGNORECASE)
         if image:
             img_url = image.group(1)  # Extract the image URL
