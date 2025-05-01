@@ -88,10 +88,9 @@ def filter_rss_entries(input_file, output_file, keywords_file):
                 'rel':  linkinfo.get('rel',''),
                 'type': linkinfo.get('type',''),
                 })
-        ET.SubElement(item, 'description').text = entry.get('summary', '')
-        # Wrap description in CDATA so <img> HTML is preserved
-        desc.text = f"<![CDATA[{ entry.get('summary', '') }]]>"
-
+        # Wrap description in CDATA so any <img> HTML is preserved unescaped
+        description_elem = ET.SubElement(item, 'description')
+        description_elem.text = f"<![CDATA[{ entry.get('summary', '') }]]>"
         # === IMAGE SUPPORT ===
         # 1) Standard RSS <enclosure> for any image enclosures
         for enclosure in entry.get('enclosures', []):
