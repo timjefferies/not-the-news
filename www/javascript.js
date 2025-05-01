@@ -135,6 +135,7 @@ window.rssApp = () => {
             sourceUrl  = m[1].trim();
             description = description.replace(/^<!--<source-url>[\s\S]+?<\/source-url>-->/, '').trim();
           }
+	  else sourceUrl = new URL(item.link).hostname;
           let imageUrl = null;
           const imgMatch = raw.match(/<img[^>]+src="([^">]+)"/);
           if (imgMatch) {
@@ -170,6 +171,9 @@ window.rssApp = () => {
         if (showLoading) this.loading = false;
       }
       initScrollPos(this);
+      document.querySelectorAll("img").forEach(img => {
+  	img.addEventListener("load", () => img.classList.add("loaded"));
+      });
     },
     // computed, based on our three modes + the hidden[] list
     get filteredEntries() {
