@@ -234,6 +234,9 @@ a:hover { color: var(--primary); }
   border: 1px solid var(--card-border);
   opacity: 0.8;
 }
+.filter-select:focus-visible {
+    outline: none;
+}
 select#filter-selector {
     background: var(--card-bg);
 }
@@ -352,8 +355,8 @@ h3 { margin-top: 2em; font-size: large; }
 
 /* hide by default */
 #scroll-to-top {
-  bottom: 1rem;
-  right: 1rem;
+  bottom: 2rem;
+  right: 2rem;
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
   font-size: xx-large;
@@ -362,8 +365,8 @@ h3 { margin-top: 2em; font-size: large; }
   border-radius: 100px;
 
   position: fixed;
-  width: 3rem;
-  height: 3rem;
+  width: 4rem;
+  height: 4rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -390,13 +393,6 @@ h3 { margin-top: 2em; font-size: large; }
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   border-color: whitesmoke;
-}
-
-#scroll-to-top {
-  right: 40px;
-  bottom: 40px;
-  font-size: 40px;
-  line-height: 1.6;
 }
 
 #scroll-to-top:hover,
@@ -570,13 +566,14 @@ ul.feed-list, .feed-container {
 /* Settings button style */
 .settings-btn {
   width: 4em;
-  height: 3em;
+  height: 4em;
   background-color: var(--bg);
   color: var(--fg);
   margin-left: auto;
   border: none;
   border-radius: 100px;
   opacity: 0.8;
+  padding-top: 0.4em;
 }
 .settings-btn:hover {
   background-color: var(--primary); /* changes color on hover */
