@@ -54,6 +54,9 @@ def clean_feed_entries(entries):
     for entry in entries:
         if not entry.get('link'):
             continue
+        # additional item modifications based on source domain
+        entry = prettify_domains(entry)
+        
         title = entry.get('title', '')
         description = entry.get('description', '')
         link = entry.get('link', '')
@@ -104,8 +107,6 @@ def clean_feed_entries(entries):
                 image = f'<media:content url="{img_url}" type="{mime_type}" />'
         else:
             image = ''  # If no image found, leave the content empty or handle it accordingly
-        # additional item modifications based on source domain
-        entry = prettify_domains(entry)
 
         entry_cleaned = {
             'title': title,

@@ -1,5 +1,4 @@
 # TODO
-- get images showing
 - add a password setting and screen, to block bots and scrapers.
 - restore light mode theme to like in the screenshot
 

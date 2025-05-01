@@ -87,11 +87,11 @@ def generate_feed():
 
     # 4) Post‐processing (same sed calls)
     subprocess.run(
-        ['sed','-i','s/x.com/xcancel.net/g', final_feed_file],
+        ['sed','-i','s/img src/img loading="lazy" src/g', final_feed_file],
         check=True
     )
     subprocess.run(
-        ['sed','-i','s/img src/img loading="lazy" src/g', final_feed_file],
+        ['sed','-i','s/x.com/xcancel.net/g', final_feed_file],
         check=True
     )
     subprocess.run(

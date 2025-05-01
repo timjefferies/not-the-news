@@ -13,6 +13,12 @@ def prettify_reddit_entry(entry):
         first_sentence, rest = parts
         entry['title'] = first_sentence
         entry['description'] = f"<h2>{rest}</h2>\n" + description
+    # strip everything before “reddit.com/r/<subreddit>” and after it
+    entry['link'] = re.sub(
+    r'^https?://(?:old\.|www\.)?reddit\.com/r/([^/]+)/.*$',
+    r'https://reddit.com/r/\1/',
+    entry['link'])
+
     return entry
 
 def prettify_hackernews_entry(entry):
@@ -40,9 +46,9 @@ def prettify_domains(entry):
     # Normalize to just the main domain
     domain = hostname.lower().removeprefix('www.')
 
-    if domain.endswith('reddit.com'):
+    if 'reddit.com' in domain:
         return prettify_reddit_entry(entry)
-    if domain == 'news.ycombinator.com':
+    if 'news.ycombinator.com' in domain:
         return prettify_hackernews_entry(entry)
     # add more domains here:
     # if domain == 'twitter.com': return prettify_twitter_entry(entry)

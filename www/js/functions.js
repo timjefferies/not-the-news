@@ -147,10 +147,14 @@ export async function toggleHidden(app, link) {
  * @param {object} app - The Alpine app instance (this)
  */
 export function updateCounts() {
-  const allCount     = this.entries.length;
-  const hiddenCount  = this.hidden.length;
-  const starredCount = this.starred.length;
-  const unreadCount  = this.entries.filter(e => !this.hidden.includes(e.link)).length;
+  const allCount = this.entries.length;
+  // Count only entries currently in the feed
+  const hiddenCount = this.entries.filter(e => this.hidden.includes(e.link)).length;
+  const starredCount = this.entries.filter(e => this.starred.includes(e.link)).length;
+  // Exclude both hidden and starred so the three buckets are disjoint
+  const unreadCount = this.entries.filter(e =>
+    !this.hidden.includes(e.link) && !this.starred.includes(e.link)
+  ).length;  
   const select = document.getElementById('filter-selector');
   if (!select) return;
   Array.from(select.options).forEach(opt => {
