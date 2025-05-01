@@ -1,5 +1,5 @@
 import { restoreStateFromFile, saveStateToFile } from "./js/api.js";
-import { scrollToTop, attachScrollToTopHandler, formatDate, isHidden, toggleHidden, isStarred, toggleStar, setFilter, updateCounts } from "./js/functions.js";
+import { scrollToTop, attachScrollToTopHandler, formatDate, isHidden, toggleHidden, isStarred, toggleStar, setFilter, updateCounts, pruneStaleHidden } from "./js/functions.js";
 import { initSync, initTheme, initImages, initScrollPos, initConfigComponent } from "./js/settings.js";
 
 window.rssApp = () => {
@@ -83,6 +83,8 @@ window.rssApp = () => {
         // 2b. If 304, feed unchanged—do nothing
       }, 5*60*1000);
       this._attachScrollToTopHandler();
+      // prune any stale hidden-IDs
+      this.hidden = pruneStaleHidden(this.entries);
     },
     isHidden(link) { return isHidden(this, link); },
     toggleHidden(link) { toggleHidden(this, link); },
@@ -118,6 +120,7 @@ window.rssApp = () => {
         const feed   = await parser.parseString(xml);
 
 	const mapped = feed.items.map(item => {
+	const uniqueKey = item.guid || item.id || item.link;
         // keep the already-sanitized HTML instead of stripping it
         const raw = item.content
                  || item.contentSnippet
@@ -125,13 +128,13 @@ window.rssApp = () => {
                  || item.description
                  || '';
 
-	  // Extract the hostname from the link to use as the source
-          let sourceHost = '';
-          try {
-            sourceHost = new URL(item.link).hostname;
-          } catch (e) {
-            console.warn('Could not parse URL for source:', item.link);
-          }
+	  let sourceHost = '';
+	  try {
+	    const url = new URL(item.link);
+	    sourceHost = url.href.replace(/^https?:\/\//, '');
+	  } catch (e) {
+	    console.warn('Could not parse URL for source:', item.link);
+	  }
 	  // ✂︎ extract the first <img src="…"> from the HTML snippet
           let imageUrl = null;
           const imgMatch = raw.match(/<img[^>]+src="([^">]+)"/);
@@ -143,6 +146,7 @@ window.rssApp = () => {
 	  let description = raw.replace(/<img[^>]*>/g, '');
 
           return {
+	    id:		 uniqueKey,
 	    image:       imageUrl,
             title:       item.title,
             link:        item.link,
@@ -171,10 +175,10 @@ window.rssApp = () => {
     // computed, based on our three modes + the hidden[] list
     get filteredEntries() {
       return this.entries.filter(entry => {
-        if (this.filterMode === 'all')    return true;
-        if (this.filterMode === 'unread') return !this.hidden.includes(entry.link);
-        if (this.filterMode === 'hidden') return this.hidden.includes(entry.link);
-	if (this.filterMode === 'starred') return this.starred.includes(entry.link);
+        if (this.filterMode === 'all')   return true;
+        if (this.filterMode === 'unread') return !this.hidden.includes(entry.id);
+        if (this.filterMode === 'hidden') return  this.hidden.includes(entry.id);
+        if (this.filterMode === 'starred') return  this.starred.includes(entry.link);
         return true;
       });
     }

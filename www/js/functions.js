@@ -149,11 +149,11 @@ export async function toggleHidden(app, link) {
 export function updateCounts() {
   const allCount = this.entries.length;
   // Count only entries currently in the feed
-  const hiddenCount = this.entries.filter(e => this.hidden.includes(e.link)).length;
-  const starredCount = this.entries.filter(e => this.starred.includes(e.link)).length;
+  const hiddenCount = this.entries.filter(e => this.hidden.includes(e.id)).length;
+  const starredCount = this.entries.filter(e => this.starred.includes(e.id)).length;
   // Exclude both hidden and starred so the three buckets are disjoint
   const unreadCount = this.entries.filter(e =>
-    !this.hidden.includes(e.link) && !this.starred.includes(e.link)
+    !this.hidden.includes(e.id) && !this.starred.includes(e.id)
   ).length;  
   const select = document.getElementById('filter-selector');
   if (!select) return;
@@ -173,4 +173,20 @@ export function updateCounts() {
         break;
     }
   });
+}
+
+/**
+ * Remove any IDs from localStorage “hidden” that no longer exist in the feed.
+ * @param {Array<{id:string}>} entries  – array of current feed entries
+ * @returns {string[]}  – the pruned hidden list
+ */
+export function pruneStaleHidden(entries) {
+  const raw = localStorage.getItem('hidden');
+  const storedHidden = raw ? JSON.parse(raw) : [];
+  const validIds = new Set(entries.map(e => e.id));
+  const pruned = storedHidden.filter(id => validIds.has(id));
+  if (pruned.length < storedHidden.length) {
+    localStorage.setItem('hidden', JSON.stringify(pruned));
+  }
+  return pruned;
 }

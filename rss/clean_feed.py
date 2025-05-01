@@ -114,13 +114,14 @@ def clean_feed_entries(entries):
             'link': link,
             'description': description,
             'pubDate': pub_date,
+            'id': entry.get('id')
         }
         cleaned.append(entry_cleaned)
     return cleaned
 
 
 def validate_rss_fields(entry: dict) -> dict:
-    valid_keys = {'title', 'link', 'description', 'pubDate'}
+    valid_keys = {'title', 'link', 'description', 'pubDate', 'id'}
     return {k: entry[k] for k in entry if k in valid_keys}
 
 
@@ -162,8 +163,9 @@ def clean_feed(input_file: str, output_file: str):
 
     for entry in cleaned_entries:
         fe = fg.add_entry()
-        # Every entry gets an <id> (required internally) and a proper <link>
-        fe.id(entry['link'])
+        # write back our GUID
+        if entry.get('id'):
+            fe.guid(entry['id'], permalink=False)
         fe.title(entry['title'])
         fe.link(href=entry['link'], rel='alternate')
         fe.pubDate(entry['pubDate'])

@@ -8,6 +8,7 @@ from dateutil.parser import parse
 import argparse
 import requests
 import pprint
+import hashlib
 
 # ─── Global backoff & rate-limit settings ─────────────────────────────────────
 
@@ -163,6 +164,10 @@ def merge_feeds(feeds_file, output_file):
             seen_entries.add(entry_key)
 
             fe = fg.add_entry()
+            # generate a deterministic unique hash (GUID) for the entry
+            hash_input = entry.get('id', entry.get('link', '')).encode('utf-8')
+            unique_hash = hashlib.sha256(hash_input).hexdigest()
+            fe.guid(unique_hash, permalink=False)
             fe.title(entry_title or 'No Title')
             if entry_link:
                 fe.link(

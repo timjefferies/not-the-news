@@ -70,16 +70,16 @@
     <!-- Repeat each entry via template so Alpine’s x-for can clone it properly -->
     <template
       x-for="(entry, idx) in entries"
-      :key="entry.link + idx"
+      :key="entry.id + idx"
     >
       <div
         class="item entry"
-        x-bind:data-link="entry.link"
+        x-bind:data-link="entry.id"
         x-show="
           filterMode === 'all'
-          || (filterMode === 'unread'  && !hidden.includes(entry.link))
-          || (filterMode === 'hidden'  &&  hidden.includes(entry.link))
-          || (filterMode === 'starred' && isStarred(entry.link))
+          || (filterMode === 'unread'  && !hidden.includes(entry.id))
+          || (filterMode === 'hidden'  &&  hidden.includes(entry.id))
+          || (filterMode === 'starred' && isStarred(entry.id))
         "
         x-transition:leave="transition ease-in duration-200 transform"
         x-transition:leave-start="opacity-100 translate-x-0"
@@ -87,15 +87,15 @@
       >
         <div class="itemtitle">
 	<button class="close"
-		  @click="toggleHidden(entry.link)"
-                  :class="{'hidden': isHidden(entry.link)}"
+		  @click="toggleHidden(entry.id)"
+                  :class="{'hidden': isHidden(entry.id)}"
                   aria-label="Close"
 	  >✕</button
           <h1><a :href="entry.link" target="_blank" x-text="entry.title"></a></h1>
           <!-- Star/unstar button -->
           <button class="star"
-                  @click="toggleStar(entry.link)"
-                  :class="{'starred': isStarred(entry.link)}"
+                  @click="toggleStar(entry.id)"
+                  :class="{'starred': isStarred(entry.id)}"
                   aria-label="Star"
           >★</button>
         </div>
