@@ -10,7 +10,7 @@ from prettify_domains import prettify_domains
 
 # ===== Configuration =====
 ALLOWED_TAGS = [
-    'p', 'ul', 'li', 'strong', 'em', 'a', 'br', 'div'
+    'p', 'ul', 'li', 'strong', 'em', 'a', 'br', 'div', 'img'
 ]
 ALLOWED_ATTRIBUTES = {
     'a': ['href', 'rel', 'target'],
@@ -55,14 +55,11 @@ def clean_feed_entries(entries):
         if not entry.get('link'):
             continue
         title = entry.get('title', '')
-        description = entry.get('summary', '')
+        description = entry.get('description', '')
         link = entry.get('link', '')
         pub_date = get_pub_date(entry)
 
         title = clean_text(title)
-
-        description = clean_text(description)
-
         # ————— auto-paragraph if no <p> or <br> tags —————
         # look for any existing paragraph or line-break tags
         if not re.search(r'<p\b|<br\s*/?>', description):
@@ -85,6 +82,7 @@ def clean_feed_entries(entries):
             paras = [' '.join(sentences[i:i+5]) for i in range(0, len(sentences), 5)]
             description = ''.join(f'<p>{p}</p>' for p in paras)
         
+        description = clean_text(description)
         # additional item modifications based on source domain
         entry = prettify_domains(entry)
 

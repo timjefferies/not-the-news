@@ -2,6 +2,7 @@ import feedparser
 import xml.etree.ElementTree as ET
 import argparse
 import xml.dom.minidom
+import re
 
 # Set up argument parser
 parser = argparse.ArgumentParser(description="Filter an RSS feed based on keywords.")
@@ -99,31 +100,8 @@ def filter_rss_entries(input_file, output_file, keywords_file):
         elif entry.get('description'):
             # Some feeds use description directly
             raw_html = entry.description
-        # Wrap in CDATA to preserve any <img> tags or markup
-        description_elem = ET.SubElement(item, 'description')
-        description_elem.text = f"<![CDATA[{ raw_html }]]>"
+        ET.SubElement(item, 'description').text = raw_html
         # ========================================================================
-        # === IMAGE SUPPORT ===
-        # 1) Standard RSS <enclosure> for any image enclosures
-        for enclosure in entry.get('enclosures', []):
-            if enclosure.get('type', '').startswith('image/'):
-                ET.SubElement(item, 'enclosure', {
-                    'url':    enclosure['href'],
-                    'type':   enclosure.get('type', ''),
-                    'length': str(enclosure.get('length', ''))
-                })
-
-        # 2) Media RSS <media:content> for any media_content images
-        for media in entry.get('media_content', []):
-            url = media.get('url') or media.get('value')
-            if url and (media.get('medium') == 'image' or media.get('type', '').startswith('image/')):
-                ET.SubElement(item, 'media:content', {
-                    'url':  url,
-                    'type': media.get('type', '')
-                })
-        # =====================
-
-
 
         ET.SubElement(item, 'pubDate').text = entry.get('published', '')
         ET.SubElement(item, 'guid').text = entry.get('id', entry.link)
