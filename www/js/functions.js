@@ -181,12 +181,35 @@ export function updateCounts() {
  * @returns {string[]}  – the pruned hidden list
  */
 export function pruneStaleHidden(entries) {
-  const raw = localStorage.getItem('hidden');
-  const storedHidden = raw ? JSON.parse(raw) : [];
-  const validIds = new Set(entries.map(e => e.id));
-  const pruned = storedHidden.filter(id => validIds.has(id));
-  if (pruned.length < storedHidden.length) {
-    localStorage.setItem('hidden', JSON.stringify(pruned));
-  }
-  return pruned;
-}
+   const raw = localStorage.getItem('hidden');
+   let storedHidden;
+   try {
+     const parsed = raw ? JSON.parse(raw) : [];
+     // ensure we actually have an array
+     storedHidden = Array.isArray(parsed) ? parsed : [];
+   } catch (err) {
+     console.warn('pruneStaleHidden: invalid JSON, preserving nothing', err);
+     storedHidden = [];
+   }
+
+   // ─── guard: only prune on a healthy feed ───
+   if (
+     !Array.isArray(entries) ||
+     entries.length === 0 ||
+     // bail if any entry is missing a valid string id
+     !entries.every(e => e && typeof e.id === 'string')
+   ) {
+     return storedHidden;
+   }
+
+   // optionally normalize ids: trim/case‐fold if your guids can shift case or whitespace
+   const validIds = new Set(entries.map(e => e.id.trim().toLowerCase()));
+
+   const pruned = storedHidden.filter(id =>
+   validIds.has(String(id).trim().toLowerCase())
+   );
+   if (pruned.length < storedHidden.length) {
+     localStorage.setItem('hidden', JSON.stringify(pruned));
+   }
+   return pruned;
+ }
