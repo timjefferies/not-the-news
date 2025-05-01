@@ -120,13 +120,12 @@ export async function initConfigComponent(app) {
 
     // Load keywords blacklist
     fetch(`/load-config?filename=filter_keywords.txt`)
-      .then(r => r.json())
-      .then(data => {
-        app.keywords = data.content || "";
-        const kwArea = document.getElementById("keywords-blacklist");
-        if (kwArea) kwArea.value = app.keywords;
-      })
-      .catch(e => console.error("Error loading keywords:", e));
+      .then(r=>r.json())
+      .then(data=>(
+        app.keywords=(data.content||"").split(/\r?\n/).map(s=>s.trim()).filter(Boolean).sort((a,b)=>a.localeCompare(b)).join("\n"),
+        document.getElementById("keywords-blacklist")&&(document.getElementById("keywords-blacklist").value=app.keywords)
+      ))
+      .catch(e=>console.error("Error loading keywords:", e));
 
     // Load RSS feeds
     fetch(`/load-config?filename=feeds.txt`)

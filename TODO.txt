@@ -1,11 +1,12 @@
 # TODO
+- count the number of feeds and add it to the drop down
 - get images showing
 - add a password setting and screen, to block bots and scrapers.
 - restore light mode theme to like in the screenshot
-- migrate from localstorage to indexedDB
-- create xml2json.py and change the api to serve from feed.json using unique item hashes
 
 # LATER
+- migrate from localstorage to indexedDB
+- create xml2json.py and change the api to serve from feed.json using unique item hashes
 - implement a hidden status bar and flash a toast message if something went wrong saving the state, or when syncing
 - seperate merge_feeds, into fetch_feeds.py and merge_feeds.py with one just getting feeds, and the other handling combining them
 - cache feeds in /data/feed/download-cache, and make it in fetch_feeds.py so that new feeds are only downloaded if there is a change.
@@ -15,3 +16,20 @@
 
   then write a function in js to download the entire list, re-combine them save offline to localstorage and display. The idea is all the xml files will be cached in localstorage except the newest one, so less data is used when syncing. Also enables offline reading.
 - turn app into a PWA app
+
+
+- Feature that the app only shows 10 items at a time. If you don't like the items you have two choices:
+
+1. Close off all the items, which loads ten new items
+2. Press the shuffle button. Each day the shuffle counter resets and you start the day with 1 shuffle.
+In order to earn more shuffles, you do so by closing off ten items. Every ten items closed equals an extra shuffle.
+
+The idea of this feature is to encourage reading and discourage doom scrolling.
+
+If you are receiving a deck of items that are consistently bad, that means you either need a better list of source feeds, or that you need to better populate the keyword blacklist.
+
+- Keyword whitelist. 
+This is a list of keywords that override your blacklist. This feature can be used to ensure that if you do need to catch current or timely events that you have a way to do so.
+
+for example. Adding a keyword set of 'breaking, war' will promote to the top any items that contain both these keywords.
+
