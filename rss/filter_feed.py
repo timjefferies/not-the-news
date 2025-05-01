@@ -70,8 +70,8 @@ def filter_rss_entries(input_file, output_file, keywords_file):
 
     print(f"Filtered {len(filtered_entries)} entries out of {len(feed.entries)}.")
 
-    # Create a new XML tree for the filtered feed
-    filtered_root = ET.Element("rss", attrib={"version": "2.0"})
+    # Create a new XML tree for the filtered feed, declaring media namespace
+    filtered_root = ET.Element("rss", attrib={ "version": "2.0", "xmlns:media": "http://search.yahoo.com/mrss/" })
     channel_elem = ET.SubElement(filtered_root, "channel")
 
     # Add metadata from the original feed
@@ -89,6 +89,31 @@ def filter_rss_entries(input_file, output_file, keywords_file):
                 'type': linkinfo.get('type',''),
                 })
         ET.SubElement(item, 'description').text = entry.get('summary', '')
+        # Wrap description in CDATA so <img> HTML is preserved
+        desc.text = f"<![CDATA[{ entry.get('summary', '') }]]>"
+
+        # === IMAGE SUPPORT ===
+        # 1) Standard RSS <enclosure> for any image enclosures
+        for enclosure in entry.get('enclosures', []):
+            if enclosure.get('type', '').startswith('image/'):
+                ET.SubElement(item, 'enclosure', {
+                    'url':    enclosure['href'],
+                    'type':   enclosure.get('type', ''),
+                    'length': str(enclosure.get('length', ''))
+                })
+
+        # 2) Media RSS <media:content> for any media_content images
+        for media in entry.get('media_content', []):
+            url = media.get('url') or media.get('value')
+            if url and (media.get('medium') == 'image' or media.get('type', '').startswith('image/')):
+                ET.SubElement(item, 'media:content', {
+                    'url':  url,
+                    'type': media.get('type', '')
+                })
+        # =====================
+
+
+
         ET.SubElement(item, 'pubDate').text = entry.get('published', '')
         ET.SubElement(item, 'guid').text = entry.get('id', entry.link)
 

@@ -13,7 +13,8 @@ ALLOWED_TAGS = [
     'p', 'ul', 'li', 'strong', 'em', 'a', 'br', 'div'
 ]
 ALLOWED_ATTRIBUTES = {
-    'a': ['href', 'rel', 'target']
+    'a': ['href', 'rel', 'target'],
+    'img': ['src', 'alt', 'title'],
 }
 ALLOWED_PROTOCOLS = ['http', 'https', 'mailto']
 
