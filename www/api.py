@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify, abort
+from flask_compress import Compress
 import json
 import os
 
 app = Flask(__name__)
+Compress(app)
 DATA_DIR = "/data"
 CONFIG_DIR = os.path.join(DATA_DIR, "config")
 os.makedirs(DATA_DIR, exist_ok=True)
