@@ -52,7 +52,7 @@ ENV PATH="/venv/bin:$PATH"
 RUN pip install \
       feedparser feedgen requests python-dateutil \
       Flask==2.2.5 Werkzeug==2.3.7 bleach markdown \
-      gunicorn \
+      gunicorn Flask-Caching redis \
     && rm -rf /root/.cache/pip
 
 ##############################################################################

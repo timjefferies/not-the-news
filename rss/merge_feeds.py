@@ -9,6 +9,10 @@ import argparse
 import requests
 import pprint
 import hashlib
+import redis
+
+# ─── Redis client for caching raw feed bytes ─────────────────────────────────
+r = redis.Redis(host='localhost', port=6379, db=0)
 
 # ─── Global backoff & rate-limit settings ─────────────────────────────────────
 
@@ -71,6 +75,12 @@ def extract_domain(url, cache={}):
 
 def fetch_with_backoff(url):
     """Fetch the URL, applying per-domain delay + retry/backoff on 429."""
+    # ─── Redis cache lookup (skip all backoff/delays on cache hit) ─────────
+    key = f"rss:{url}"
+    cached = r.get(key)
+    if cached:
+        return feedparser.parse(cached)
+
     # 0) Global QPM rate-limit
     _consume_token()
     # 1) Domain-based delay
@@ -102,6 +112,8 @@ def fetch_with_backoff(url):
                 continue
 
             resp.raise_for_status()
+            # ─── Cache the raw feed bytes for 1 hour ───────────────────────
+            r.set(key, resp.content, ex=3600)
             return feedparser.parse(resp.content)
 
         except requests.RequestException as e:
