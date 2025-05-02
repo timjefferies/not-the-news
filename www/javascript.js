@@ -27,7 +27,7 @@ window.rssApp = () => {
     isStarred(link)  { return isStarred(this, link); },
     toggleStar(link) { toggleStar(this, link); },
     setFilter(mode)  { setFilter(this, mode); },
-    shuffleFeed() { this.shuffleCount++; handleShuffleFeed(this); },
+    shuffleFeed() { handleShuffleFeed(this); },
       
     async init() {
       this.loading = true; //loading screen
