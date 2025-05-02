@@ -18,7 +18,7 @@ RUN apk add --no-cache \
     build-base \
   && xcaddy build \
       --with github.com/dunglas/caddy-cbrotli \
-      --with github.com/caddyserver/cache-handler@latest
+      --with github.com/caddyserver/cache-handler@latest \
       --with github.com/pberkel/caddy-storage-redis
 
 ##############################################################################
@@ -45,22 +45,6 @@ RUN apk add --no-cache \
       bash procps python3 py3-pip py3-virtualenv ca-certificates \
     && update-ca-certificates
 
-# ── Redis persistence setup ─────────────────────────────────────────────────────
-# Create a Redis data directory inside /data (which you already volume-mount)
-RUN mkdir -p /data/redis \
-    && chown redis:redis /data/redis
-
-# Inline a minimal redis.conf pointing persistence to /data/redis
-RUN cat << 'EOF' > /etc/redis.conf
-dir /data/redis
-save 900 1     # every 15 min if ≥1 change
-save 300 10    # every 5 min if ≥10 changes
-appendonly yes
-appendfsync always
-appendfilename "appendonly.aof"
-appenddirname "appendonlydir"
-EOF
-
 ##############################################################################
 # 4. Python venv & packages
 RUN python3 -m venv /venv
@@ -83,7 +67,17 @@ COPY data/ /data/feed/
 RUN mkdir -p /usr/local/bin && \
     echo '#!/usr/bin/env bash' > /usr/local/bin/docker-entrypoint.sh && \
     echo 'set -e' >> /usr/local/bin/docker-entrypoint.sh && \
-    echo 'redis-server /etc/redis.conf &' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'mkdir -p /data/redis && chown redis:redis /data/redis' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'cat <<EOF > /etc/redis.conf' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'dir /data/redis' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'save 900 1' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'save 300 10' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'appendonly yes' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'appendfsync always' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'appendfilename "appendonly.aof"' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'appenddirname "appendonlydir"' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'EOF' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'redis-server /etc/redis.conf --daemonize yes &' >> /usr/local/bin/docker-entrypoint.sh && \
     echo '' >> /usr/local/bin/docker-entrypoint.sh && \
     echo 'gunicorn --chdir /app/www --bind 127.0.0.1:3000 --workers 1 --threads 3 api:app &' >> /usr/local/bin/docker-entrypoint.sh && \
     echo 'python3 /rss/run.py --daemon &' >> /usr/local/bin/docker-entrypoint.sh && \
