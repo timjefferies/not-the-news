@@ -6,7 +6,7 @@ FROM caddy:builder-alpine AS caddy-builder
 # Enable cgo for compiling the Brotli plugin
 ENV CGO_ENABLED=1                                                                  
 
-# Install C toolchain and Brotli plugin dependencies
+# Install C toolchain, Brotli and redis plugin dependencies
 # - brotli-dev: C headers/libs
 # - pkgconfig: metadata for cgo to find Brotli
 # - git: fetch xcaddy modules
@@ -19,13 +19,14 @@ RUN apk add --no-cache \
   && xcaddy build \
       --with github.com/dunglas/caddy-cbrotli \
       --with github.com/caddyserver/cache-handler@latest
+      --with github.com/pberkel/caddy-storage-redis
 
 ##############################################################################
 # 1. Base image
 FROM caddy:2-alpine
 
-# Install Brotli runtime libraries (libbrotlidec.so.1, libbrotlienc.so.1)
-RUN apk add --no-cache brotli-libs
+# Install Brotli, redis runtime libraries (libbrotlidec.so.1, libbrotlienc.so.1)
+RUN apk add --no-cache brotli-libs redis
 
 # 1.1 Replace core caddy binary with our custom-built one
 COPY --from=caddy-builder /usr/bin/caddy /usr/bin/caddy
@@ -43,6 +44,22 @@ ENV DOMAIN=${DOMAIN} \
 RUN apk add --no-cache \
       bash procps python3 py3-pip py3-virtualenv ca-certificates \
     && update-ca-certificates
+
+# ── Redis persistence setup ─────────────────────────────────────────────────────
+# Create a Redis data directory inside /data (which you already volume-mount)
+RUN mkdir -p /data/redis \
+    && chown redis:redis /data/redis
+
+# Inline a minimal redis.conf pointing persistence to /data/redis
+RUN cat << 'EOF' > /etc/redis.conf
+dir /data/redis
+save 900 1     # every 15 min if ≥1 change
+save 300 10    # every 5 min if ≥10 changes
+appendonly yes
+appendfsync always
+appendfilename "appendonly.aof"
+appenddirname "appendonlydir"
+EOF
 
 ##############################################################################
 # 4. Python venv & packages
@@ -66,6 +83,7 @@ COPY data/ /data/feed/
 RUN mkdir -p /usr/local/bin && \
     echo '#!/usr/bin/env bash' > /usr/local/bin/docker-entrypoint.sh && \
     echo 'set -e' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'redis-server /etc/redis.conf &' >> /usr/local/bin/docker-entrypoint.sh && \
     echo '' >> /usr/local/bin/docker-entrypoint.sh && \
     echo 'gunicorn --chdir /app/www --bind 127.0.0.1:3000 --workers 1 --threads 3 api:app &' >> /usr/local/bin/docker-entrypoint.sh && \
     echo 'python3 /rss/run.py --daemon &' >> /usr/local/bin/docker-entrypoint.sh && \

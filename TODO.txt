@@ -2,6 +2,8 @@
 - add a password setting and screen, to block bots and scrapers.
 - implement redis cache
 - fix the wrong url on reddit titles
+- fix desktop style
+- fix missing paragraphs from reddit titles
 
 # LATER
 - migrate from localstorage to indexedDB
