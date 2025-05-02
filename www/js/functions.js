@@ -74,17 +74,18 @@ const STARRED_KEY = "starred";
  * @returns {boolean}
  */
 export function isStarred(state, link) {
-  return state.starred.includes(link);
+  return state.starred.some(entry => entry.id === link);
 }
 
 /**
  * Toggle starred/unstarred for a given link, persist immediately
  */
 export function toggleStar(state, link) {
-  if (state.starred.includes(link)) {
-    state.starred = state.starred.filter(l => l !== link);
+  const idx = state.starred.findIndex(entry => entry.id === link);
+  if (idx === -1) {
+    state.starred.push({ id: link, starredAt: new Date().toISOString() });
   } else {
-    state.starred.push(link);
+    state.starred.splice(idx, 1);
   }
   localStorage.setItem(STARRED_KEY, JSON.stringify(state.starred));
   saveStateToFile("appState.json").catch(err => console.error("Save failed:", err));
@@ -158,11 +159,12 @@ export async function toggleHidden(app, link) {
 export function updateCounts() {
   const allCount    = this.entries.length;
   const hiddenIds   = this.hidden.map(entry => entry.id);
+  const starredIds = this.starred.map(s => typeof s === 'string' ? s : s.id);
   const hiddenCount = this.entries.filter(e => hiddenIds.includes(e.id)).length;
-  const starredCount= this.entries.filter(e => this.starred.includes(e.id)).length;
+  const starredCount= this.entries.filter(e => this.starred.some(s => s.id === e.id)).length;
   // Exclude both hidden and starred so the three buckets are disjoint
   const unreadCount = this.entries.filter(e =>
-    !hiddenIds.includes(e.id) && !this.starred.includes(e.id)
+    !hiddenIds.includes(e.id)
   ).length;
   const select = document.getElementById('filter-selector');
   if (!select) return;
@@ -278,4 +280,30 @@ export function shuffleFeed(state) {
     state.updateCounts();
     state.scrollToTop();
   }
+}
+/**
+ * Load hidden list from localStorage, preserving legacy string entries.
+ * @returns {{id: string, hiddenAt: string}[]}
+ */
+export function loadHidden() {
+  const raw = JSON.parse(localStorage.getItem("hidden") || "[]");
+  return raw.map(item =>
+    typeof item === "string"
+      ? { id: item, hiddenAt: new Date().toISOString() }
+      : item
+  );
+}
+
+/**
+ * Load starred list from localStorage, preserving legacy string entries.
+ * @returns {string[]}
+ */
+export function loadStarred() {
+  // load as objects {id, starredAt}, preserving legacy strings
+  const raw = JSON.parse(localStorage.getItem(STARRED_KEY) || "[]");
+  return raw.map(item =>
+    typeof item === "string"
+      ? { id: item, starredAt: new Date().toISOString() }
+      : item
+  );
 }

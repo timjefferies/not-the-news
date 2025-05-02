@@ -91,18 +91,15 @@
   <!-- Feed items -->
   <main id="items" x-show="!loading">
     <!-- Repeat each entry via template so Alpine’s x-for can clone it properly -->
-    <template
-      x-for="(entry, idx) in entries"
-      :key="entry.id + idx"
-    >
+    <template x-for="(entry, idx) in filteredEntries" :key="entry.id + idx">
       <div
         class="item entry"
         x-bind:data-link="entry.id"
         x-show="
           filterMode === 'all'
-          || (filterMode === 'unread'  && !hidden.includes(entry.id))
-          || (filterMode === 'hidden'  &&  hidden.includes(entry.id))
-          || (filterMode === 'starred' && isStarred(entry.id))
+	    || (filterMode === 'unread'  && !hidden.some(h => h.id === entry.id))
+  	    || (filterMode === 'hidden'  &&  hidden.some(h => h.id === entry.id))
+  	    || (filterMode === 'starred' && isStarred(entry.id))
         "
         x-transition:leave="transition ease-in duration-200 transform"
         x-transition:leave-start="opacity-100 translate-x-0"

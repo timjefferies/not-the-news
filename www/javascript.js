@@ -1,26 +1,16 @@
 import { restoreStateFromFile, saveStateToFile } from "./js/api.js";
-import { scrollToTop, attachScrollToTopHandler, formatDate, isHidden, toggleHidden, isStarred, toggleStar, setFilter, updateCounts, pruneStaleHidden, shuffleArray, shuffleFeed as handleShuffleFeed } from "./js/functions.js";
+import { scrollToTop, attachScrollToTopHandler, formatDate, isHidden, toggleHidden, isStarred, toggleStar, setFilter, updateCounts, pruneStaleHidden, shuffleArray, shuffleFeed as handleShuffleFeed, loadHidden, loadStarred } from "./js/functions.js";
 import { initSync, initTheme, initImages, initScrollPos, initConfigComponent } from "./js/settings.js";
 
 window.rssApp = () => {
-  const HIDDEN_KEY = "hidden";
-  const STARRED_KEY = "starred";
   const STORAGE_ETAG = "feedEtag";
   const FEED_URL = '/feed.xml';
   return {
     openSettings: false, // Controls visibility of the settings modal
-    filterMode: 'unread', // Defaults to unread
     entries: [],
-    hidden: (() => {
-      // On first load, coerce any old string IDs into {id, hiddenAt}
-      const raw = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
-      return raw.map(item =>
-        typeof item === "string"
-          ? { id: item, hiddenAt: new Date().toISOString() }
-          : item
-      );
-    })(),
-    starred: JSON.parse(localStorage.getItem(STARRED_KEY) || "[]"),
+    hidden: loadHidden(),
+    starred: loadStarred(),
+    filterMode:   localStorage.getItem("filterMode") || "unread",
     imagesEnabled: JSON.parse(localStorage.getItem("imagesEnabled") ?? "true"),
     isShuffled: false,              // Track whether we're in shuffled mode
     shuffleCount: 10,               // How many shuffles remain
@@ -47,15 +37,6 @@ window.rssApp = () => {
         console.warn("No previous state to restore.");
       }
       // 2) Now apply theme & hidden list & sync
-      {
-        // Rehydrate & upgrade any legacy string IDs
-        const rawHidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
-        this.hidden = rawHidden.map(item =>
-          typeof item === "string"
-            ? { id: item, hiddenAt: new Date().toISOString() }
-            : item
-        );
-      }
       this.syncEnabled = JSON.parse(localStorage.getItem("syncEnabled") ?? "true");
       this.imagesEnabled = JSON.parse(localStorage.getItem("imagesEnabled") ?? "true"),
       initTheme();
@@ -206,13 +187,16 @@ window.rssApp = () => {
     },
     // computed, based on our three modes + the hidden[] list
     get filteredEntries() {
-      const hiddenIds = this.hidden.map(h => h.id);
+      const hiddenIds  = this.hidden.map(h => typeof h === 'string' ? h : h.id);
+      const starredIds = this.starred.map(s => typeof s === 'string' ? s : s.id);
       return this.entries.filter(entry => {
-        if (this.filterMode === "all")    return true;
-        if (this.filterMode === "unread") return !hiddenIds.includes(entry.id);
-        if (this.filterMode === "hidden") return hiddenIds.includes(entry.id);
-        if (this.filterMode === "starred") return this.starred.includes(entry.id);
-        return true;
+      switch (this.filterMode) {
+	case "all":    return true;
+	case "unread": return !hiddenIds.includes(entry.id);
+	case "hidden": return  hiddenIds.includes(entry.id);
+	case "starred":return  starredIds.includes(entry.id);
+	default:       return true;
+      }
       });
     },
       
