@@ -37,7 +37,7 @@ def is_merge_running():
 def generate_feed():
     if os.path.exists(final_feed_file):
         age = time.time() - os.path.getmtime(final_feed_file)
-        if age < 30 * 60:  # 30 minutes in seconds
+        if age < 5 * 60:  # 30 minutes in seconds
             mins = age / 60
             print(f"{final_feed_file} is only {mins:.1f} minutes old; skipping this cycle.")
             return
