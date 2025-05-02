@@ -182,16 +182,15 @@ export function updateCounts() {
  */
 export function pruneStaleHidden(entries) {
    const raw = localStorage.getItem('hidden');
-   let storedHidden;
+   let storedHidden = [];
    try {
+     // Now we expect [{ id: string, hiddenAt: ISOString }, …]
      const parsed = raw ? JSON.parse(raw) : [];
-     // ensure we actually have an array
      storedHidden = Array.isArray(parsed) ? parsed : [];
    } catch (err) {
-     console.warn('pruneStaleHidden: invalid JSON, preserving nothing', err);
+     console.warn('pruneStaleHidden: invalid JSON, resetting hidden list', err);
      storedHidden = [];
    }
-
    // ─── guard: only prune on a healthy feed ───
    if (
      !Array.isArray(entries) ||
@@ -205,9 +204,22 @@ export function pruneStaleHidden(entries) {
    // optionally normalize ids: trim/case‐fold if your guids can shift case or whitespace
    const validIds = new Set(entries.map(e => e.id.trim().toLowerCase()));
 
-   const pruned = storedHidden.filter(id =>
-   validIds.has(String(id).trim().toLowerCase())
-   );
+   // threshold = 30 days in milliseconds
+   const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+   const now = Date.now();
+
+   // Keep items that are either still in the feed, or within the 30-day hold window
+   const pruned = storedHidden.filter(item => {
+     const idNorm = String(item.id).trim().toLowerCase();
+     const keepBecauseInFeed = validIds.has(idNorm);
+     if (keepBecauseInFeed) return true;
+
+     // if not in feed, check age
+     const hiddenAt = new Date(item.hiddenAt).getTime();
+     const age = now - hiddenAt;
+     return age < THIRTY_DAYS;
+   });
+   // Only write back if we've actually dropped anything
    if (pruned.length < storedHidden.length) {
      localStorage.setItem('hidden', JSON.stringify(pruned));
    }
