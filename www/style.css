@@ -54,7 +54,7 @@ html.dark {
   background-image: none;
   button.close { box-shadow: -1px 1px 0 1px var(--card-shadow-color); }
   button.star { box-shadow: -2px -2px 0 1px var(--card-shadow-color); }
-  #header { text-shadow: 2px 2px black; }
+  #header { text-shadow: 2px 2px 2px black; }
 }
 /* make the cog button match your dark theme */
 html.dark .cog-wheel-button {
@@ -82,6 +82,8 @@ body, html {
 }
 p, h1, a { color: var(--fg); }
 .itemdescription a { color: var(--secondary); }
+
+a { text-shadow: 2px 2px 2px var(--card-shadow-color); }
 
 title { display: none; }
 
@@ -246,6 +248,7 @@ a:hover { color: var(--primary); }
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   opacity: 0.8;
+  box-shadow: 1px 1px 5px var(--card-shadow-color);
 }
 .filter-select:focus-visible {
     outline: none;
@@ -579,8 +582,8 @@ ul.feed-list, .feed-container {
 }
 .shuffle-btn
 {
-  width: 3.6em;
-  height: 3.6em;
+  width: 3.5em;
+  height: 3.5em;
   background-color: var(--bg);
   color: var(--fg);
   margin-left: auto;
@@ -588,6 +591,12 @@ ul.feed-list, .feed-container {
   border-radius: 100px;
   opacity: 0.8;
   padding-top: 0.4em;
+  box-shadow: 1px 1px 5px var(--card-shadow-color);
+}
+svg.shuffle-icon {
+    width: 3em;
+    margin-left: -0.15em;
+    margin-top: -0.15em;
 }
 span.shuffle-count {
     margin-top: -1em;
@@ -598,8 +607,8 @@ span.shuffle-count {
 }
 /* Settings button style */
 .settings-btn {
-  width: 4em;
-  height: 4em;
+  width: 3.5em;
+  height: 3.5em;
   background-color: var(--bg);
   color: var(--fg);
   margin-left: auto;
@@ -607,7 +616,10 @@ span.shuffle-count {
   border-radius: 100px;
   opacity: 0.8;
   padding-top: 0.4em;
+  box-shadow: 1px 1px 5px var(--card-shadow-color);
 }
+.gear-icon { width: 3em; margin-left: -0.15em;
+    margin-top: -0.15em; }
 .settings-btn:hover {
   background-color: var(--primary); /* changes color on hover */
 }
@@ -650,7 +662,7 @@ span.shuffle-count {
   button.close { font-size: 1.25rem; border-radius: 0 10px 0 10px; opacity: 0.6; position: absolute; }
   button.star { font-size: 1.25rem; border-radius: 10px 0 0 0; opacity: 0.6; position: absolute; }
   .itemdescription { padding: 1em 1.8em 2em !important; }
-  #header { padding: 0rem 0.5rem; margin-top: -0.25em; margin-right: -0.75em; }
+  #header { padding: 0rem 0.5rem; margin-top: -0.25em; margin-right: -0.75em; padding-right: 1.2em; }
   #header h2 { padding-right: 0.7em; }
   .modal-content > button.close {
     font-size: 1.25rem;
