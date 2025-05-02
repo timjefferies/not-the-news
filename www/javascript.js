@@ -187,18 +187,18 @@ window.rssApp = () => {
     },
     // computed, based on our three modes + the hidden[] list
     get filteredEntries() {
-      const hiddenIds  = this.hidden.map(h => typeof h === 'string' ? h : h.id);
-      const starredIds = this.starred.map(s => typeof s === 'string' ? s : s.id);
-      return this.entries.filter(entry => {
-      switch (this.filterMode) {
-	case "all":    return true;
-	case "unread": return !hiddenIds.includes(entry.id);
-	case "hidden": return  hiddenIds.includes(entry.id);
-	case "starred":return  starredIds.includes(entry.id);
-	default:       return true;
-      }
-      });
-    },
+  const hiddenSet = new Set(this.hidden.map(h => h.id));
+  const starredSet = new Set(this.starred.map(s => s.id));
+  return this.entries.filter(entry => {
+    switch (this.filterMode) {
+      case "all":    return true;
+      case "unread": return !hiddenSet.has(entry.id);
+      case "hidden": return  hiddenSet.has(entry.id);
+      case "starred":return  starredSet.has(entry.id);
+      default:       return true;
+    }
+  });
+}
       
   };
     document.addEventListener("load", e => {

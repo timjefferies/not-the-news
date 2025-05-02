@@ -123,7 +123,6 @@ export function isHidden(app, link) {
  * @param {string} link - The URL to toggle.
  */
 export async function toggleHidden(app, link) {
-  // find existing entry by id
   const idx = app.hidden.findIndex(entry => entry.id === link);
   if (idx === -1) {
     // add new hidden object
@@ -135,18 +134,9 @@ export async function toggleHidden(app, link) {
   localStorage.setItem(HIDDEN_KEY, JSON.stringify(app.hidden));
   try {
     await saveStateToFile("appState.json");
-    await restoreStateFromFile("appState.json");
-    // rehydrate & upgrade any legacy strings
-    const raw = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
-    app.hidden = raw.map(item =>
-      typeof item === "string"
-        ? { id: item, hiddenAt: new Date().toISOString() }
-        : item
-    );
   } catch (err) {
     console.error("Save failed:", err);
   }
-  // refresh filter counts in header
   if (typeof app.updateCounts === 'function') {
     app.updateCounts();
   }
@@ -157,31 +147,22 @@ export async function toggleHidden(app, link) {
  * @param {object} app - The Alpine app instance (this)
  */
 export function updateCounts() {
-  const allCount    = this.entries.length;
-  const hiddenIds   = this.hidden.map(entry => entry.id);
-  const starredIds = this.starred.map(s => typeof s === 'string' ? s : s.id);
-  const hiddenCount = this.entries.filter(e => hiddenIds.includes(e.id)).length;
-  const starredCount= this.entries.filter(e => this.starred.some(s => s.id === e.id)).length;
-  // Exclude both hidden and starred so the three buckets are disjoint
-  const unreadCount = this.entries.filter(e =>
-    !hiddenIds.includes(e.id)
-  ).length;
+  const hiddenSet = new Set(this.hidden.map(entry => entry.id));
+  const starredSet = new Set(this.starred.map(s => s.id));
+
+  const allCount = this.entries.length;
+  const hiddenCount = this.entries.filter(e => hiddenSet.has(e.id)).length;
+  const starredCount = this.entries.filter(e => starredSet.has(e.id)).length;
+  const unreadCount = allCount - hiddenCount;
+
   const select = document.getElementById('filter-selector');
   if (!select) return;
   Array.from(select.options).forEach(opt => {
     switch (opt.value) {
-      case 'all':
-        opt.text = `All (${allCount})`;
-        break;
-      case 'hidden':
-        opt.text = `Hidden (${hiddenCount})`;
-        break;
-      case 'starred':
-        opt.text = `Starred (${starredCount})`;
-        break;
-      case 'unread':
-        opt.text = `Unread (${unreadCount})`;
-        break;
+      case 'all':     opt.text = `All (${allCount})`; break;
+      case 'hidden':  opt.text = `Hidden (${hiddenCount})`; break;
+      case 'starred': opt.text = `Starred (${starredCount})`; break;
+      case 'unread':  opt.text = `Unread (${unreadCount})`; break;
     }
   });
 }
