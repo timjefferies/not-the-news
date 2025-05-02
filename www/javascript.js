@@ -165,6 +165,9 @@ window.rssApp = () => {
         if (newEtag) {
           localStorage.setItem(STORAGE_ETAG, newEtag);
         }
+	// After setting entries:
+  	this._lastFilterHash = "";  // Reset cache
+  	this._cachedFilteredEntries = null;
       } catch (err) {
         console.error('Failed to load feed:', err);
         this.errorMessage = 'Error loading feed.';
@@ -186,21 +189,39 @@ window.rssApp = () => {
       });
     },
     // computed, based on our three modes + the hidden[] list
-    get filteredEntries() {
-  const hiddenSet = new Set(this.hidden.map(h => h.id));
-  const starredSet = new Set(this.starred.map(s => s.id));
-  return this.entries.filter(entry => {
-    switch (this.filterMode) {
-      case "all":    return true;
-      case "unread": return !hiddenSet.has(entry.id);
-      case "hidden": return  hiddenSet.has(entry.id);
-      case "starred":return  starredSet.has(entry.id);
-      default:       return true;
+  _lastFilterHash: "",
+  _cachedFilteredEntries: null,  // Initialize as null instead of empty array
+  
+  // Modified getter
+  get filteredEntries() {
+    // Include entries.length in the hash to detect initial load
+    const currentHash = `${this.entries.length}-${this.filterMode}-${this.hidden.length}-${this.starred.length}`;
+    
+    // Return cached value only if we have entries and hash matches
+    if (this.entries.length > 0 && 
+        currentHash === this._lastFilterHash &&
+        this._cachedFilteredEntries !== null) {
+      return this._cachedFilteredEntries;
     }
-  });
-}
-      
-  };
+    
+    // Existing filter logic
+    const hiddenSet = new Set(this.hidden.map(h => h.id));
+    const starredSet = new Set(this.starred.map(s => s.id));
+    
+    this._cachedFilteredEntries = this.entries.filter(entry => {
+      switch (this.filterMode) {
+        case "all":     return true;
+        case "unread":  return !hiddenSet.has(entry.id);
+        case "hidden":  return hiddenSet.has(entry.id);
+        case "starred": return starredSet.has(entry.id);
+        default:        return true;
+      }
+    });
+    
+    this._lastFilterHash = currentHash;
+    return this._cachedFilteredEntries;
+  }
+} 
     document.addEventListener("load", e => {
       if (e.target.tagName.toLowerCase() === "img") {
         e.target.classList.add("loaded");
