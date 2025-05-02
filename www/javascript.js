@@ -214,7 +214,7 @@ window.rssApp = () => {
         if (this.filterMode === "starred") return this.starred.includes(entry.id);
         return true;
       });
-    }
+    },
     document.addEventListener("load", e => {
       if (e.target.tagName.toLowerCase() === "img") {
         e.target.classList.add("loaded");
