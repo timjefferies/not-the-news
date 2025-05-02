@@ -584,7 +584,7 @@ ul.feed-list, .feed-container {
 {
   width: 3.5em;
   height: 3.5em;
-  background-color: var(--bg);
+  background-color: var(--card-bg);
   color: var(--fg);
   margin-left: auto;
   border: none;
@@ -609,7 +609,7 @@ span.shuffle-count {
 .settings-btn {
   width: 3.5em;
   height: 3.5em;
-  background-color: var(--bg);
+  background-color: var(--bg-card);
   color: var(--fg);
   margin-left: auto;
   border: none;
@@ -653,7 +653,7 @@ span.shuffle-count {
   }
   .filter-select { margin-left: auto; }
 
-  .item { box-shadow: 1px 1px 50px 1px var(--card-shadow-color !important); max-width: 100%; border-radius: 10px; margin: 1em auto; float: none; }
+  .item { box-shadow: 0px 4px 15px -5px var(--card-shadow-color !important); max-width: 100%; border-radius: 10px; margin: 1em auto; float: none; }
   .modal-content { border-radius:10px; }
   .itemtitle { font-size: 1.25rem !important;
     padding: 1em 3rem 0.5em 0.75em;
