@@ -100,6 +100,10 @@ export async function initScrollPos(app) {
   }
 
   // 3. On next frame, scroll back into view
+  // bail out if there's no meaningful scroll position saved
+  const savedY = localStorage.getItem('feedScrollY');
+  if (!savedY || savedY === '0') { return; }
+ 
   window.requestAnimationFrame(() => {
     const link = localStorage.getItem('feedVisibleLink');
     if (link) {
