@@ -1,5 +1,5 @@
 import { restoreStateFromFile, saveStateToFile } from "./js/api.js";
-import { scrollToTop, attachScrollToTopHandler, formatDate, isHidden, toggleHidden, isStarred, toggleStar, setFilter, updateCounts, pruneStaleHidden, shuffleArray } from "./js/functions.js";
+import { scrollToTop, attachScrollToTopHandler, formatDate, isHidden, toggleHidden, isStarred, toggleStar, setFilter, updateCounts, pruneStaleHidden, shuffleArray, shuffleFeed as handleShuffleFeed } from "./js/functions.js";
 import { initSync, initTheme, initImages, initScrollPos, initConfigComponent } from "./js/settings.js";
 
 window.rssApp = () => {
@@ -14,6 +14,9 @@ window.rssApp = () => {
     hidden: JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]"),
     starred: JSON.parse(localStorage.getItem(STARRED_KEY) || "[]"),
     imagesEnabled: JSON.parse(localStorage.getItem("imagesEnabled") ?? "true"),
+    isShuffled: false,              // Track whether we're in shuffled mode
+    shuffleCount: 10,               // How many shuffles remain
+
     loading: true,
 
     // map-in our external helpers
@@ -24,6 +27,7 @@ window.rssApp = () => {
     isStarred(link)  { return isStarred(this, link); },
     toggleStar(link) { toggleStar(this, link); },
     setFilter(mode)  { setFilter(this, mode); },
+    shuffleFeed() { handleShuffleFeed(this); },
       
     async init() {
       this.loading = true; //loading screen

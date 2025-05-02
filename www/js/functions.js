@@ -227,13 +227,34 @@ export function shuffleArray(arr) {
   return arr;
 }
 
-// Grab the shuffle button (ensure this ID matches your HTML)
-const shuffleBtn = document.getElementById('shuffleBtn');
-
+// Hook shuffle-button into your Alpine/Vue component's shuffleFeed()
+const shuffleBtn = document.getElementById('shuffle-button');
 if (shuffleBtn) {
   shuffleBtn.addEventListener('click', () => {
-    // Use a copy of the original items array to avoid mutating it
-    const randomFeed = shuffleArray(items.slice());
-    renderFeed(randomFeed);
+    const appRoot = document.getElementById('app');
+    if (appRoot && appRoot.__x) {
+      // call the method you defined earlier in javascript.js
+      appRoot.__x.$data.shuffleFeed();
+    }
   });
+}
+
+/**
+ * Handle a shuffle button press: decrement count, shuffle entries while
+ * count > 0, update flags/counts, and scroll to top.
+ * @param {Object} state  — the Alpine/Vue component instance (this)
+ */
+export function shuffleFeed(state) {
+  if (state.shuffleCount > 0) {
+    state.shuffleCount--;
+    state.isShuffled = state.shuffleCount > 0;
+
+    if (state.isShuffled) {
+      // Shuffle entries in-place on a copy
+      state.entries = shuffleArray(state.entries.slice());
+    }
+
+    state.updateCounts();
+    state.scrollToTop();
+  }
 }
