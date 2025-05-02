@@ -215,12 +215,11 @@ window.rssApp = () => {
         return true;
       });
     },
+      
+  };
     document.addEventListener("load", e => {
       if (e.target.tagName.toLowerCase() === "img") {
         e.target.classList.add("loaded");
       }
     }, true);
-      
-    }
-  };
 };
