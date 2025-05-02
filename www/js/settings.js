@@ -93,8 +93,13 @@ export async function initScrollPos(app) {
     // 2. Persist to server and immediately restore state
     await saveStateToFile("appState.json");
     await restoreStateFromFile("appState.json");
-    const hiddenItems = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
-    app.hidden = hiddenItems;
+    // Load and upgrade any legacy string IDs into {id, hiddenAt}
+    const rawHidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
+    app.hidden = rawHidden.map(item =>
+      typeof item === "string"
+        ? { id: item, hiddenAt: new Date().toISOString() }
+        : item
+    );
   } catch (err) {
     console.error("State save/restore failed:", err);
   }

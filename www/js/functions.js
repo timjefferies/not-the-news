@@ -112,7 +112,7 @@ const HIDDEN_KEY = "hidden";
  * @returns {boolean}
  */
 export function isHidden(app, link) {
-  return app.hidden.includes(link);
+  return app.hidden.some(entry => entry.id === link);
 }
 
 /**
@@ -122,17 +122,26 @@ export function isHidden(app, link) {
  * @param {string} link - The URL to toggle.
  */
 export async function toggleHidden(app, link) {
-  const idx = app.hidden.indexOf(link);
+  // find existing entry by id
+  const idx = app.hidden.findIndex(entry => entry.id === link);
   if (idx === -1) {
-    app.hidden.push(link);
+    // add new hidden object
+    app.hidden.push({ id: link, hiddenAt: new Date().toISOString() });
   } else {
+    // remove it
     app.hidden.splice(idx, 1);
   }
   localStorage.setItem(HIDDEN_KEY, JSON.stringify(app.hidden));
   try {
     await saveStateToFile("appState.json");
     await restoreStateFromFile("appState.json");
-    app.hidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
+    // rehydrate & upgrade any legacy strings
+    const raw = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
+    app.hidden = raw.map(item =>
+      typeof item === "string"
+        ? { id: item, hiddenAt: new Date().toISOString() }
+        : item
+    );
   } catch (err) {
     console.error("Save failed:", err);
   }
@@ -147,14 +156,14 @@ export async function toggleHidden(app, link) {
  * @param {object} app - The Alpine app instance (this)
  */
 export function updateCounts() {
-  const allCount = this.entries.length;
-  // Count only entries currently in the feed
-  const hiddenCount = this.entries.filter(e => this.hidden.includes(e.id)).length;
-  const starredCount = this.entries.filter(e => this.starred.includes(e.id)).length;
+  const allCount    = this.entries.length;
+  const hiddenIds   = this.hidden.map(entry => entry.id);
+  const hiddenCount = this.entries.filter(e => hiddenIds.includes(e.id)).length;
+  const starredCount= this.entries.filter(e => this.starred.includes(e.id)).length;
   // Exclude both hidden and starred so the three buckets are disjoint
   const unreadCount = this.entries.filter(e =>
-    !this.hidden.includes(e.id) && !this.starred.includes(e.id)
-  ).length;  
+    !hiddenIds.includes(e.id) && !this.starred.includes(e.id)
+  ).length;
   const select = document.getElementById('filter-selector');
   if (!select) return;
   Array.from(select.options).forEach(opt => {
@@ -178,7 +187,7 @@ export function updateCounts() {
 /**
  * Remove any IDs from localStorage “hidden” that no longer exist in the feed.
  * @param {Array<{id:string}>} entries  – array of current feed entries
- * @returns {string[]}  – the pruned hidden list
+ * @returns {{id:string,hiddenAt:string}[]}  – the pruned hidden list
  */
 export function pruneStaleHidden(entries) {
    const raw = localStorage.getItem('hidden');

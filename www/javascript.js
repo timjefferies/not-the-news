@@ -11,7 +11,15 @@ window.rssApp = () => {
     openSettings: false, // Controls visibility of the settings modal
     filterMode: 'unread', // Defaults to unread
     entries: [],
-    hidden: JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]"),
+    hidden: (() => {
+      // On first load, coerce any old string IDs into {id, hiddenAt}
+      const raw = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
+      return raw.map(item =>
+        typeof item === "string"
+          ? { id: item, hiddenAt: new Date().toISOString() }
+          : item
+      );
+    })(),
     starred: JSON.parse(localStorage.getItem(STARRED_KEY) || "[]"),
     imagesEnabled: JSON.parse(localStorage.getItem("imagesEnabled") ?? "true"),
     isShuffled: false,              // Track whether we're in shuffled mode
@@ -39,7 +47,15 @@ window.rssApp = () => {
         console.warn("No previous state to restore.");
       }
       // 2) Now apply theme & hidden list & sync
-      this.hidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
+      {
+        // Rehydrate & upgrade any legacy string IDs
+        const rawHidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
+        this.hidden = rawHidden.map(item =>
+          typeof item === "string"
+            ? { id: item, hiddenAt: new Date().toISOString() }
+            : item
+        );
+      }
       this.syncEnabled = JSON.parse(localStorage.getItem("syncEnabled") ?? "true");
       this.imagesEnabled = JSON.parse(localStorage.getItem("imagesEnabled") ?? "true"),
       initTheme();
@@ -190,13 +206,15 @@ window.rssApp = () => {
     },
     // computed, based on our three modes + the hidden[] list
     get filteredEntries() {
+      const hiddenIds = this.hidden.map(h => h.id);
       return this.entries.filter(entry => {
-        if (this.filterMode === 'all')   return true;
-        if (this.filterMode === 'unread') return !this.hidden.includes(entry.id);
-        if (this.filterMode === 'hidden') return  this.hidden.includes(entry.id);
-        if (this.filterMode === 'starred') return  this.starred.includes(entry.id);
+        if (this.filterMode === "all")    return true;
+        if (this.filterMode === "unread") return !hiddenIds.includes(entry.id);
+        if (this.filterMode === "hidden") return hiddenIds.includes(entry.id);
+        if (this.filterMode === "starred") return this.starred.includes(entry.id);
         return true;
       });
+    }
     document.addEventListener("load", e => {
       if (e.target.tagName.toLowerCase() === "img") {
         e.target.classList.add("loaded");
