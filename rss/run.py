@@ -91,7 +91,11 @@ def generate_feed():
         check=True
     )
     subprocess.run(
-        ['sed','-i','s/x.com/xcancel.net/g', final_feed_file],
+        ['sed','-i','s/x.com/xcancel.com/g', final_feed_file],
+        check=True
+    )
+    subprocess.run(
+            ['sed','-i','s/www.wired.com/removepaywalls.com\/https:\/\/www.wired.com/g', final_feed_file],
         check=True
     )
     subprocess.run(
