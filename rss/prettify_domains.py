@@ -71,6 +71,9 @@ def prettify_images(entry):
 
 # Dispatcher
 def prettify_domains(entry):
+    # Global post-processing: images
+    entry = prettify_images(entry)
+
     """
     Inspect entry['link'], figure out the domain,
     and call the corresponding prettify function.
@@ -96,7 +99,5 @@ def prettify_domains(entry):
     # add more domains here:
     # if domain == 'twitter.com': return prettify_twitter_entry(entry)
 
-    # Global post-processing: images
-    entry = prettify_images(entry)
     return entry
 
