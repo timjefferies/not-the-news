@@ -55,6 +55,20 @@ def prettify_wired_entry(entry):
         )
     return entry
 
+def prettify_images(entry):
+    """Add lazy loading to images and wrap them in anchor tags."""
+    description = entry.get('description', '')
+    # Replace each <img ... src="URL" ...> with a clickable, lazy-loaded image
+    def repl(match):
+        attrs = match.group(1) or ''
+        url = match.group(2)
+        suffix = match.group(3) or ''
+        img_tag = f'<img loading="lazy"{attrs}src="{url}"{suffix}>'
+        return f'<a href="{url}">{img_tag}</a>'
+    new_desc = re.sub(r'<img([^>]*?)src="([^"]+)"([^>]*?)>', repl, description)
+    entry['description'] = new_desc
+    return entry
+
 # Dispatcher
 def prettify_domains(entry):
     """
@@ -82,6 +96,7 @@ def prettify_domains(entry):
     # add more domains here:
     # if domain == 'twitter.com': return prettify_twitter_entry(entry)
 
-    # fallback: no changes
+    # Global post-processing: images
+    entry = prettify_images(entry)
     return entry
 
