@@ -36,6 +36,25 @@ def prettify_hackernews_entry(entry):
         entry['title'] = title[:-len(suffix)]
     return entry
 
+def prettify_x_entry(entry):
+    """Redirect x.com links to xcancel.com."""
+    link = entry.get('link', '').strip()
+    if 'x.com' in link:
+        # Replace domain inline, preserving path
+        entry['link'] = link.replace('x.com', 'xcancel.com')
+    return entry
+
+def prettify_wired_entry(entry):
+    """Wrap wired.com links via removepaywalls.com proxy."""
+    link = entry.get('link', '').strip()
+    if 'www.wired.com' in link:
+        # Insert removepaywalls.com before the original URL
+        entry['link'] = link.replace(
+            'www.wired.com',
+            'removepaywalls.com/https://www.wired.com'
+        )
+    return entry
+
 # Dispatcher
 def prettify_domains(entry):
     """
@@ -56,6 +75,10 @@ def prettify_domains(entry):
         return prettify_reddit_entry(entry)
     if 'news.ycombinator.com' in domain:
         return prettify_hackernews_entry(entry)
+    if 'x.com' in domain:
+        return prettify_x_entry(entry)
+    if 'wired.com' in domain:
+        return prettify_wired_entry(entry)
     # add more domains here:
     # if domain == 'twitter.com': return prettify_twitter_entry(entry)
 
