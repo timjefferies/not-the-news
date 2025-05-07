@@ -61,13 +61,15 @@ def filter_rss_entries(input_file, output_file, keywords_file):
     for entry in feed.entries:
         # Combine all fields of the entry into a single text for keyword matching
         entry_text = " ".join([str(value).lower() for key, value in entry.items() if value])
-        
-        # Exclude entries with keywords
-        if not any(keyword in entry_text for keyword in keywords):
+        matched = next((kw for kw in keywords if kw in entry_text), None)
+
+        if matched is None:
             filtered_entries.append(entry)
         else:
-            print(f"Excluding entry with keyword match: {entry.title if hasattr(entry, 'title') else 'No title'}")
-
+            print(
+                f"Excluding entry with keyword match: "
+                f"{matched}: {getattr(entry, 'title', 'No title')}"
+            )
     print(f"Filtered {len(filtered_entries)} entries out of {len(feed.entries)}.")
 
     # Create a new XML tree for the filtered feed, declaring media namespace
