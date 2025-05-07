@@ -23,7 +23,7 @@ def prettify_reddit_entry(entry):
     m = re.search(r'(reddit\.com/r/[^/]+)', raw_link)
     source_url = m.group(1) if m else raw_link
     # wrap it as hidden metadata and append to the end of the description
-    metadata_tag = f"<!--<source-url>{source_url}</source-url>-->"
+    metadata_tag = f'<span class="source-url" style="display:none">{source_url}</span>'
     entry['description'] += metadata_tag
     return entry
 

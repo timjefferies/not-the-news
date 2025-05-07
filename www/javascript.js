@@ -131,10 +131,10 @@ window.rssApp = () => {
 
 	  let description = raw;
 	  let sourceUrl = null;
-	  const m = description.match(/^<!--<source-url>([\s\S]+?)<\/source-url>-->/);
+	  const m = description.match(/<span[^>]*class=["']source-url["'][^>]*>([\s\S]+?)<\/span>/);
 	  if (m) {
-            sourceUrl  = m[1].trim();
-            description = description.replace(/^<!--<source-url>[\s\S]+?<\/source-url>-->/, '').trim();
+	    sourceUrl  = m[1].trim();
+	    description = description.replace(/<span[^>]*class=["']source-url["'][^>]*>[\s\S]*?<\/span>/, '').trim();
           }
 	  else sourceUrl = new URL(item.link).hostname;
           let imageUrl = null;
