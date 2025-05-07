@@ -123,10 +123,10 @@ window.rssApp = () => {
 	const mapped = feed.items.map(item => {
 	const uniqueKey = item.guid || item.id || item.link;
         // keep the already-sanitized HTML instead of stripping it
-        const raw = item.content
+        const raw = item.description
+                 || item.content
                  || item.contentSnippet
                  || item.summary
-                 || item.description
                  || '';
 
 	  let description = raw;
