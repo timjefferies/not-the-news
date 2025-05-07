@@ -24,7 +24,7 @@ def prettify_reddit_entry(entry):
     source_url = m.group(1) if m else raw_link
     # wrap it as hidden metadata and append to the end of the description
     metadata_tag = f"<!--<source-url>{source_url}</source-url>-->"
-    entry['description'] = description + metadata_tag
+    entry['description'] += metadata_tag
     return entry
 
 def prettify_hackernews_entry(entry):
