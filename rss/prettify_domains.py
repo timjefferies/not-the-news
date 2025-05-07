@@ -51,7 +51,7 @@ def prettify_reddit_entry(entry):
     source_url = m.group(1) if m else raw_link
 
     # wrap it in a hidden <span> instead of an HTML comment
-    metadata_tag = f'<span class="source-url" style="display:none">{source_url}</span>'
+    metadata_tag = f'<span class="source-url">{source_url}</span>'
 
     desc = entry.get('description', '')
     if '<![CDATA[' in desc:
