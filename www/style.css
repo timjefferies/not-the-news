@@ -135,6 +135,7 @@ button.star:hover {
 /* Turn the star gold when starred */
 button.star.starred, button.close.hidden {
   color: gold;
+  opacity: 1;
   background: transparent;
 }
 
