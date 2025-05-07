@@ -10,13 +10,13 @@ from prettify_domains import prettify_domains
 
 # ===== Configuration =====
 ALLOWED_TAGS = [
-    'p', 'ul', 'li', 'strong', 'em', 'a', 'br', 'div', 'img'
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'ul', 'li', 'strong', 'em', 'a', 'br', 'div', 'img', 'span'
 ]
 ALLOWED_ATTRIBUTES = {
     'a': ['href', 'rel', 'target'],
-    'img': ['src', 'alt', 'title'],
+    'img': ['loading', 'src', 'alt', 'title'],
 }
-ALLOWED_PROTOCOLS = ['http', 'https', 'mailto']
+ALLOWED_PROTOCOLS = ['http', 'https']
 
 # ===== Utility Functions =====
 def get_pub_date(entry):
