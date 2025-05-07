@@ -3,28 +3,67 @@
 
 import re
 from urllib.parse import urlparse
+from typing import List
+
+# punctuation title split priority: full stop, then ?, then :, then -, then comma
+_SPLIT_PUNCTUATION = ['.', '?', ':', '-', ',']
+
+def _split_segment(text: str, max_len: int = 60) -> List[str]:
+    text = text.strip()
+    if len(text) <= max_len:
+        return [text]
+
+    # look only in the first max_len characters
+    window = text[: max_len + 1]
+
+    # find the last occurrence of each punctuation in priority order
+    split_pos = None
+    for p in _SPLIT_PUNCTUATION:
+        idx = window.rfind(p)
+        if idx > 0:
+            # for .,?,:,- include the punctuation in the left chunk
+            split_pos = idx + 1
+            break
+
+    # if we found none, just hard‑split at max_len
+    if split_pos is None:
+        split_pos = max_len
+
+    left = text[:split_pos].strip()
+    right = text[split_pos:].strip()
+
+    # recurse on the remainder
+    return [left] + _split_segment(right, max_len)
+
+def wrap_title(title: str, max_len: int = 60) -> str:
+    """
+    Split `title` into logical chunks ≤ max_len characters,
+    then wrap each chunk in <h2>…</h2>.
+    """
+    parts = _split_segment(title, max_len)
+    return ''.join(f'<h2>{part}</h2>' for part in parts)
+
 
 def prettify_reddit_entry(entry):
-    """Handle reddit.com multi-sentence titles."""
-    title = entry.get('title', '').strip()
-    description = entry.get('description', '').strip()
-    parts = re.split(r'(?<=[.!?])\s+', title, maxsplit=1)
-    if len(parts) == 2:
-        first_sentence, rest = parts
-        entry['title'] = first_sentence
-    else:
-        rest = ''
-
-    h2_block = f"<h2>{rest}</h2>\n" if rest else ''
-    entry['description'] = h2_block + description
-
     # derive a clean source_url from the original link (reddit.com/r/<subreddit>)
     raw_link = entry.get('link', '').strip()
     m = re.search(r'(reddit\.com/r/[^/]+)', raw_link)
     source_url = m.group(1) if m else raw_link
-    # wrap it as hidden metadata and append to the end of the description
+
+    # wrap it in a hidden <span> instead of an HTML comment
     metadata_tag = f'<span class="source-url" style="display:none">{source_url}</span>'
-    entry['description'] += metadata_tag
+
+    desc = entry.get('description', '')
+    if '<![CDATA[' in desc:
+        # insert the span immediately after the CDATA open
+        entry['description'] = desc.replace(
+            '<![CDATA[',
+            '<![CDATA[' + metadata_tag,
+            1
+        )
+    else:
+        # fallback: append to whatever the description is
+        entry['description'] = desc + metadata_tag
     return entry
 
 def prettify_hackernews_entry(entry):
@@ -73,6 +112,8 @@ def prettify_images(entry):
 def prettify_domains(entry):
     # Global post-processing: images
     entry = prettify_images(entry)
+    # Wrap crazy long titles
+    title = wrap_title(entry.get('title'), max_len=60)
 
     """
     Inspect entry['link'], figure out the domain,
