@@ -15,6 +15,7 @@ ALLOWED_TAGS = [
 ALLOWED_ATTRIBUTES = {
     'a': ['href', 'rel', 'target'],
     'img': ['loading', 'src', 'alt', 'title'],
+    'span': ['class', 'style'],
 }
 ALLOWED_PROTOCOLS = ['http', 'https']
 
