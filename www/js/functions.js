@@ -88,7 +88,6 @@ export async function toggleStar(state, link) {
   const tx = db.transaction("userState", "readwrite");
   tx.objectStore("userState").put({ key: "starred", value: JSON.stringify(state.starred) });
   await tx.done;
-  saveStateToFile("appState.json").catch(err => console.error("Save failed:", err));
   // refresh filter counts in header
   if (typeof app.updateCounts === 'function') {
     app.updateCounts();
@@ -137,11 +136,6 @@ export async function toggleHidden(app, link) {
   const tx = db.transaction("userState", "readwrite");
   tx.objectStore("userState").put({ key: "hidden", value: JSON.stringify(app.hidden) });
   await tx.done;
-  try {
-    await saveStateToFile("appState.json");
-  } catch (err) {
-    console.error("Save failed:", err);
-  }
   if (typeof app.updateCounts === 'function') {
     app.updateCounts();
   }
@@ -182,7 +176,6 @@ export async function pruneStaleHidden(entries) {
     const entry = await db.transaction('userState','readonly')
                          .objectStore('userState')
                          .get('hidden');
-    // Use exactly what’s in IDB; any legacy JSON in localStorage is now ignored
     let storedHidden = entry ? JSON.parse(entry.value) : [];
    // ─── guard: only prune on a healthy feed ───
    if (
@@ -266,7 +259,7 @@ export function shuffleFeed(state) {
   }
 }
 /**
- * Load hidden list from localStorage, preserving legacy string entries.
+ * Load hidden list from indexedDB
  * @returns {{id: string, hiddenAt: string}[]}
  */
 export async function loadHidden() {
@@ -284,7 +277,7 @@ export async function loadHidden() {
 }
 
 /**
- * Load starred list from localStorage, preserving legacy string entries.
+ * Load starred list from indexedDB.
  * @returns {string[]}
  */
 export async function loadStarred() {

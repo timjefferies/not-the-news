@@ -7,7 +7,6 @@ import { initSync, initTheme, initImages, initScrollPos, initConfigComponent,loa
 import { dbPromise, performSync } from "./js/database.js";
 
 window.rssApp = () => {
-  const FEED_URL = '/feed.xml';
   return {
     openSettings: false, // Controls visibility of the settings modal
     entries: [],
@@ -34,21 +33,14 @@ window.rssApp = () => {
       
     async init() {
       this.loading = true; //loading screen
-      // 1) Restore persisted state *before* initializing UI
-      try {
-        await restoreStateFromFile("appState.json");
-        console.log("State restored.");
-      } catch {
-        console.warn("No previous state to restore.");
-      }
-      // 2) Now apply theme & sync, then load persisted state
+      // 1) Apply theme & sync, then load persisted state
       this.syncEnabled   = await loadSyncEnabled();
       this.imagesEnabled = await loadImagesEnabled();
       initTheme();
       initSync(this);
       initImages(this);
       initConfigComponent(this);
-      // 2.5) Load user‑state from IndexedDB
+      // 2) Load user‑state from IndexedDB
       this.hidden     = await loadHidden();
       this.starred    = await loadStarred();
       this.filterMode = await loadFilterMode();
@@ -82,16 +74,6 @@ window.rssApp = () => {
     async loadFeed({ showLoading = false } = {}) {
       if (showLoading) this.loading = true;
       this.errorMessage = null;
-
-      try {
-        const res = await fetch(FEED_URL, { method: 'GET' });
-
-        if (!res.ok) {
-          this.errorMessage = res.status === 404
-            ? 'Feed not found (404).'
-            : `Feed request failed with status ${res.status}.`;
-          return;
-        }
 
         const xml    = await res.text();
         const parser = new RSSParser();

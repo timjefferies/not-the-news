@@ -1,6 +1,32 @@
 // js/settings.js
 import { dbPromise } from "./database.js";
 
+/**
+ * Load the saved syncEnabled flag from IndexedDB (default: true).
+ * @returns {Promise<boolean>}
+ */
+export async function loadSyncEnabled() {
+    const db = await dbPromise;
+    const entry = await db
+      .transaction('userState','readonly')
+      .objectStore('userState')
+      .get('syncEnabled');
+    return entry?.value ?? true;
+  }
+  
+  /**
+   * Load the saved imagesEnabled flag from IndexedDB (default: true).
+   * @returns {Promise<boolean>}
+   */
+  export async function loadImagesEnabled() {
+    const db = await dbPromise;
+    const entry = await db
+      .transaction('userState','readonly')
+      .objectStore('userState')
+      .get('imagesEnabled');
+    return entry?.value ?? true;
+  }
+
 // initialize the “refresh feed” toggle
 export function initSync(app) {
   const toggle   = document.getElementById('sync-toggle');
@@ -19,9 +45,6 @@ export function initSync(app) {
     tx.objectStore('userState').put({ key: 'syncEnabled', value: app.syncEnabled });
     await tx.done;
     syncText.textContent = app.syncEnabled ? 'yes' : 'no';
-    // Save sync change to server
-    saveStateToFile("appState.json")
-      .catch(err => console.error("Save sync setting failed:", err));
   });
 }
 
@@ -43,9 +66,6 @@ export function initImages(app) {
       tx.objectStore('userState').put({ key: 'imagesEnabled', value: app.imagesEnabled });
       await tx.done;
       imagesText.textContent = app.imagesEnabled ? 'yes' : 'no';
-    // Save sync change to server
-    saveStateToFile("appState.json")
-      .catch(err => console.error("Save show images setting failed:", err));
   });
 }
 
@@ -83,10 +103,6 @@ export async function initTheme() {
     tx.objectStore('userState').put({ key: 'theme', value: newTheme });
     await tx.done;
     themeText.textContent = newTheme;
-
-    // persist to server
-    saveStateToFile("appState.json")
-      .catch(err => console.error("Save theme setting failed:", err));
   });
 }
 export async function initScrollPos(app) {
@@ -103,13 +119,6 @@ export async function initScrollPos(app) {
     }
   }
   await tx.done;
-  try {
-    // 2. Persist to server and immediately restore state
-    await saveStateToFile("appState.json");
-    await restoreStateFromFile("appState.json");
-  } catch (err) {
-    console.error("State save/restore failed:", err);
-  }
 
   // 3. On next frame, restore from IndexedDB
   const db2      = await dbPromise;

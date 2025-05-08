@@ -32,9 +32,6 @@ def _load_feed_items():
         items[guid] = data
     return items
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=3000)
-
 @app.route("/load-config", methods=["GET"])
 def load_config():
     # Read a text config file from /data/config
@@ -124,3 +121,6 @@ def changes():
         "updated":    updated,
         "serverTime": now.isoformat()
     }), 200
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=3000)
