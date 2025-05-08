@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from xml.etree import ElementTree as ET
 from email.utils import parsedate_to_datetime
 import os
+import json
 
 app = Flask(__name__)
 DATA_DIR = "/data"

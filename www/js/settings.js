@@ -1,5 +1,5 @@
 // js/settings.js
-import { dbPromise } from "./database.js";
+import { dbPromise, bufferedChanges } from "./database.js";
 
 /**
  * Load the saved syncEnabled flag from IndexedDB (default: true).
@@ -35,7 +35,7 @@ export function initSync(app) {
 
   // reflect saved state
   toggle.checked       = app.syncEnabled;
-  syncText.textContent = app.syncEnabled ? 'yes' : 'no';
+  bufferedChanges.push({ key: 'settings', value: { syncEnabled: app.syncEnabled } });
 
   toggle.addEventListener('change', async () => {
     app.syncEnabled = toggle.checked;
@@ -56,7 +56,7 @@ export function initImages(app) {
 
   // reflect saved state
   toggle.checked        = app.imagesEnabled;
-  imagesText.textContent = app.imagesEnabled ? 'yes' : 'no';
+  bufferedChanges.push({ key: 'settings', value: { imagesEnabled: app.imagesEnabled } });
 
   toggle.addEventListener('change', async () => {
       app.imagesEnabled = toggle.checked;

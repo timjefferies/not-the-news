@@ -4,7 +4,7 @@ import { scrollToTop, attachScrollToTopHandler, formatDate,
           shuffleFeed as handleShuffleFeed,
           loadHidden, loadStarred, loadFilterMode } from "./js/functions.js";
 import { initSync, initTheme, initImages, initScrollPos, initConfigComponent,loadSyncEnabled, loadImagesEnabled } from "./js/settings.js";
-import { dbPromise, performSync } from "./js/database.js";
+import { dbPromise, performFullSync } from "./js/database.js";
 
 window.rssApp = () => {
   return {
@@ -46,10 +46,11 @@ window.rssApp = () => {
       this.filterMode = await loadFilterMode();
 
       // 0) Initial sync + load from IndexedDB
+      await pullUserState(await dbPromise);   // seed local userState from server
       try {
-        // 1) sync remote → IndexedDB
+        // 1) sync both feed & user-state
+        const { feedTime: serverTime, stateTime } = await performFullSync();
         let serverTime;
-        serverTime = await performSync();
         // 2) load raw items
         const db      = await dbPromise;
         const rawList = await db.transaction('items', 'readonly')

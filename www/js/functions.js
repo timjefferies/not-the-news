@@ -1,5 +1,5 @@
 // functions.js
-import { dbPromise } from "./database.js";
+import { dbPromise, bufferedChanges } from "./database.js";
 
 /**
  * Smooth-scroll back to top.

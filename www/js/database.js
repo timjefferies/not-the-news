@@ -1,5 +1,6 @@
 // www/js/database.js
 import { openDB } from 'idb';
+export const bufferedChanges = [];
 
 // Initialize IndexedDB with 'items' and 'meta' stores
 export const dbPromise = openDB('not-the-news-db', 2, {
@@ -114,7 +115,7 @@ export async function performSync() {
   }
   
   /** Push local buffered mutations */
-  export async function pushUserState(db, buffered) {
+  export async function pushUserState(db, buffered = bufferedChanges) {
     if (buffered.length === 0) return;
     const body = { changes: {} };
     for (let { key, value } of buffered) {
@@ -134,9 +135,8 @@ export async function performSync() {
   // Integrate into your sync driver
   export async function performFullSync() {
     const db = await dbPromise;
-    const feedTime = await performSync();      // existing feed logic
-    const stateTime = await pullUserState(db); // pull others’ changes
-    // assume `bufferedChanges` is kept in-memory by your UI code:
-    await pushUserState(db, bufferedChanges);
+    const feedTime  = await performSync();
+    const stateTime = await pullUserState(db);
+    await pushUserState(db);
     return { feedTime, stateTime };
   }
