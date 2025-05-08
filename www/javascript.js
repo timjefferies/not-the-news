@@ -48,7 +48,7 @@ window.rssApp = () => {
       // 0) Initial sync + load from IndexedDB
       try {
         // 1) sync remote → IndexedDB
-        await performSync();
+        const serverTime = await performSync();
         // 2) load raw items
         const db      = await dbPromise;
         const rawList = await db.transaction('items', 'readonly')
@@ -108,7 +108,7 @@ window.rssApp = () => {
         }
       }, 5 * 60 * 1000);
       this._attachScrollToTopHandler();
-      this.hidden = await pruneStaleHidden(this.entries);
+      this.hidden = await pruneStaleHidden(this.entries, serverTime)
     },
     isHidden(link) { return isHidden(this, link); },
     toggleHidden(link) { toggleHidden(this, link); },

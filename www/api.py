@@ -20,6 +20,10 @@ def _load_feed_items():
     except (FileNotFoundError, ET.ParseError):
         # No feed or malformed XML → behave as “no items” without side-effects
         return {}
+    # strip all XML namespaces so .find()/.findall() work consistently
+    for elem in tree.getroot().iter():
+        if '}' in elem.tag:
+            elem.tag = elem.tag.split('}', 1)[1]
     root = tree.getroot()
     items = {}
     for it in root.findall(".//item"):
@@ -40,7 +44,7 @@ def _load_feed_items():
         items[guid] = data
     return items
 
-@app.route("/load-config", methods=["GET"])
+@app.route("/load-config", methods=["GET", "POST"])
 def load_config():
     # Read a text config file from /data/config
     filename = request.args.get("filename")

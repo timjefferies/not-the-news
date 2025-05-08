@@ -123,13 +123,13 @@ export function isHidden(app, link) {
  * @param {string} link - The URL to toggle.
  */
 export async function toggleHidden(state, link) {
-  const idx = app.hidden.findIndex(entry => entry.id === link);
+  const idx = state.hidden.findIndex(entry => entry.id === link);
   if (idx === -1) {
     // add new hidden object
-    app.hidden.push({ id: link, hiddenAt: new Date().toISOString() });
+    state.hidden.push({ id: link, hiddenAt: new Date().toISOString() });
   } else {
     // remove it
-    app.hidden.splice(idx, 1);
+    state.hidden.splice(idx, 1);
   }
   // persist hidden list to IDB
   const db = await dbPromise;
@@ -171,7 +171,7 @@ export function updateCounts() {
  * @param {Array<{id:string}>} entries  – array of current feed entries
  * @returns {Promise<{id:string,hiddenAt:string}[]>}  – the pruned hidden list
  */
-export async function pruneStaleHidden(entries) {
+export async function pruneStaleHidden(entries, serverTime) {
     const db = await dbPromise;
     const entry = await db.transaction('userState','readonly')
                          .objectStore('userState')
@@ -192,7 +192,7 @@ export async function pruneStaleHidden(entries) {
 
    // threshold = 30 days in milliseconds
    const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
-   const now = Date.now();
+   const now = serverTime;
 
    // Keep items that are either still in the feed, or within the 30-day hold window
    const pruned = storedHidden.filter(item => {
