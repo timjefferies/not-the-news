@@ -1,8 +1,5 @@
 // js/settings.js
-import { restoreStateFromFile, saveStateToFile } from "./api.js";
-
-const SYNC_KEY = "syncEnabled";
-const HIDDEN_KEY = "hidden";
+import { dbPromise } from "./database.js";
 
 // initialize the “refresh feed” toggle
 export function initSync(app) {
@@ -14,18 +11,19 @@ export function initSync(app) {
   toggle.checked       = app.syncEnabled;
   syncText.textContent = app.syncEnabled ? 'yes' : 'no';
 
-  toggle.addEventListener('change', () => {
-    app.syncEnabled      = toggle.checked;
-    localStorage.setItem(SYNC_KEY, JSON.stringify(app.syncEnabled));
-    syncText.textContent  = app.syncEnabled ? 'yes' : 'no';
-
+  toggle.addEventListener('change', async () => {
+    app.syncEnabled = toggle.checked;
+    // persist to IndexedDB
+    const db = await dbPromise;
+    const tx = db.transaction('userState', 'readwrite');
+    tx.objectStore('userState').put({ key: 'syncEnabled', value: app.syncEnabled });
+    await tx.done;
+    syncText.textContent = app.syncEnabled ? 'yes' : 'no';
     // Save sync change to server
     saveStateToFile("appState.json")
       .catch(err => console.error("Save sync setting failed:", err));
   });
 }
-
-const IMAGES_KEY = "imagesEnabled";
 
 // initialize the “Show images” toggle
 export function initImages(app) {
@@ -37,11 +35,14 @@ export function initImages(app) {
   toggle.checked        = app.imagesEnabled;
   imagesText.textContent = app.imagesEnabled ? 'yes' : 'no';
 
-  toggle.addEventListener('change', () => {
-    app.imagesEnabled      = toggle.checked;
-    localStorage.setItem(IMAGES_KEY, JSON.stringify(app.imagesEnabled));
-    imagesText.textContent  = app.imagesEnabled ? 'yes' : 'no';
-
+  toggle.addEventListener('change', async () => {
+      app.imagesEnabled = toggle.checked;
+      // persist to IndexedDB
+      const db = await dbPromise;
+      const tx = db.transaction('userState', 'readwrite');
+      tx.objectStore('userState').put({ key: 'imagesEnabled', value: app.imagesEnabled });
+      await tx.done;
+      imagesText.textContent = app.imagesEnabled ? 'yes' : 'no';
     // Save sync change to server
     saveStateToFile("appState.json")
       .catch(err => console.error("Save show images setting failed:", err));
@@ -49,13 +50,21 @@ export function initImages(app) {
 }
 
 // initialize the theme toggle
-export function initTheme() {
+export async function initTheme() {
   const html      = document.documentElement;
   const toggle    = document.getElementById('theme-toggle');
   const themeText = document.getElementById('theme-text');
   if (!toggle || !themeText) return;
 
-  const saved   = localStorage.getItem('theme');
+  // load saved theme from IndexedDB
+  let saved;
+  try {
+    const db = await dbPromise;
+    const e  = await db.transaction('userState','readonly').objectStore('userState').get('theme');
+    saved = e?.value;
+  } catch {
+    saved = null;
+  }
   const useDark = saved === 'dark'
     || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
@@ -63,12 +72,16 @@ export function initTheme() {
   toggle.checked       = useDark;
   themeText.textContent = useDark ? 'dark' : 'light';
 
-  toggle.addEventListener('change', () => {
+  toggle.addEventListener('change', async () => {
     const newTheme = toggle.checked ? 'dark' : 'light';
     html.classList.toggle('dark', toggle.checked);
     html.classList.toggle('light', !toggle.checked);
 
-    localStorage.setItem('theme', newTheme);
+    // persist theme to IndexedDB
+    const db = await dbPromise;
+    const tx = db.transaction('userState','readwrite');
+    tx.objectStore('userState').put({ key: 'theme', value: newTheme });
+    await tx.done;
     themeText.textContent = newTheme;
 
     // persist to server
@@ -77,40 +90,38 @@ export function initTheme() {
   });
 }
 export async function initScrollPos(app) {
-  // 1. Capture current scroll and the first visible entry
+  // 1. Capture current scroll and first-visible link, persist to IndexedDB
   const scrollY = window.scrollY;
-  localStorage.setItem('feedScrollY', String(scrollY));
   const entries = document.querySelectorAll('.entry');
+  const db       = await dbPromise;
+  const tx       = db.transaction('userState','readwrite');
+  tx.objectStore('userState').put({ key: 'feedScrollY', value: String(scrollY) });
   for (const el of entries) {
-    const { top } = el.getBoundingClientRect();
-    if (top >= 0) {
-      localStorage.setItem('feedVisibleLink', el.dataset.link || '');
+    if (el.getBoundingClientRect().top >= 0) {
+      tx.objectStore('userState').put({ key: 'feedVisibleLink', value: el.dataset.link || '' });
       break;
     }
   }
-
+  await tx.done;
   try {
     // 2. Persist to server and immediately restore state
     await saveStateToFile("appState.json");
     await restoreStateFromFile("appState.json");
-    // Load and upgrade any legacy string IDs into {id, hiddenAt}
-    const rawHidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || "[]");
-    app.hidden = rawHidden.map(item =>
-      typeof item === "string"
-        ? { id: item, hiddenAt: new Date().toISOString() }
-        : item
-    );
   } catch (err) {
     console.error("State save/restore failed:", err);
   }
 
-  // 3. On next frame, scroll back into view
-  // bail out if there's no meaningful scroll position saved
-  const savedY = localStorage.getItem('feedScrollY');
-  if (!savedY || savedY === '0') { return; }
- 
-  window.requestAnimationFrame(() => {
-    const link = localStorage.getItem('feedVisibleLink');
+  // 3. On next frame, restore from IndexedDB
+  const db2      = await dbPromise;
+  const savedY   = (await db2.transaction('userState','readonly')
+                              .objectStore('userState')
+                              .get('feedScrollY'))?.value;
+  if (!savedY || savedY === '0') return; 
+
+  window.requestAnimationFrame(async () => {
+    const link = (await db2.transaction('userState','readonly')
+                       .objectStore('userState')
+                       .get('feedVisibleLink'))?.value;
     if (link) {
       const target = document.querySelector(`.entry[data-link="${link}"]`);
       if (target) {
@@ -118,7 +129,7 @@ export async function initScrollPos(app) {
         return;
       }
     }
-    const y = Number(localStorage.getItem('feedScrollY')) || 0;
+    const y = Number(savedY) || 0;
     if (y) window.scrollTo({ top: y });
   });
 }

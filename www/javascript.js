@@ -1,17 +1,22 @@
-import { restoreStateFromFile, saveStateToFile } from "./js/api.js";
-import { scrollToTop, attachScrollToTopHandler, formatDate, isHidden, toggleHidden, isStarred, toggleStar, setFilter, updateCounts, pruneStaleHidden, shuffleArray, shuffleFeed as handleShuffleFeed, loadHidden, loadStarred } from "./js/functions.js";
-import { initSync, initTheme, initImages, initScrollPos, initConfigComponent } from "./js/settings.js";
+import { scrollToTop, attachScrollToTopHandler, formatDate,
+          isHidden, toggleHidden, isStarred, toggleStar,
+          setFilter, updateCounts, pruneStaleHidden,
+          shuffleArray, shuffleFeed as handleShuffleFeed,
+          loadHidden, loadStarred, loadFilterMode } from "./js/functions.js";
+import { initSync, initTheme, initImages, initScrollPos, initConfigComponent,loadSyncEnabled, loadImagesEnabled } from "./js/settings.js";
+import { dbPromise, performSync } from "./js/database.js";
 
 window.rssApp = () => {
-  const STORAGE_ETAG = "feedEtag";
   const FEED_URL = '/feed.xml';
   return {
     openSettings: false, // Controls visibility of the settings modal
     entries: [],
-    hidden: loadHidden(),
-    starred: loadStarred(),
-    filterMode:   localStorage.getItem("filterMode") || "unread",
-    imagesEnabled: JSON.parse(localStorage.getItem("imagesEnabled") ?? "true"),
+    // will be populated in init():
+    hidden:        [],
+    starred:       [],
+    filterMode:    null,
+    imagesEnabled: null,
+    syncEnabled:   null,
     isShuffled: false,              // Track whether we're in shuffled mode
     shuffleCount: 10,               // How many shuffles remain
 
@@ -36,22 +41,22 @@ window.rssApp = () => {
       } catch {
         console.warn("No previous state to restore.");
       }
-      // 2) Now apply theme & hidden list & sync
-      this.syncEnabled = JSON.parse(localStorage.getItem("syncEnabled") ?? "true");
-      this.imagesEnabled = JSON.parse(localStorage.getItem("imagesEnabled") ?? "true"),
+      // 2) Now apply theme & sync, then load persisted state
+      this.syncEnabled   = await loadSyncEnabled();
+      this.imagesEnabled = await loadImagesEnabled();
       initTheme();
       initSync(this);
       initImages(this);
       initConfigComponent(this);
+      // 2.5) Load user‑state from IndexedDB
+      this.hidden     = await loadHidden();
+      this.starred    = await loadStarred();
+      this.filterMode = await loadFilterMode();
 
-      // 0) Initialize our ETag/Last-Modified validators so the very first poll
-      //    can send If-None-Match right away
-      let lastEtag     = localStorage.getItem(STORAGE_ETAG);
-      let lastModified = null;
-        
-      // Load the feed
+      // 0) Kick off IndexedDB‑based sync loop
+      // // Load the feed
       try {
-	await this.loadFeed({ showLoading: true });
+  await this.loadFeed(/* no ETag headers; fully controlled by IndexedDB sync */);
   	} catch (err) {
     	  console.error("loadFeed failed", err);
     	  this.errorMessage = "Could not load feed.";
@@ -59,33 +64,17 @@ window.rssApp = () => {
     	  this.loading = false;
   	}
       this.updateCounts();
-
       setInterval(async () => {
-	// don’t do any feed work if settings modal is open or sync is off
-        if (this.openSettings) return;
-	if (!this.syncEnabled) return;
-
-        // 1. Send HEAD with validators if available
-	const headRes = await fetch(FEED_URL, {
-          method: 'HEAD',
-          headers: {
-            ...(lastEtag       && { 'If-None-Match': lastEtag }),
-            ...(lastModified   && { 'If-Modified-Since': lastModified })
-          }
-        });
-        // 2a. If changed, update validators and fetch full feed
-        if (headRes.status === 200) {
-          // update both validators
-          lastEtag     = headRes.headers.get('ETag');          // ← newly added
-          lastModified = headRes.headers.get('Last-Modified'); // ← existing
-
-	  await this.loadFeed({ showLoading: false });
+        // don’t sync while in settings or if disabled
+        if (this.openSettings || !this.syncEnabled) return;
+         try {
+          await performSync();
+        } catch (err) {
+          console.error("performSync failed", err);
         }
-        // 2b. If 304, feed unchanged—do nothing
-      }, 5*60*1000);
+      }, 5 * 60 * 1000);
       this._attachScrollToTopHandler();
-      // prune any stale hidden-IDs
-      this.hidden = pruneStaleHidden(this.entries);
+      this.hidden = await pruneStaleHidden(this.entries);
     },
     isHidden(link) { return isHidden(this, link); },
     toggleHidden(link) { toggleHidden(this, link); },
@@ -94,20 +83,8 @@ window.rssApp = () => {
       if (showLoading) this.loading = true;
       this.errorMessage = null;
 
-      const prevEtag = localStorage.getItem(STORAGE_ETAG);
-      const headers  = {};
-
-      if (prevEtag && this.entries.length > 0) {
-        headers['If-None-Match'] = prevEtag;
-      }
-
       try {
-        const res = await fetch(FEED_URL, { method: 'GET', headers });
-
-        if (res.status === 304) {
-          console.log('Feed not modified');
-          return;
-        }
+        const res = await fetch(FEED_URL, { method: 'GET' });
 
         if (!res.ok) {
           this.errorMessage = res.status === 404
@@ -161,10 +138,6 @@ window.rssApp = () => {
         this.entries = mapped;
 	this.updateCounts(); // after entries refresh, update dropdown labels
 
-        const newEtag = res.headers.get('ETag');
-        if (newEtag) {
-          localStorage.setItem(STORAGE_ETAG, newEtag);
-        }
 	// After setting entries:
   	this._lastFilterHash = "";  // Reset cache
   	this._cachedFilteredEntries = null;

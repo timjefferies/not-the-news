@@ -1,5 +1,5 @@
 // functions.js
-import { saveStateToFile, restoreStateFromFile } from "./api.js";
+import { dbPromise } from "./database.js";
 
 /**
  * Smooth-scroll back to top.
@@ -63,10 +63,6 @@ export function formatDate(dateString) {
   }
 }
 
-
-// key under which we persist the starred‐links array
-const STARRED_KEY = "starred";
-
 // -------- STARRED support --------
 /**
  * @param {Object} state  The Alpine component `this`
@@ -80,14 +76,18 @@ export function isStarred(state, link) {
 /**
  * Toggle starred/unstarred for a given link, persist immediately
  */
-export function toggleStar(state, link) {
+export async function toggleStar(state, link) {
   const idx = state.starred.findIndex(entry => entry.id === link);
   if (idx === -1) {
     state.starred.push({ id: link, starredAt: new Date().toISOString() });
   } else {
     state.starred.splice(idx, 1);
   }
-  localStorage.setItem(STARRED_KEY, JSON.stringify(state.starred));
+  // persist updated starred list to IDB
+  const db = await dbPromise;
+  const tx = db.transaction("userState", "readwrite");
+  tx.objectStore("userState").put({ key: "starred", value: JSON.stringify(state.starred) });
+  await tx.done;
   saveStateToFile("appState.json").catch(err => console.error("Save failed:", err));
   // refresh filter counts in header
   if (typeof app.updateCounts === 'function') {
@@ -98,13 +98,14 @@ export function toggleStar(state, link) {
 /**
  * Change filterMode (e.g. via dropdown), persist choice
  */
-export function setFilter(state, mode) {
+export async function setFilter(state, mode) {
   state.filterMode = mode;
-  localStorage.setItem("filterMode", mode);
+  // persist filterMode to IDB
+  const db = await dbPromise;
+  const tx = db.transaction("userState", "readwrite");
+  tx.objectStore("userState").put({ key: "filterMode", value: mode });
+  await tx.done;
 }
-
-// key under which we persist the hidden‐links array
-const HIDDEN_KEY = "hidden";
 
 /**
  * Check if a given link is in the hidden list.
@@ -131,7 +132,11 @@ export async function toggleHidden(app, link) {
     // remove it
     app.hidden.splice(idx, 1);
   }
-  localStorage.setItem(HIDDEN_KEY, JSON.stringify(app.hidden));
+  // persist hidden list to IDB
+  const db = await dbPromise;
+  const tx = db.transaction("userState", "readwrite");
+  tx.objectStore("userState").put({ key: "hidden", value: JSON.stringify(app.hidden) });
+  await tx.done;
   try {
     await saveStateToFile("appState.json");
   } catch (err) {
@@ -168,21 +173,17 @@ export function updateCounts() {
 }
 
 /**
- * Remove any IDs from localStorage “hidden” that no longer exist in the feed.
+ * Remove any IDs from IndexedDB “hidden” that no longer exist in the feed.
  * @param {Array<{id:string}>} entries  – array of current feed entries
- * @returns {{id:string,hiddenAt:string}[]}  – the pruned hidden list
+ * @returns {Promise<{id:string,hiddenAt:string}[]>}  – the pruned hidden list
  */
-export function pruneStaleHidden(entries) {
-   const raw = localStorage.getItem('hidden');
-   let storedHidden = [];
-   try {
-     // Now we expect [{ id: string, hiddenAt: ISOString }, …]
-     const parsed = raw ? JSON.parse(raw) : [];
-     storedHidden = Array.isArray(parsed) ? parsed : [];
-   } catch (err) {
-     console.warn('pruneStaleHidden: invalid JSON, resetting hidden list', err);
-     storedHidden = [];
-   }
+export async function pruneStaleHidden(entries) {
+    const db = await dbPromise;
+    const entry = await db.transaction('userState','readonly')
+                         .objectStore('userState')
+                         .get('hidden');
+    // Use exactly what’s in IDB; any legacy JSON in localStorage is now ignored
+    let storedHidden = entry ? JSON.parse(entry.value) : [];
    // ─── guard: only prune on a healthy feed ───
    if (
      !Array.isArray(entries) ||
@@ -211,11 +212,13 @@ export function pruneStaleHidden(entries) {
      const age = now - hiddenAt;
      return age < THIRTY_DAYS;
    });
-   // Only write back if we've actually dropped anything
-   if (pruned.length < storedHidden.length) {
-     localStorage.setItem('hidden', JSON.stringify(pruned));
-   }
-   return pruned;
+  // Only write back if we've actually dropped anything
+  if (pruned.length < storedHidden.length) {
+    const tx = db.transaction('userState','readwrite');
+    tx.objectStore('userState').put({ key: 'hidden', value: JSON.stringify(pruned) });
+    await tx.done;
+  }
+  return pruned;
  }
 
 /**
@@ -266,8 +269,13 @@ export function shuffleFeed(state) {
  * Load hidden list from localStorage, preserving legacy string entries.
  * @returns {{id: string, hiddenAt: string}[]}
  */
-export function loadHidden() {
-  const raw = JSON.parse(localStorage.getItem("hidden") || "[]");
+export async function loadHidden() {
+  // load hidden list from IDB
+  const db = await dbPromise;
+  const entry = await db.transaction("userState", "readonly")
+                        .objectStore("userState")
+                        .get("hidden");
+  const raw = entry ? JSON.parse(entry.value) : [];
   return raw.map(item =>
     typeof item === "string"
       ? { id: item, hiddenAt: new Date().toISOString() }
@@ -279,12 +287,28 @@ export function loadHidden() {
  * Load starred list from localStorage, preserving legacy string entries.
  * @returns {string[]}
  */
-export function loadStarred() {
-  // load as objects {id, starredAt}, preserving legacy strings
-  const raw = JSON.parse(localStorage.getItem(STARRED_KEY) || "[]");
+export async function loadStarred() {
+  // load starred list from IDB
+  const db = await dbPromise;
+  const entry = await db.transaction("userState", "readonly")
+                        .objectStore("userState")
+                        .get("starred");
+  const raw = entry ? JSON.parse(entry.value) : [];
   return raw.map(item =>
     typeof item === "string"
       ? { id: item, starredAt: new Date().toISOString() }
       : item
   );
+}
+
+/**
+ * Load the saved filterMode from IDB (fallback to 'all').
+ * @returns {Promise<string>}
+ */
+export async function loadFilterMode() {
+  const db = await dbPromise;
+  const entry = await db.transaction('userState','readonly')
+                       .objectStore('userState')
+                       .get('filterMode');
+  return entry?.value ?? 'all';
 }
