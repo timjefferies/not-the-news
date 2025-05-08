@@ -2,7 +2,7 @@
 import { openDB } from 'idb';
 
 // Initialize IndexedDB with 'items' and 'meta' stores
-export const dbPromise = openDB('rss-feed-db', 2, {
+export const dbPromise = openDB('not-the-news-db', 3, {
   upgrade(db, oldVersion) {
     if (oldVersion < 1) {
       db.createObjectStore('items', { keyPath: 'guid' });
@@ -11,6 +11,10 @@ export const dbPromise = openDB('rss-feed-db', 2, {
       const meta = db.createObjectStore('meta', { keyPath: 'key' });
       // Seed lastSync = epoch
       meta.put({ key: 'lastSync', value: new Date(0).toISOString() });
+    }
+    if (oldVersion < 3) {
+      // store for starred/hidden/filter/theme/etc.
+      db.createObjectStore('userState', { keyPath: 'key' });
     }
   }
 });

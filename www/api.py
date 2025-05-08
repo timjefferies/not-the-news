@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify, abort
 from datetime import datetime, timezone
 from xml.etree import ElementTree as ET
-import json
 import os
 
 app = Flask(__name__)
@@ -17,7 +16,11 @@ _TOMBSTONES = {}
 
 def _load_feed_items():
     """Parse feed.xml into a dict of guid → item_data."""
-    tree = ET.parse(FEED_XML)
+    try:
+        tree = ET.parse(FEED_XML)
+    except (FileNotFoundError, ET.ParseError):
+        # No feed or malformed XML → behave as “no items” without side-effects
+        return {}
     root = tree.getroot()
     items = {}
     for it in root.findall(".//item"):

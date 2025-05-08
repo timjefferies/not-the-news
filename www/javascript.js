@@ -1,7 +1,7 @@
 import { scrollToTop, attachScrollToTopHandler, formatDate,
           isHidden, toggleHidden, isStarred, toggleStar,
           setFilter, updateCounts, pruneStaleHidden,
-          shuffleArray, shuffleFeed as handleShuffleFeed,
+          shuffleFeed as handleShuffleFeed,
           loadHidden, loadStarred, loadFilterMode } from "./js/functions.js";
 import { initSync, initTheme, initImages, initScrollPos, initConfigComponent,loadSyncEnabled, loadImagesEnabled } from "./js/settings.js";
 import { dbPromise, performSync } from "./js/database.js";
@@ -45,16 +45,58 @@ window.rssApp = () => {
       this.starred    = await loadStarred();
       this.filterMode = await loadFilterMode();
 
-      // 0) Kick off IndexedDB‑based sync loop
-      // // Load the feed
+      // 0) Initial sync + load from IndexedDB
       try {
-  await this.loadFeed(/* no ETag headers; fully controlled by IndexedDB sync */);
-  	} catch (err) {
-    	  console.error("loadFeed failed", err);
-    	  this.errorMessage = "Could not load feed.";
-  	} finally {
-    	  this.loading = false;
-  	}
+        // 1) sync remote → IndexedDB
+        await performSync();
+        // 2) load raw items
+        const db      = await dbPromise;
+        const rawList = await db.transaction('items', 'readonly')
+                                 .objectStore('items')
+                                 .getAll();
+        // 3) transform each item like your old loadFeed did
+        const mapped = rawList.map(item => {
+          const raw = item.desc || '';
+          // extract and strip <span class="source-url">
+          let description = raw;
+          let sourceUrl   = '';
+          const spanMatch = description.match(
+            /<span[^>]*class=["']source-url["'][^>]*>([\s\S]+?)<\/span>/
+          );
+          if (spanMatch) {
+            sourceUrl   = spanMatch[1].trim();
+            description = description.replace(
+              /<span[^>]*class=["']source-url["'][^>]*>[\s\S]*?<\/span>/,
+              ''
+            ).trim();
+          } else {
+            sourceUrl = item.link ? new URL(item.link).hostname : '';
+          }
+          // find first <img src="…">
+          let imageUrl = '';
+          const imgMatch = raw.match(/<img[^>]+src="([^">]+)"/);
+          if (imgMatch) imageUrl = imgMatch[1];
+          // strip any remaining <img> tags
+          const descText = description.replace(/<img[^>]*>/g, '').trim();
+          return {
+            id:          item.guid,
+            image:       imageUrl,
+            title:       item.title,
+            link:        item.link,
+            pubDate:     this.formatDate(item.pubDate || ''),
+            description: descText,
+            source:      sourceUrl
+          };
+        });
+        this.entries = mapped;
+        // restore previous scroll position once entries are rendered
+        initScrollPos(this);
+        } catch (err) {
+        console.error("loadFeed failed", err);
+        this.errorMessage = "Could not load feed.";
+      } finally {
+        this.loading = false;
+      }
       this.updateCounts();
       setInterval(async () => {
         // don’t sync while in settings or if disabled
@@ -71,78 +113,6 @@ window.rssApp = () => {
     isHidden(link) { return isHidden(this, link); },
     toggleHidden(link) { toggleHidden(this, link); },
 	  
-    async loadFeed({ showLoading = false } = {}) {
-      if (showLoading) this.loading = true;
-      this.errorMessage = null;
-
-        const xml    = await res.text();
-        const parser = new RSSParser();
-        const feed   = await parser.parseString(xml);
-
-	const mapped = feed.items.map(item => {
-	const uniqueKey = item.guid || item.id || item.link;
-        // keep the already-sanitized HTML instead of stripping it
-        const raw = item.description
-                 || item.content
-                 || item.contentSnippet
-                 || item.summary
-                 || '';
-
-	  let description = raw;
-	  let sourceUrl = null;
-	  const m = description.match(/<span[^>]*class=["']source-url["'][^>]*>([\s\S]+?)<\/span>/);
-	  if (m) {
-	    sourceUrl  = m[1].trim();
-	    description = description.replace(/<span[^>]*class=["']source-url["'][^>]*>[\s\S]*?<\/span>/, '').trim();
-          }
-	  else sourceUrl = new URL(item.link).hostname;
-          let imageUrl = null;
-          const imgMatch = raw.match(/<img[^>]+src="([^">]+)"/);
-          if (imgMatch) {
-            imageUrl = imgMatch[1];
-          }
-	  else imageUrl = '';
-	  // Remove <img> tags from raw content
-	  const descText = description.replace(/<img[^>]*>/g, '').trim();
-
-          return {
-	    id:		 uniqueKey,
-	    image:       imageUrl,
-            title:       item.title,
-            link:        item.link,
-            pubDate:     this.formatDate(item.pubDate || item.isoDate || ''),
-            description: descText,
-	    source:      sourceUrl
-          };
-        });
-
-        // always store full list; filter in computed getter
-        this.entries = mapped;
-	this.updateCounts(); // after entries refresh, update dropdown labels
-
-	// After setting entries:
-  	this._lastFilterHash = "";  // Reset cache
-  	this._cachedFilteredEntries = null;
-      } catch (err) {
-        console.error('Failed to load feed:', err);
-        this.errorMessage = 'Error loading feed.';
-      } finally {
-        if (showLoading) this.loading = false;
-      }
-      initScrollPos(this);
-      this.$nextTick?.(() => {
-        document.querySelectorAll(".entry img").forEach(img => {
-          // if already cached, mark immediately
-          if (img.complete) {
-            img.classList.add("loaded");
-          } else {
-            img.addEventListener("load", () => {
-              img.classList.add("loaded");
-            });
-          }
-        });
-      });
-    },
     // computed, based on our three modes + the hidden[] list
   _lastFilterHash: "",
   _cachedFilteredEntries: null,  // Initialize as null instead of empty array
