@@ -48,7 +48,8 @@ window.rssApp = () => {
       // 0) Initial sync + load from IndexedDB
       try {
         // 1) sync remote → IndexedDB
-        const serverTime = await performSync();
+        let serverTime;
+        serverTime = await performSync();
         // 2) load raw items
         const db      = await dbPromise;
         const rawList = await db.transaction('items', 'readonly')

@@ -28,13 +28,14 @@ async function fetchWithRetry(url, options = {}, retries = 3, backoff = 500) {
   }
 
 /**
- * Perform diff‐based sync using /changes and /items endpoints.
+ * Perform diff‐based sync using /items endpoints.
  */
 export async function performSync() {
     const db = await dbPromise;
   
     // 1) fetch serverTime and compute cutoff
     const { time: serverTimeStr } = await fetchWithRetry('/time').then(r => r.json());
+
     const serverTime = Date.parse(serverTimeStr);
     const staleCutoff = serverTime - 30 * 86400 * 1000;
   
@@ -66,6 +67,7 @@ export async function performSync() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ guids: batch })
         });
+    const data = await res.json();
     const txUp = db.transaction('items', 'readwrite');
     batch.forEach(guid => {
       const item = data[guid];

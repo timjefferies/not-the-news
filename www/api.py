@@ -88,7 +88,7 @@ def guids():
     items = _load_feed_items()
     return jsonify(list(items.keys())), 200
 
-@app.route("/items", methods=["GET"])
+@app.route("/items", methods=["GET","POST"])
 def items():
     """Given ?guids=a,b,c return JSON map of guid→item_data."""
     guids = request.args.get("guids", "")
