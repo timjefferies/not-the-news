@@ -2,7 +2,7 @@ import { scrollToTop, attachScrollToTopHandler, formatDate,
           isStarred, toggleStar,
           setFilter, updateCounts, pruneStaleHidden,
           shuffleFeed as handleShuffleFeed,
-          loadHidden, loadStarred, loadFilterMode } from "./js/functions.js";
+          loadHidden, loadStarred, loadFilterMode, isHidden, toggleHidden } from "./js/functions.js";
 import { initSync, initTheme, initImages, initScrollPos, initConfigComponent,loadSyncEnabled, loadImagesEnabled } from "./js/settings.js";
 import { dbPromise, performFullSync } from "./js/database.js";
 
@@ -47,11 +47,11 @@ window.rssApp = () => {
 
       // 0) Initial sync + load from IndexedDB
       await pullUserState(await dbPromise);   // seed local userState from server
+      let serverTime;
       try {
         // 1) sync both feed & user-state
-        const { feedTime: serverTime, stateTime } = await performFullSync();
-        let serverTime;
-        // 2) load raw items
+        ({ feedTime: serverTime } = await performFullSync());
+      // 2) load raw items
         const db      = await dbPromise;
         const rawList = await db.transaction('items', 'readonly')
                                  .objectStore('items')
@@ -113,7 +113,7 @@ window.rssApp = () => {
       this.hidden = await pruneStaleHidden(this.entries, serverTime)
     },
     isHidden(link) { return isHidden(this, link); },
-    toggleHidden(link) { toggleHidden(this, link); },
+    toggleHidden(link) { return toggleHidden(this, link); },
 	  
     // computed, based on our three modes + the hidden[] list
   _lastFilterHash: "",
