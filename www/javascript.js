@@ -1,5 +1,5 @@
 import { scrollToTop, attachScrollToTopHandler, formatDate,
-          isHidden, toggleHidden, isStarred, toggleStar,
+          isStarred, toggleStar,
           setFilter, updateCounts, pruneStaleHidden,
           shuffleFeed as handleShuffleFeed,
           loadHidden, loadStarred, loadFilterMode } from "./js/functions.js";

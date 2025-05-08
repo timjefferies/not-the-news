@@ -89,8 +89,8 @@ export async function toggleStar(state, link) {
   tx.objectStore("userState").put({ key: "starred", value: JSON.stringify(state.starred) });
   await tx.done;
   // refresh filter counts in header
-  if (typeof app.updateCounts === 'function') {
-    app.updateCounts();
+  if (typeof state.updateCounts === 'function') {
+    state.updateCounts();
   }
 }
 
@@ -122,7 +122,7 @@ export function isHidden(app, link) {
  * @param {object} app - The Alpine.js app instance.
  * @param {string} link - The URL to toggle.
  */
-export async function toggleHidden(app, link) {
+export async function toggleHidden(state, link) {
   const idx = app.hidden.findIndex(entry => entry.id === link);
   if (idx === -1) {
     // add new hidden object
@@ -136,8 +136,8 @@ export async function toggleHidden(app, link) {
   const tx = db.transaction("userState", "readwrite");
   tx.objectStore("userState").put({ key: "hidden", value: JSON.stringify(app.hidden) });
   await tx.done;
-  if (typeof app.updateCounts === 'function') {
-    app.updateCounts();
+  if (typeof state.updateCounts === 'function') {
+    state.updateCounts();
   }
 }
 
