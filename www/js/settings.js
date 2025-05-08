@@ -103,6 +103,8 @@ export async function initTheme() {
     tx.objectStore('userState').put({ key: 'theme', value: newTheme });
     await tx.done;
     themeText.textContent = newTheme;
+    // buffer this mutation for pushUserState()
+    bufferedChanges.push({ key: 'settings', value: { theme: newTheme } });
   });
 }
 export async function initScrollPos(app) {

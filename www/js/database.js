@@ -93,3 +93,50 @@ export async function performSync() {
     }
     return serverTime;  
   }
+  
+  // ─── Delta‐based user‐state sync ───────────────────────────────────────────
+  /** Fetch only the keys changed since lastStateSync */
+  export async function pullUserState(db) {
+    const meta = await db.get('userState','lastStateSync') || { value: null };
+    const since = meta.value;
+    const headers = {};
+    if (since) headers['If-None-Match'] = since;
+    const res = await fetch('/user-state?since=' + encodeURIComponent(since || ''), { headers });
+    if (res.status === 304) return meta.value;
+    const { changes, serverTime } = await res.json();
+    const tx = db.transaction('userState','readwrite');
+    for (let [key,val] of Object.entries(changes)) {
+      tx.objectStore('userState').put({ key, value: JSON.stringify(val) });
+    }
+    tx.objectStore('userState').put({ key: 'lastStateSync', value: serverTime });
+    await tx.done;
+    return serverTime;
+  }
+  
+  /** Push local buffered mutations */
+  export async function pushUserState(db, buffered) {
+    if (buffered.length === 0) return;
+    const body = { changes: {} };
+    for (let { key, value } of buffered) {
+      body.changes[key] = value;
+    }
+    const res = await fetch('/user-state', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const { serverTime } = await res.json();
+    const tx = db.transaction('userState','readwrite');
+    tx.objectStore('userState').put({ key: 'lastStateSync', value: serverTime });
+    await tx.done;
+  }
+  
+  // Integrate into your sync driver
+  export async function performFullSync() {
+    const db = await dbPromise;
+    const feedTime = await performSync();      // existing feed logic
+    const stateTime = await pullUserState(db); // pull others’ changes
+    // assume `bufferedChanges` is kept in-memory by your UI code:
+    await pushUserState(db, bufferedChanges);
+    return { feedTime, stateTime };
+  }

@@ -92,6 +92,8 @@ export async function toggleStar(state, link) {
   if (typeof state.updateCounts === 'function') {
     state.updateCounts();
   }
+  // buffer this mutation for pushUserState()
+  bufferedChanges.push({ key: 'starred', value: state.starred });
 }
 
 /**
@@ -139,6 +141,8 @@ export async function toggleHidden(state, link) {
   if (typeof state.updateCounts === 'function') {
     state.updateCounts();
   }
+  // buffer this mutation for pushUserState()
+  bufferedChanges.push({ key: 'hidden', value: state.hidden });
 }
 
 /**

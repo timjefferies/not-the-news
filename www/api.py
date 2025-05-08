@@ -8,8 +8,11 @@ app = Flask(__name__)
 DATA_DIR = "/data"
 FEED_DIR     = os.path.join(DATA_DIR, "feed")
 CONFIG_DIR = os.path.join(DATA_DIR, "config")
+USER_STATE_DIR = os.path.join(DATA_DIR, "user_state")
 os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(FEED_DIR, exist_ok=True)
 os.makedirs(CONFIG_DIR, exist_ok=True)
+os.makedirs(USER_STATE_DIR, exist_ok=True)
 
 # ─── Feed‐sync state ───────────────────────────────────────────────────────
 FEED_XML    = os.path.join(FEED_DIR, "feed.xml")
@@ -100,6 +103,62 @@ def items():
     all_items = _load_feed_items()
     result = {g: all_items[g] for g in wanted if g in all_items}
     return jsonify(result), 200
+
+# ─── User‐state syncing (hidden/starred/settings) ───────────────────────────
+#
+def _user_state_path(key):
+    return os.path.join(USER_STATE_DIR, f"{key}.json")
+
+def _load_state(key):
+    path = _user_state_path(key)
+    if not os.path.exists(path):
+        return {"value": None, "lastModified": None}
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def _save_state(key, value):
+    now = datetime.now(timezone.utc).isoformat()
+    data = {"value": value, "lastModified": now}
+    with open(_user_state_path(key), "w", encoding="utf-8") as f:
+        json.dump(data, f)
+    return now
+
+@app.route("/user-state", methods=["GET"])
+def get_user_state():
+    """Delta‐fetch: only return keys changed since `since`."""
+    since = request.args.get("since")
+    out = {}
+    newest = since
+    for key in ("hidden","starred","settings"):
+        st = _load_state(key)
+        lm = st.get("lastModified")
+        if lm and (not since or lm > since):
+            out[key] = st["value"]
+            if not newest or lm > newest:
+                newest = lm
+    if_none = request.headers.get("If-None-Match")
+    etag = newest or ""
+    if if_none == etag:
+        return ("", 304)
+    resp = jsonify({"changes": out, "serverTime": newest})
+    resp.headers["ETag"] = etag
+    return resp, 200
+
+@app.route("/user-state", methods=["POST"])
+def post_user_state():
+    """Accept client‐side mutations and bump lastModified."""
+    data = request.get_json(force=True)
+    changes = data.get("changes", {})
+    server_time = None
+    for key, val in changes.items():
+        # merge arrays or overwrite settings
+        current = _load_state(key)["value"] or ({} if key=="settings" else [])
+        if isinstance(current, list) and isinstance(val, list):
+            merged = val  # last-writer-wins for simplicity
+        else:
+            merged = val
+        server_time = _save_state(key, merged)
+    return jsonify({"serverTime": server_time}), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000)
