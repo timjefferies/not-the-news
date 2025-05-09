@@ -38,10 +38,15 @@ def _split_segment(text: str, max_len: int = 60) -> List[str]:
 def wrap_title(title: str, max_len: int = 60) -> str:
     """
     Split `title` into logical chunks ≤ max_len characters,
-    then wrap each chunk in <h2>…</h2>.
+    then wrap the first chunk in <h1> and the rest in <h2>.
     """
     parts = _split_segment(title, max_len)
-    return ''.join(f'<h2>{part}</h2>' for part in parts)
+    return ''.join(
+        f'<h1><a href="{entry.link}" target="_blank">{parts[0]}</a></h1>'
+        if i == 0
+        else f'<h2>{part}</h2>'
+        for i, part in enumerate(parts)
+    )
 
 
 def prettify_reddit_entry(entry):
@@ -54,6 +59,11 @@ def prettify_reddit_entry(entry):
     metadata_tag = f'<span class="source-url">{source_url}</span>'
 
     desc = entry.get('description', '')
+    if '[link]' in desc:
+        match = re.search(r'<a href="([^"]+)">\[link\]</a>', desc)
+        if match:
+            entry['domain'] = match.group(1)
+
     if '<![CDATA[' in desc:
         # insert the span immediately after the CDATA open
         entry['description'] = desc.replace(
@@ -86,7 +96,7 @@ def prettify_x_entry(entry):
 def prettify_wired_entry(entry):
     """Wrap wired.com links via removepaywalls.com proxy."""
     link = entry.get('link', '').strip()
-    if 'www.wired.com' in link:
+    if 'wired.com' in link:
         # Insert removepaywalls.com before the original URL
         entry['link'] = link.replace(
             'www.wired.com',
@@ -113,7 +123,8 @@ def prettify_domains(entry):
     # Global post-processing: images
     entry = prettify_images(entry)
     # Wrap crazy long titles
-    title = wrap_title(entry.get('title'), max_len=60)
+    new_title = wrap_title(entry.get('title'), max_len=60)
+    entry['title'] = new_title
 
     """
     Inspect entry['link'], figure out the domain,

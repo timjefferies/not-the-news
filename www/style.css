@@ -213,7 +213,15 @@ td a { line-height: 1.6; }
 
 p { line-height: 1.6 !important; }
 
-h1 { line-height: 1.6; font-size: 1.3em; font-weight: lighter; }
+h1 { line-height: 1.4; font-size: 1.3em; font-weight: lighter; }
+
+h2, h3 {
+  font-family: 'Prata', serif;
+  font-weight: 100;
+  color: var(--fg);
+  line-height: 1.4;
+}
+h3 { margin-top: 2em; font-size: large; }
 
 a { text-decoration: none; transition: color .3s linear; }
 a:visited { color: grey; }
@@ -312,12 +320,6 @@ select#filter-selector option:hover {
   margin-top: -0.3em;
 }
 
-h2, h3 {
-  font-family: 'Prata', serif;
-  font-weight: 100;
-  color: var(--fg);
-}
-h3 { margin-top: 2em; font-size: large; }
 
 #items { width: 100%; display: block; overflow-x: hidden; }
 
@@ -342,18 +344,19 @@ h3 { margin-top: 2em; font-size: large; }
   border-radius: 40px 40px 0 0;
   padding: 0.75em 3.5rem 0.2em 1.2em;
   border-bottom: 1px solid var(--card-border);
-  font-size: 1.5rem !important;
   font-family: 'Prata', serif;
   text-transform:capitalize;
-  line-height: 1.4em;
   min-height: calc(1.4em * 2);
   background: linear-gradient(360deg, var(--bg) 0%, transparent);
   margin-top: 0;
   position: relative;
 }
 
-.itemtitle h1 { flex: 1; word-break: break-word; }
+.itemtitle h1, h2 { flex: 1; word-break: break-word; }
+.itemtitle h1 { font-size: x-large !important; }
+.itemtitle h2 { font-size: large !important; }
 .itemtitle h1:hover { color: var(--primary); }
+.itemtitle h2:hover { color: var(--primary); }
 .source-url { display:none; }
 #loading-screen {
   font-family: 'Prata', serif;

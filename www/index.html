@@ -106,7 +106,7 @@
             :class="{ 'hidden': isHidden(entry.id) }"
             aria-label="Close"
           >✕</button>
-          <h1><a :href="entry.link" target="_blank" x-text="entry.title"></a></h1>
+	  <div x-html="entry.title"></div>
           <!-- Star/unstar button -->
           <button class="star"
                   @click="toggleStar(entry.id)"
