@@ -148,18 +148,22 @@ def get_user_state():
 @app.route("/user-state", methods=["POST"])
 def post_user_state():
     """Accept client‐side mutations and bump lastModified."""
-    data = request.get_json(force=True)
-    changes = data.get("changes", {})
-    server_time = None
-    for key, val in changes.items():
-        # merge arrays or overwrite settings
-        current = _load_state(key)["value"] or ({} if key=="settings" else [])
-        if isinstance(current, list) and isinstance(val, list):
-            merged = val  # last-writer-wins for simplicity
-        else:
-            merged = val
-        server_time = _save_state(key, merged)
-    return jsonify({"serverTime": server_time}), 200
+    try:
+        data = request.get_json(force=True)
+        changes = data.get("changes", {})
+        server_time = None
+        for key, val in changes.items():
+            # merge arrays or overwrite settings
+            current = _load_state(key)["value"] or ({} if key=="settings" else [])
+            if isinstance(current, list) and isinstance(val, list):
+                merged = val  # last-writer-wins for simplicity
+            else:
+                merged = val
+            server_time = _save_state(key, merged)
+        return jsonify({"serverTime": server_time}), 200
+    except Exception as e:
+        app.logger.exception("Error in post_user_state")
+        return jsonify({"error": f"{e}"}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000)

@@ -127,6 +127,12 @@ export async function performSync() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
+    if (!res.ok) {
+      // log the real error payload instead of crashing on res.json()
+      const text = await res.text();
+      console.error(`pushUserState failed ${res.status}:`, text);
+      return;
+    }
     const { serverTime } = await res.json();
     const tx = db.transaction('userState','readwrite');
     tx.objectStore('userState').put({ key: 'lastStateSync', value: serverTime });
