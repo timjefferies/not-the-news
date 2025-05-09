@@ -140,6 +140,11 @@ export async function toggleHidden(state, link) {
   await tx.done;
   if (typeof state.updateCounts === 'function') {
     state.updateCounts();
+    // buffer this mutation for pushUserState(), store raw array
+    bufferedChanges.push({
+      key: 'hidden',
+      value: state.hidden
+    });
   }
   // buffer this mutation for pushUserState()
   bufferedChanges.push({ key: 'hidden', value: state.hidden });
@@ -180,7 +185,21 @@ export async function pruneStaleHidden(entries, serverTime) {
   const entry = await db.transaction('userState', 'readonly')
     .objectStore('userState')
     .get('hidden');
-  let storedHidden = entry ? JSON.parse(entry.value) : [];
+  // Normalize storedHidden: may be a JSON string or raw array
+  let storedHidden = [];
+  if (entry && entry.value != null) {
+    if (typeof entry.value === 'string') {
+      try {
+        storedHidden = JSON.parse(entry.value);
+      } catch {
+        storedHidden = [];
+      }
+    } else if (Array.isArray(entry.value)) {
+      storedHidden = entry.value;
+    }
+  }
+  // Ensure we have an array
+  if (!Array.isArray(storedHidden)) storedHidden = [];
   // ─── guard: only prune on a healthy feed ───
   if (
     !Array.isArray(entries) ||
@@ -274,12 +293,17 @@ export async function loadHidden() {
     .get("hidden");
   // Parse and coerce into an array, even if malformed or missing
   let raw = [];
-  if (entry && entry.value) {
-    try {
-      raw = JSON.parse(entry.value);
-    } catch (e) {
-      console.warn('loadHidden: invalid JSON in entry.value', entry.value);
-      raw = [];
+  if (entry && entry.value != null) {
+    // entry.value may be JSON or an array
+    if (typeof entry.value === 'string') {
+      try {
+        raw = JSON.parse(entry.value);
+      } catch (e) {
+        console.warn('loadHidden: invalid JSON in entry.value', entry.value);
+        raw = [];
+      }
+    } else if (Array.isArray(entry.value)) {
+      raw = entry.value;
     }
   }
   if (!Array.isArray(raw)) {
