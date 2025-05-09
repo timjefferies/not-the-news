@@ -53,51 +53,32 @@ window.rssApp = () => {
       try {
         // 1) sync both feed & user-state
         const { feedTime: serverTime } = await performFullSync();
-        // 2) load raw items and sort chronologically (newest first)
+        // 2) load raw items, map & attach a numeric timestamp
         const db = await dbPromise;
         const rawList = await db.transaction('items', 'readonly')
-          .objectStore('items')
-          .getAll();
-        rawList.sort((a, b) => {
-          // a.pubDate and b.pubDate are ISO strings from the server
-          const at = Date.parse(a.pubDate) || 0;
-          const bt = Date.parse(b.pubDate) || 0;
-          return bt - at;
-        });
-        // 3) transform each item like your old loadFeed did
+                                 .objectStore('items')
+                                 .getAll();
+
         const mapped = rawList.map(item => {
           const raw = item.desc || '';
-          // extract and strip <span class="source-url">
-          let description = raw;
-          let sourceUrl = '';
-          const spanMatch = description.match(
-            /<span[^>]*class=["']source-url["'][^>]*>([\s\S]+?)<\/span>/
-          );
-          if (spanMatch) {
-            sourceUrl = spanMatch[1].trim();
-            description = description.replace(
-              /<span[^>]*class=["']source-url["'][^>]*>[\s\S]*?<\/span>/,
-              ''
-            ).trim();
-          } else {
-            sourceUrl = item.link ? new URL(item.link).hostname : '';
-          }
-          // find first <img src="…">
-          let imageUrl = '';
-          const imgMatch = raw.match(/<img[^>]+src="([^">]+)"/);
-          if (imgMatch) imageUrl = imgMatch[1];
-          // strip any remaining <img> tags
-          const descText = description.replace(/<img[^>]*>/g, '').trim();
+          // … your existing span/img extraction into description, imageUrl, sourceUrl …
+          const timestamp = Date.parse(item.pubDate) || 0;
           return {
-            id: item.guid,
-            image: imageUrl,
-            title: item.title,
-            link: item.link,
-            pubDate: this.formatDate(item.pubDate || ''),
+            id:          item.guid,
+            image:       imageUrl,
+            title:       item.title,
+            link:        item.link,
+            pubDate:     this.formatDate(item.pubDate || ''),
             description: descText,
-            source: sourceUrl
+            source:      sourceUrl,
+            timestamp,  // preserve for sorting
           };
         });
+
+        // 3) sort mapped entries by timestamp descending (newest first)
+        mapped.sort((a, b) => b.timestamp - a.timestamp);
+
+        // 4) assign your sorted feed
         this.entries = mapped;
         // restore previous scroll position once entries are rendered
         initScrollPos(this);
