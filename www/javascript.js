@@ -105,23 +105,25 @@ window.rssApp = () => {
         this.entries = mapped;
         // restore previous scroll position once entries are rendered
         initScrollPos(this);
+        this.hidden = await pruneStaleHidden(this.entries, serverTime);
+        this.updateCounts();
+        setInterval(async () => {
+          // don’t sync while in settings or if disabled
+          if (this.openSettings || !this.syncEnabled) return;
+          try {
+            await performSync();
+            await pullUserState(await dbPromise);
+          } catch (err) {
+            console.error("Partial sync failed", err);
+          }
+        }, 5 * 60 * 1000);
+        this._attachScrollToTopHandler();
       } catch (err) {
         console.error("loadFeed failed", err);
         this.errorMessage = "Could not load feed.";
       } finally {
         this.loading = false;
       }
-      this.updateCounts();
-      setInterval(async () => {
-        // don’t sync while in settings or if disabled
-        if (this.openSettings || !this.syncEnabled) return;
-        try {
-          await performSync();
-          await pullUserState(await dbPromise);
-        } catch (err) {
-          console.error("Partial sync failed", err);
-        }
-      }, 5 * 60 * 1000);
       this._attachScrollToTopHandler();
       this.hidden = await pruneStaleHidden(this.entries, serverTime)
     },
