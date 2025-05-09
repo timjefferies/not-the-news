@@ -7,7 +7,7 @@ import json
 
 app = Flask(__name__)
 DATA_DIR = "/data"
-FEED_DIR     = os.path.join(DATA_DIR, "feed")
+FEED_DIR = os.path.join(DATA_DIR, "feed")
 CONFIG_DIR = os.path.join(DATA_DIR, "config")
 USER_STATE_DIR = os.path.join(DATA_DIR, "user_state")
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -16,7 +16,9 @@ os.makedirs(CONFIG_DIR, exist_ok=True)
 os.makedirs(USER_STATE_DIR, exist_ok=True)
 
 # ─── Feed‐sync state ───────────────────────────────────────────────────────
-FEED_XML    = os.path.join(FEED_DIR, "feed.xml")
+FEED_XML = os.path.join(FEED_DIR, "feed.xml")
+
+
 def _load_feed_items():
     """Parse feed.xml into a dict of guid → item_data."""
     try:
@@ -26,12 +28,12 @@ def _load_feed_items():
         return {}
     # strip all XML namespaces so .find()/.findall() work consistently
     for elem in tree.getroot().iter():
-        if '}' in elem.tag:
-            elem.tag = elem.tag.split('}', 1)[1]
+        if "}" in elem.tag:
+            elem.tag = elem.tag.split("}", 1)[1]
     root = tree.getroot()
     items = {}
     for it in root.findall(".//item"):
-        guid     = it.findtext("guid") or it.findtext("link")
+        guid = it.findtext("guid") or it.findtext("link")
         raw_date = it.findtext("pubDate") or ""
         try:
             dt = parsedate_to_datetime(raw_date)
@@ -39,14 +41,15 @@ def _load_feed_items():
         except Exception:
             pub_iso = raw_date
         data = {
-            "guid":    guid,
-            "title":   it.findtext("title"),
-            "link":    it.findtext("link"),
+            "guid": guid,
+            "title": it.findtext("title"),
+            "link": it.findtext("link"),
             "pubDate": pub_iso,
-            "desc":    it.findtext("description"),
+            "desc": it.findtext("description"),
         }
         items[guid] = data
     return items
+
 
 @app.route("/load-config", methods=["GET", "POST"])
 def load_config():
@@ -64,6 +67,7 @@ def load_config():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route("/save-config", methods=["POST"])
 def save_config():
     # Write back a text config file into /data/config
@@ -80,11 +84,13 @@ def save_config():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route("/time", methods=["GET"])
 def time():
     """Return the server UTC time as ISO8601."""
     now = datetime.now(timezone.utc).isoformat()
     return jsonify({"time": now}), 200
+
 
 @app.route("/guids", methods=["GET"])
 def guids():
@@ -92,23 +98,26 @@ def guids():
     items = _load_feed_items()
     return jsonify(list(items.keys())), 200
 
-@app.route("/items", methods=["GET","POST"])
+
+@app.route("/items", methods=["GET", "POST"])
 def items():
     """Given ?guids=a,b,c return JSON map of guid→item_data."""
     guids = request.args.get("guids", "")
     wanted = guids.split(",") if guids else []
     # also accept POST JSON
-    if request.method == 'POST':
+    if request.method == "POST":
         data = request.get_json(force=True)
-        wanted = data.get('guids', [])
+        wanted = data.get("guids", [])
     all_items = _load_feed_items()
     result = {g: all_items[g] for g in wanted if g in all_items}
     return jsonify(result), 200
+
 
 # ─── User‐state syncing (hidden/starred/settings) ───────────────────────────
 #
 def _user_state_path(key):
     return os.path.join(USER_STATE_DIR, f"{key}.json")
+
 
 def _load_state(key):
     path = _user_state_path(key)
@@ -117,6 +126,7 @@ def _load_state(key):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
+
 def _save_state(key, value):
     now = datetime.now(timezone.utc).isoformat()
     data = {"value": value, "lastModified": now}
@@ -124,13 +134,14 @@ def _save_state(key, value):
         json.dump(data, f)
     return now
 
+
 @app.route("/user-state", methods=["GET"])
 def get_user_state():
     """Delta‐fetch: only return keys changed since `since`."""
     since = request.args.get("since")
     out = {}
     newest = since
-    for key in ("hidden","starred","settings"):
+    for key in ("hidden", "starred", "settings"):
         st = _load_state(key)
         lm = st.get("lastModified")
         if lm and (not since or lm > since):
@@ -145,6 +156,7 @@ def get_user_state():
     resp.headers["ETag"] = etag
     return resp, 200
 
+
 @app.route("/user-state", methods=["POST"])
 def post_user_state():
     """Accept client‐side mutations and bump lastModified."""
@@ -154,7 +166,7 @@ def post_user_state():
         server_time = None
         for key, val in changes.items():
             # merge arrays or overwrite settings
-            current = _load_state(key)["value"] or ({} if key=="settings" else [])
+            current = _load_state(key)["value"] or ({} if key == "settings" else [])
             if isinstance(current, list) and isinstance(val, list):
                 merged = val  # last-writer-wins for simplicity
             else:
@@ -164,6 +176,7 @@ def post_user_state():
     except Exception as e:
         app.logger.exception("Error in post_user_state")
         return jsonify({"error": f"{e}"}), 500
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000)

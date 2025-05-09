@@ -12,28 +12,29 @@ import hashlib
 import redis
 
 # ─── Redis client for caching raw feed bytes ─────────────────────────────────
-r = redis.Redis(host='localhost', port=6379, db=0)
+r = redis.Redis(host="localhost", port=6379, db=0)
 
 # ─── Global backoff & rate-limit settings ─────────────────────────────────────
 
 # ─── Token-bucket rate limiter for QPM limits ─────────────────────────────────
-USE_OAUTH       = False             # True if you’ve authenticated via OAuth
-API_QPM         = 100 if USE_OAUTH else 10
-FRONTEND_QPM    = 60
-RATE_LIMIT_QPM  = min(API_QPM, FRONTEND_QPM)
-BUCKET_CAPACITY = 18               # max burst capacity
-REFILL_RATE     = RATE_LIMIT_QPM/60  # tokens per second
+USE_OAUTH = False  # True if you’ve authenticated via OAuth
+API_QPM = 100 if USE_OAUTH else 10
+FRONTEND_QPM = 60
+RATE_LIMIT_QPM = min(API_QPM, FRONTEND_QPM)
+BUCKET_CAPACITY = 18  # max burst capacity
+REFILL_RATE = RATE_LIMIT_QPM / 60  # tokens per second
 
 # token-bucket state
-_tokens      = BUCKET_CAPACITY
+_tokens = BUCKET_CAPACITY
 _last_refill = time.monotonic()
 _bucket_lock = threading.Lock()
+
 
 def _consume_token():
     """Block until a token is available from the bucket, then consume one."""
     global _tokens, _last_refill
     while True:
-        now     = time.monotonic()
+        now = time.monotonic()
         elapsed = now - _last_refill
         with _bucket_lock:
             # refill
@@ -47,22 +48,22 @@ def _consume_token():
         to_wait = (1 - _tokens) / REFILL_RATE
         time.sleep(to_wait)
 
+
 # Exponential backoff parameters
-INITIAL_BACKOFF = 1    # seconds
-MAX_BACKOFF     = 60   # seconds
-BACKOFF_FACTOR  = 2
+INITIAL_BACKOFF = 1  # seconds
+MAX_BACKOFF = 60  # seconds
+BACKOFF_FACTOR = 2
 
 # Track per-domain last-request timestamps (for fixed spacing)
 domain_last_request = {}
 
 # minimum delay between requests to the same domain
-DOMAIN_DELAY = 1.0   # seconds
+DOMAIN_DELAY = 1.0  # seconds
 
 # Create a single Session with your custom User-Agent
 session = requests.Session()
-session.headers.update({
-    'User-Agent': 'not-the-news/1.0 (by /u/not-the-news-app)'
-})
+session.headers.update({"User-Agent": "not-the-news/1.0 (by /u/not-the-news-app)"})
+
 
 def extract_domain(url, cache={}):
     """Extract the domain from a URL with basic caching."""
@@ -85,12 +86,12 @@ def fetch_with_backoff(url):
     _consume_token()
     # 1) Domain-based delay
     domain = extract_domain(url)
-    
+
     last = domain_last_request.get(domain, 0)
-    now_ts  = time.monotonic()
+    now_ts = time.monotonic()
     extra_delay = max(0, DOMAIN_DELAY - (now_ts - last))
     if extra_delay > 0:
-        ts = datetime.now().strftime('%H:%M:%S')
+        ts = datetime.now().strftime("%H:%M:%S")
         print(f"{ts}: [{domain}] waiting {extra_delay:.2f}s before request… {url}")
         time.sleep(extra_delay)
     domain_last_request[domain] = time.monotonic()
@@ -104,7 +105,7 @@ def fetch_with_backoff(url):
             resp = session.get(url)
             if resp.status_code == 429:
                 # honor Retry-After if given, else use backoff
-                ra   = resp.headers.get('Retry-After')
+                ra = resp.headers.get("Retry-After")
                 wait = int(ra) if ra and ra.isdigit() else backoff
                 print(f"429 from {url}, sleeping {wait}s (backoff={backoff}s)…")
                 time.sleep(wait)
@@ -124,7 +125,7 @@ def fetch_with_backoff(url):
 def validate_url(url):
     """Validate the structure of a URL."""
     parsed = urlparse(url)
-    return parsed.scheme in ('http', 'https') and bool(parsed.netloc)
+    return parsed.scheme in ("http", "https") and bool(parsed.netloc)
 
 
 def merge_feeds(feeds_file, output_file):
@@ -133,16 +134,18 @@ def merge_feeds(feeds_file, output_file):
     seen_entries = set()  # Store keys we've seen (link or fallback ID)
 
     fg = FeedGenerator()
-    fg.title('Merged Feed')
-    fg.link(href='http://example.com', rel='alternate')
-    fg.description('This is a merged feed.')
-    fg.language('en')
-    fg.docs('http://www.rssboard.org/rss-specification')
-    fg.generator('python-feedgen')
+    fg.title("Merged Feed")
+    fg.link(href="http://example.com", rel="alternate")
+    fg.description("This is a merged feed.")
+    fg.language("en")
+    fg.docs("http://www.rssboard.org/rss-specification")
+    fg.generator("python-feedgen")
 
     # Read the list of feed URLs
-    with open(feeds_file, 'r') as f:
-        feed_urls = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    with open(feeds_file, "r") as f:
+        feed_urls = [
+            line.strip() for line in f if line.strip() and not line.startswith("#")
+        ]
 
     # Sort feed URLs by their domain
     domain_cache = {}
@@ -158,17 +161,23 @@ def merge_feeds(feeds_file, output_file):
             print(f"No entries for {url}, skipping.")
             continue
 
-        ts = datetime.now().strftime('%H:%M:%S')
-        print(f"{ts}: Importing: {url} ({len(feed.entries)} entries)", end='\r', flush=True)
+        ts = datetime.now().strftime("%H:%M:%S")
+        print(
+            f"{ts}: Importing: {url} ({len(feed.entries)} entries)",
+            end="\r",
+            flush=True,
+        )
         if len(feed.entries) == 0:
-            print(f"Debug: No entries found in feed {url}. Feed content: {pprint.pformat(feed)}")
+            print(
+                f"Debug: No entries found in feed {url}. Feed content: {pprint.pformat(feed)}"
+            )
             continue
 
         for entry in feed.entries:
-            entry_link = entry.get('link')
-            entry_title = entry.get('title', '')
-            entry_published = entry.get('published', '')
-            
+            entry_link = entry.get("link")
+            entry_title = entry.get("title", "")
+            entry_published = entry.get("published", "")
+
             # Use link if available, otherwise fall back to title+published
             entry_key = entry_link if entry_link else f"{entry_title}_{entry_published}"
             if entry_key in seen_entries:
@@ -177,22 +186,18 @@ def merge_feeds(feeds_file, output_file):
 
             fe = fg.add_entry()
             # generate a deterministic unique hash (GUID) for the entry
-            hash_input = entry.get('id', entry.get('link', '')).encode('utf-8')
+            hash_input = entry.get("id", entry.get("link", "")).encode("utf-8")
             unique_hash = hashlib.sha256(hash_input).hexdigest()
             fe.guid(unique_hash, permalink=False)
-            fe.title(entry_title or 'No Title')
+            fe.title(entry_title or "No Title")
             if entry_link:
-                fe.link(
-                    href=entry_link,
-                    rel='alternate',
-                    type='text/html'
-                )            
-            
+                fe.link(href=entry_link, rel="alternate", type="text/html")
+
             # pick published or updated timestamp string
-            date_str = entry.get('published') or entry.get('updated')
+            date_str = entry.get("published") or entry.get("updated")
             if date_str:
                 # parse into a datetime (handles RFC-822, ISO8601, etc.)
-                pub_dt = parse(date_str)              # :contentReference[oaicite:1]{index=1}
+                pub_dt = parse(date_str)  # :contentReference[oaicite:1]{index=1}
             else:
                 # fallback to a true datetime object
                 pub_dt = datetime.now(timezone.utc)
@@ -201,28 +206,34 @@ def merge_feeds(feeds_file, output_file):
             fe.pubDate(pub_dt)
 
             # Prefer full HTML <content:encoded> if present, otherwise fallback to summary
-            if 'content' in entry and entry.content:
+            if "content" in entry and entry.content:
                 raw_html = entry.content[0].value
             else:
-                raw_html = entry.get('summary', '')
+                raw_html = entry.get("summary", "")
 
             # Emit the HTML inside a CDATA-wrapped <content:encoded> element
             # (so the downstream cleaner can pick up real <p>, <ul>, <li>, etc.)
-            fe.content(raw_html, type='CDATA')
-            
+            fe.content(raw_html, type="CDATA")
+
             total_entries += 1
 
     merged_feed = fg.rss_str(pretty=True)
-    with open(output_file, 'wb') as out:
+    with open(output_file, "wb") as out:
         out.write(merged_feed)
 
     print()
     print(f"Merged feed saved to '{output_file}' with {total_entries} entries.")
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Merge multiple RSS/Atom feeds into one.")
-    parser.add_argument('--feeds', required=True, help="Path to the text file listing feed URLs.")
-    parser.add_argument('--output', required=True, help="Path to save the merged feed XML.")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Merge multiple RSS/Atom feeds into one."
+    )
+    parser.add_argument(
+        "--feeds", required=True, help="Path to the text file listing feed URLs."
+    )
+    parser.add_argument(
+        "--output", required=True, help="Path to save the merged feed XML."
+    )
     args = parser.parse_args()
     merge_feeds(args.feeds, args.output)

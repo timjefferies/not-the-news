@@ -6,35 +6,35 @@ import { dbPromise, bufferedChanges } from "./database.js";
  * @returns {Promise<boolean>}
  */
 export async function loadSyncEnabled() {
-    const db = await dbPromise;
-    const entry = await db
-      .transaction('userState','readonly')
-      .objectStore('userState')
-      .get('syncEnabled');
-    return entry?.value ?? true;
-  }
-  
-  /**
-   * Load the saved imagesEnabled flag from IndexedDB (default: true).
-   * @returns {Promise<boolean>}
-   */
-  export async function loadImagesEnabled() {
-    const db = await dbPromise;
-    const entry = await db
-      .transaction('userState','readonly')
-      .objectStore('userState')
-      .get('imagesEnabled');
-    return entry?.value ?? true;
-  }
+  const db = await dbPromise;
+  const entry = await db
+    .transaction('userState', 'readonly')
+    .objectStore('userState')
+    .get('syncEnabled');
+  return entry?.value ?? true;
+}
+
+/**
+ * Load the saved imagesEnabled flag from IndexedDB (default: true).
+ * @returns {Promise<boolean>}
+ */
+export async function loadImagesEnabled() {
+  const db = await dbPromise;
+  const entry = await db
+    .transaction('userState', 'readonly')
+    .objectStore('userState')
+    .get('imagesEnabled');
+  return entry?.value ?? true;
+}
 
 // initialize the “refresh feed” toggle
 export function initSync(app) {
-  const toggle   = document.getElementById('sync-toggle');
+  const toggle = document.getElementById('sync-toggle');
   const syncText = document.getElementById('sync-text');
   if (!toggle || !syncText) return;
 
   // reflect saved state
-  toggle.checked       = app.syncEnabled;
+  toggle.checked = app.syncEnabled;
   bufferedChanges.push({ key: 'settings', value: { syncEnabled: app.syncEnabled } });
 
   toggle.addEventListener('change', async () => {
@@ -50,29 +50,29 @@ export function initSync(app) {
 
 // initialize the “Show images” toggle
 export function initImages(app) {
-  const toggle   = document.getElementById('images-toggle');
+  const toggle = document.getElementById('images-toggle');
   const imagesText = document.getElementById('images-text');
   if (!toggle || !imagesText) return;
 
   // reflect saved state
-  toggle.checked        = app.imagesEnabled;
+  toggle.checked = app.imagesEnabled;
   bufferedChanges.push({ key: 'settings', value: { imagesEnabled: app.imagesEnabled } });
 
   toggle.addEventListener('change', async () => {
-      app.imagesEnabled = toggle.checked;
-      // persist to IndexedDB
-      const db = await dbPromise;
-      const tx = db.transaction('userState', 'readwrite');
-      tx.objectStore('userState').put({ key: 'imagesEnabled', value: app.imagesEnabled });
-      await tx.done;
-      imagesText.textContent = app.imagesEnabled ? 'yes' : 'no';
+    app.imagesEnabled = toggle.checked;
+    // persist to IndexedDB
+    const db = await dbPromise;
+    const tx = db.transaction('userState', 'readwrite');
+    tx.objectStore('userState').put({ key: 'imagesEnabled', value: app.imagesEnabled });
+    await tx.done;
+    imagesText.textContent = app.imagesEnabled ? 'yes' : 'no';
   });
 }
 
 // initialize the theme toggle
 export async function initTheme() {
-  const html      = document.documentElement;
-  const toggle    = document.getElementById('theme-toggle');
+  const html = document.documentElement;
+  const toggle = document.getElementById('theme-toggle');
   const themeText = document.getElementById('theme-text');
   if (!toggle || !themeText) return;
 
@@ -80,7 +80,7 @@ export async function initTheme() {
   let saved;
   try {
     const db = await dbPromise;
-    const e  = await db.transaction('userState','readonly').objectStore('userState').get('theme');
+    const e = await db.transaction('userState', 'readonly').objectStore('userState').get('theme');
     saved = e?.value;
   } catch {
     saved = null;
@@ -89,7 +89,7 @@ export async function initTheme() {
     || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   html.classList.add(useDark ? 'dark' : 'light');
-  toggle.checked       = useDark;
+  toggle.checked = useDark;
   themeText.textContent = useDark ? 'dark' : 'light';
 
   toggle.addEventListener('change', async () => {
@@ -99,7 +99,7 @@ export async function initTheme() {
 
     // persist theme to IndexedDB
     const db = await dbPromise;
-    const tx = db.transaction('userState','readwrite');
+    const tx = db.transaction('userState', 'readwrite');
     tx.objectStore('userState').put({ key: 'theme', value: newTheme });
     await tx.done;
     themeText.textContent = newTheme;
@@ -111,8 +111,8 @@ export async function initScrollPos(app) {
   // 1. Capture current scroll and first-visible link, persist to IndexedDB
   const scrollY = window.scrollY;
   const entries = document.querySelectorAll('.entry');
-  const db       = await dbPromise;
-  const tx       = db.transaction('userState','readwrite');
+  const db = await dbPromise;
+  const tx = db.transaction('userState', 'readwrite');
   tx.objectStore('userState').put({ key: 'feedScrollY', value: String(scrollY) });
   for (const el of entries) {
     if (el.getBoundingClientRect().top >= 0) {
@@ -123,16 +123,16 @@ export async function initScrollPos(app) {
   await tx.done;
 
   // 3. On next frame, restore from IndexedDB
-  const db2      = await dbPromise;
-  const savedY   = (await db2.transaction('userState','readonly')
-                              .objectStore('userState')
-                              .get('feedScrollY'))?.value;
-  if (!savedY || savedY === '0') return; 
+  const db2 = await dbPromise;
+  const savedY = (await db2.transaction('userState', 'readonly')
+    .objectStore('userState')
+    .get('feedScrollY'))?.value;
+  if (!savedY || savedY === '0') return;
 
   window.requestAnimationFrame(async () => {
-    const link = (await db2.transaction('userState','readonly')
-                       .objectStore('userState')
-                       .get('feedVisibleLink'))?.value;
+    const link = (await db2.transaction('userState', 'readonly')
+      .objectStore('userState')
+      .get('feedVisibleLink'))?.value;
     if (link) {
       const target = document.querySelector(`.entry[data-link="${link}"]`);
       if (target) {
@@ -151,12 +151,12 @@ export async function initConfigComponent(app) {
 
     // Load keywords blacklist
     fetch(`/load-config?filename=filter_keywords.txt`)
-      .then(r=>r.json())
-      .then(data=>(
-        app.keywords=(data.content||"").split(/\r?\n/).map(s=>s.trim()).filter(Boolean).sort((a,b)=>a.localeCompare(b)).join("\n"),
-        document.getElementById("keywords-blacklist")&&(document.getElementById("keywords-blacklist").value=app.keywords)
+      .then(r => r.json())
+      .then(data => (
+        app.keywords = (data.content || "").split(/\r?\n/).map(s => s.trim()).filter(Boolean).sort((a, b) => a.localeCompare(b)).join("\n"),
+        document.getElementById("keywords-blacklist") && (document.getElementById("keywords-blacklist").value = app.keywords)
       ))
-      .catch(e=>console.error("Error loading keywords:", e));
+      .catch(e => console.error("Error loading keywords:", e));
 
     // Load RSS feeds
     fetch(`/load-config?filename=feeds.txt`)

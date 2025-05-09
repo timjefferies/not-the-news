@@ -46,8 +46,8 @@ export function formatDate(dateString) {
   }
 
   const minutes = Math.floor(diffInSeconds / 60);
-  const hours   = Math.floor(minutes / 60);
-  const days    = Math.floor(hours / 24);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
 
   if (diffInSeconds < 60) {
     return "Just now";
@@ -162,10 +162,10 @@ export function updateCounts() {
   if (!select) return;
   Array.from(select.options).forEach(opt => {
     switch (opt.value) {
-      case 'all':     opt.text = `All (${allCount})`; break;
-      case 'hidden':  opt.text = `Hidden (${hiddenCount})`; break;
+      case 'all': opt.text = `All (${allCount})`; break;
+      case 'hidden': opt.text = `Hidden (${hiddenCount})`; break;
       case 'starred': opt.text = `Starred (${starredCount})`; break;
-      case 'unread':  opt.text = `Unread (${unreadCount})`; break;
+      case 'unread': opt.text = `Unread (${unreadCount})`; break;
     }
   });
 }
@@ -176,47 +176,47 @@ export function updateCounts() {
  * @returns {Promise<{id:string,hiddenAt:string}[]>}  – the pruned hidden list
  */
 export async function pruneStaleHidden(entries, serverTime) {
-    const db = await dbPromise;
-    const entry = await db.transaction('userState','readonly')
-                         .objectStore('userState')
-                         .get('hidden');
-    let storedHidden = entry ? JSON.parse(entry.value) : [];
-   // ─── guard: only prune on a healthy feed ───
-   if (
-     !Array.isArray(entries) ||
-     entries.length === 0 ||
-     // bail if any entry is missing a valid string id
-     !entries.every(e => e && typeof e.id === 'string')
-   ) {
-     return storedHidden;
-   }
+  const db = await dbPromise;
+  const entry = await db.transaction('userState', 'readonly')
+    .objectStore('userState')
+    .get('hidden');
+  let storedHidden = entry ? JSON.parse(entry.value) : [];
+  // ─── guard: only prune on a healthy feed ───
+  if (
+    !Array.isArray(entries) ||
+    entries.length === 0 ||
+    // bail if any entry is missing a valid string id
+    !entries.every(e => e && typeof e.id === 'string')
+  ) {
+    return storedHidden;
+  }
 
-   // optionally normalize ids: trim/case‐fold if your guids can shift case or whitespace
-   const validIds = new Set(entries.map(e => e.id.trim().toLowerCase()));
+  // optionally normalize ids: trim/case‐fold if your guids can shift case or whitespace
+  const validIds = new Set(entries.map(e => e.id.trim().toLowerCase()));
 
-   // threshold = 30 days in milliseconds
-   const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
-   const now = serverTime;
+  // threshold = 30 days in milliseconds
+  const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+  const now = serverTime;
 
-   // Keep items that are either still in the feed, or within the 30-day hold window
-   const pruned = storedHidden.filter(item => {
-     const idNorm = String(item.id).trim().toLowerCase();
-     const keepBecauseInFeed = validIds.has(idNorm);
-     if (keepBecauseInFeed) return true;
+  // Keep items that are either still in the feed, or within the 30-day hold window
+  const pruned = storedHidden.filter(item => {
+    const idNorm = String(item.id).trim().toLowerCase();
+    const keepBecauseInFeed = validIds.has(idNorm);
+    if (keepBecauseInFeed) return true;
 
-     // if not in feed, check age
-     const hiddenAt = new Date(item.hiddenAt).getTime();
-     const age = now - hiddenAt;
-     return age < THIRTY_DAYS;
-   });
+    // if not in feed, check age
+    const hiddenAt = new Date(item.hiddenAt).getTime();
+    const age = now - hiddenAt;
+    return age < THIRTY_DAYS;
+  });
   // Only write back if we've actually dropped anything
   if (pruned.length < storedHidden.length) {
-    const tx = db.transaction('userState','readwrite');
+    const tx = db.transaction('userState', 'readwrite');
     tx.objectStore('userState').put({ key: 'hidden', value: JSON.stringify(pruned) });
     await tx.done;
   }
   return pruned;
- }
+}
 
 /**
  * Fisher–Yates shuffle: returns the array randomly reordered.
@@ -270,8 +270,8 @@ export async function loadHidden() {
   // load hidden list from IDB
   const db = await dbPromise;
   const entry = await db.transaction("userState", "readonly")
-                        .objectStore("userState")
-                        .get("hidden");
+    .objectStore("userState")
+    .get("hidden");
   // Parse and coerce into an array, even if malformed or missing
   let raw = [];
   if (entry && entry.value) {
@@ -301,8 +301,8 @@ export async function loadStarred() {
   // load starred list from IDB
   const db = await dbPromise;
   const entry = await db.transaction("userState", "readonly")
-                        .objectStore("userState")
-                        .get("starred");
+    .objectStore("userState")
+    .get("starred");
   // Parse and coerce into an array, even if malformed or missing
   let raw = [];
   if (entry && entry.value) {
@@ -330,8 +330,8 @@ export async function loadStarred() {
  */
 export async function loadFilterMode() {
   const db = await dbPromise;
-  const entry = await db.transaction('userState','readonly')
-                       .objectStore('userState')
-                       .get('filterMode');
+  const entry = await db.transaction('userState', 'readonly')
+    .objectStore('userState')
+    .get('filterMode');
   return entry?.value ?? 'unread';
 }
