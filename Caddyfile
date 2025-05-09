@@ -5,17 +5,25 @@
 }
 
 {$DOMAIN} {
-  handle /load-state* {
-	reverse_proxy 127.0.0.1:3000
-  }
-  handle /save-state* {
-	reverse_proxy 127.0.0.1:3000
+  # Proxy the new user-state endpoint (GET & POST) to Flask
+  handle /user-state* {
+    reverse_proxy 127.0.0.1:3000
   }
   handle /load-config* {
 	reverse_proxy 127.0.0.1:3000
   }
   handle /save-config* {
 	reverse_proxy 127.0.0.1:3000
+  }
+  # Proxy feed-sync API endpoints to Flask
+  handle /time* {
+    reverse_proxy 127.0.0.1:3000
+  }
+  handle /guids* {
+    reverse_proxy 127.0.0.1:3000
+  }
+  handle /items* {
+    reverse_proxy 127.0.0.1:3000
   }
   root * /app/www
   file_server
@@ -48,6 +56,7 @@
   @api_nocache {
     path /load-config*
     path /save-config*
+    path /user-state*
   }
   header @api_nocache {
     Cache-Control "no-cache, no-store, must-revalidate"
