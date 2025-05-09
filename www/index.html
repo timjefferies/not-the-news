@@ -120,8 +120,14 @@
             <p class="pubdate" x-text="entry.pubDate"></p>
           </div>
           <template x-if="imagesEnabled && entry.image">
-            <img :src="entry.image" alt="" class="entry-image" />
-          </template>
+              <img
+                :src="entry.image"
+                alt=""
+                class="entry-image"
+                @load="$el.classList.add('loaded')"
+                x-init="if($el.complete) $el.classList.add('loaded')"
+              />
+            </template>
           <span x-html="entry.description"></span>
         </div>
       </div>
