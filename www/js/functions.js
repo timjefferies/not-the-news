@@ -272,7 +272,20 @@ export async function loadHidden() {
   const entry = await db.transaction("userState", "readonly")
                         .objectStore("userState")
                         .get("hidden");
-  const raw = entry ? JSON.parse(entry.value) : [];
+  // Parse and coerce into an array, even if malformed or missing
+  let raw = [];
+  if (entry && entry.value) {
+    try {
+      raw = JSON.parse(entry.value);
+    } catch (e) {
+      console.warn('loadHidden: invalid JSON in entry.value', entry.value);
+      raw = [];
+    }
+  }
+  if (!Array.isArray(raw)) {
+    console.warn('loadHidden: expected array but got', raw);
+    raw = [];
+  }
   return raw.map(item =>
     typeof item === "string"
       ? { id: item, hiddenAt: new Date().toISOString() }
@@ -290,7 +303,20 @@ export async function loadStarred() {
   const entry = await db.transaction("userState", "readonly")
                         .objectStore("userState")
                         .get("starred");
-  const raw = entry ? JSON.parse(entry.value) : [];
+  // Parse and coerce into an array, even if malformed or missing
+  let raw = [];
+  if (entry && entry.value) {
+    try {
+      raw = JSON.parse(entry.value);
+    } catch (e) {
+      console.warn('loadStarred: invalid JSON in entry.value', entry.value);
+      raw = [];
+    }
+  }
+  if (!Array.isArray(raw)) {
+    console.warn('loadStarred: expected array but got', raw);
+    raw = [];
+  }
   return raw.map(item =>
     typeof item === "string"
       ? { id: item, starredAt: new Date().toISOString() }
