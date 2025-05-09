@@ -51,14 +51,17 @@ window.rssApp = () => {
       try {
         // 1) sync both feed & user-state
         ({ feedTime: serverTime } = await performFullSync());
-      // 2) load raw items
-        const db      = await dbPromise;
-        const rawList = await db.transaction('items', 'readonly')
-                                 .objectStore('items')
-                                 .getAll();
-	// sort feed items chronologically (newest first)
-	rawList.sort((a, b) => Date.parse(b.pubDate) - Date.parse(a.pubDate));
-        // 3) transform each item like your old loadFeed did
+      // 2) load raw items and sort chronologically (newest first)
+      const rawList = await db.transaction('items', 'readonly')
+                               .objectStore('items')
+                               .getAll();
+      rawList.sort((a, b) => {
+        // a.pubDate and b.pubDate are ISO strings from the server
+        const at = Date.parse(a.pubDate) || 0;
+        const bt = Date.parse(b.pubDate) || 0;
+        return bt - at;
+      });
+	// 3) transform each item like your old loadFeed did
         const mapped = rawList.map(item => {
           const raw = item.desc || '';
           // extract and strip <span class="source-url">
