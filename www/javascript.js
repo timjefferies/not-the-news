@@ -56,25 +56,41 @@ window.rssApp = () => {
         // 2) load raw items, map & attach a numeric timestamp
         const db = await dbPromise;
         const rawList = await db.transaction('items', 'readonly')
-                                 .objectStore('items')
-                                 .getAll();
-
+          .objectStore('items')
+          .getAll();
         const mapped = rawList.map(item => {
           const raw = item.desc || '';
-          // … your existing span/img extraction into description, imageUrl, sourceUrl …
+          // parse the HTML snippet properly
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(raw, 'text/html');
+          // 1) extract and remove the first <img>
+          const imgElem = doc.querySelector('img');
+          const imageUrl = imgElem ? imgElem.src : '';
+          if (imgElem) imgElem.remove();
+          // 2) extract and remove the first .source-url span or <a>
+          let sourceUrl = '';
+          const sourceElem = doc.querySelector('.source-url') || doc.querySelector('a');
+          if (sourceElem) {
+            sourceUrl = sourceElem.textContent.trim();
+            sourceElem.remove();
+          } else {
+            sourceUrl = item.link ? new URL(item.link).hostname : '';
+          }
+          // 3) whatever remains is your clean text
+          const descText = doc.body.textContent.trim();
+          // 4) parse timestamp
           const timestamp = Date.parse(item.pubDate) || 0;
           return {
-            id:          item.guid,
-            image:       imageUrl,
-            title:       item.title,
-            link:        item.link,
-            pubDate:     this.formatDate(item.pubDate || ''),
+            id: item.guid,
+            image: imageUrl,
+            title: item.title,
+            link: item.link,
+            pubDate: this.formatDate(item.pubDate || ''),
             description: descText,
-            source:      sourceUrl,
+            source: sourceUrl,
             timestamp,  // preserve for sorting
           };
         });
-
         // 3) sort mapped entries by timestamp descending (newest first)
         mapped.sort((a, b) => b.timestamp - a.timestamp);
 
