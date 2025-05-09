@@ -35,26 +35,33 @@ window.rssApp = () => {
 
     async init() {
       this.loading = true; //loading screen
-      // 1) Apply theme & sync, then load persisted state
-      this.syncEnabled = await loadSyncEnabled();
-      this.imagesEnabled = await loadImagesEnabled();
-      initTheme();
-      initSync(this);
-      initImages(this);
-      initConfigComponent(this);
-      // 2) Load user‑state from IndexedDB
-      this.hidden = await loadHidden();
-      this.starred = await loadStarred();
-      this.filterMode = await loadFilterMode();
-
-      // 0) Initial sync + load from IndexedDB
-      await pullUserState(await dbPromise);   // seed local userState from server
-      let serverTime;
       try {
-        // 1) sync both feed & user-state
-        const { feedTime: serverTime } = await performFullSync();
-        // 2) load raw items, map & attach a numeric timestamp
+        // 1) Apply theme & sync, then load persisted state
+        this.syncEnabled = await loadSyncEnabled();
+        this.imagesEnabled = await loadImagesEnabled();
+        initTheme();
+        initSync(this);
+        initImages(this);
+        initConfigComponent(this);
+        // 2) Load user‑state from IndexedDB
+        this.hidden = await loadHidden();
+        this.starred = await loadStarred();
+        this.filterMode = await loadFilterMode();
+
+        // 0) Sync: full only on empty DB, otherwise feed‐diff + user‐state pull
         const db = await dbPromise;
+        const count = await db.transaction('items', 'readonly').objectStore('items').count();
+        let serverTime;
+        if (count === 0) {
+          // first run: full feed + user‐state
+          const { feedTime } = await performFullSync();
+          serverTime = feedTime;
+        } else {
+          // subsequent runs: partial feed‐diff + user‐state delta pull
+          serverTime = await performSync();
+          await pullUserState(db);
+        }
+        // 2) load raw items, map & attach a numeric timestamp
         const rawList = await db.transaction('items', 'readonly')
           .objectStore('items')
           .getAll();
@@ -110,8 +117,9 @@ window.rssApp = () => {
         if (this.openSettings || !this.syncEnabled) return;
         try {
           await performSync();
+          await pullUserState(await dbPromise);
         } catch (err) {
-          console.error("performSync failed", err);
+          console.error("Partial sync failed", err);
         }
       }, 5 * 60 * 1000);
       this._attachScrollToTopHandler();
@@ -154,9 +162,9 @@ window.rssApp = () => {
       return this._cachedFilteredEntries;
     }
   }
-  document.addEventListener("load", e => {
-    if (e.target.tagName.toLowerCase() === "img") {
-      e.target.classList.add("loaded");
-    }
-  }, true);
 };
+document.addEventListener("load", e => {
+  if (e.target.tagName.toLowerCase() === "img") {
+    e.target.classList.add("loaded");
+  }
+}, true);

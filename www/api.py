@@ -176,7 +176,39 @@ def post_user_state():
     except Exception as e:
         app.logger.exception("Error in post_user_state")
         return jsonify({"error": f"{e}"}), 500
+@app.route("/user-state/hidden/delta", methods=["POST"])
+def hidden_delta():
+    data    = request.get_json(force=True)
+    state   = _load_state("hidden")["value"] or []
+    action  = data.get("action")
+    id_     = data.get("id")
+    if action == "add":
+        entry = {"id": id_, "hiddenAt": data.get("hiddenAt")}
+        if all(h["id"] != id_ for h in state):
+            state.append(entry)
+    elif action == "remove":
+        state = [h for h in state if h["id"] != id_]
+    else:
+        abort(400, description="Invalid action")
+    server_time = _save_state("hidden", state)
+    return jsonify({"serverTime": server_time}), 200
 
+@app.route("/user-state/starred/delta", methods=["POST"])
+def starred_delta():
+    data    = request.get_json(force=True)
+    state   = _load_state("starred")["value"] or []
+    action  = data.get("action")
+    id_     = data.get("id")
+    if action == "add":
+        entry = {"id": id_, "starredAt": data.get("starredAt")}
+        if all(s["id"] != id_ for s in state):
+            state.append(entry)
+    elif action == "remove":
+        state = [s for s in state if s["id"] != id_]
+    else:
+        abort(400, description="Invalid action")
+    server_time = _save_state("starred", state)
+    return jsonify({"serverTime": server_time}), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000)

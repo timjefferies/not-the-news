@@ -1,5 +1,5 @@
 // functions.js
-import { dbPromise, bufferedChanges } from "./database.js";
+import { dbPromise } from "./database.js";
 
 /**
  * Smooth-scroll back to top.
@@ -92,8 +92,16 @@ export async function toggleStar(state, link) {
   if (typeof state.updateCounts === 'function') {
     state.updateCounts();
   }
-  // buffer this mutation for pushUserState()
-  bufferedChanges.push({ key: 'starred', value: state.starred });
+  // fire off single‐item delta for starred
+  await fetch("/user-state/starred/delta", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({
+        id: link,
+        action: idx === -1 ? "add" : "remove",
+        starredAt: idx === -1 ? new Date().toISOString() : undefined
+      })
+    });
 }
 
 /**
@@ -146,8 +154,16 @@ export async function toggleHidden(state, link) {
       value: state.hidden
     });
   }
-  // buffer this mutation for pushUserState()
-  bufferedChanges.push({ key: 'hidden', value: state.hidden });
+  // fire off single‐item delta for hidden
+  await fetch("/user-state/hidden/delta", {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({
+      id: link,
+      action: idx === -1 ? "add" : "remove",
+      hiddenAt: idx === -1 ? new Date().toISOString() : undefined
+    })
+  });
 }
 
 /**
