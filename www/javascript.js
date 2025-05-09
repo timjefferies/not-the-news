@@ -1,4 +1,4 @@
-import { dbPromise, performSync, performFullSync, pullUserState } from "./js/database.js";
+import { dbPromise, bufferedChanges, pushUserState, performSync, performFullSync, pullUserState } from "./js/database.js";
 import {
   scrollToTop, attachScrollToTopHandler, formatDate,
   isStarred, toggleStar,
@@ -35,6 +35,8 @@ window.rssApp = () => {
 
     async init() {
       this.loading = true; //loading screen
+            // ensure serverTime always exists
+      let serverTime = 0;
       try {
         // 1) Apply theme & sync, then load persisted state
         this.syncEnabled = await loadSyncEnabled();
@@ -53,18 +55,22 @@ window.rssApp = () => {
         const count = await db.transaction('items', 'readonly').objectStore('items').count();
         let serverTime;
         if (count === 0) {
-          // seed your migrated user state
-          bufferedChanges.push({ key: 'hidden',  value: this.hidden  });
-          bufferedChanges.push({ key: 'starred', value: this.starred });
-          bufferedChanges.push({ key: 'settings', value: { filterMode: this.filterMode } });
-          // first run: full feed + user‐state
-          const { feedTime } = await performFullSync();
-          serverTime = feedTime;
+	 // seed your migrated user state
+      bufferedChanges.push({ key: 'hidden',  value: this.hidden  });
+      bufferedChanges.push({ key: 'starred', value: this.starred });
+      bufferedChanges.push({ key: 'settings', value: { filterMode: this.filterMode } });
+      // push those up *before* any pull
+      await pushUserState(db);
+      // now a true full‑sync (feed + state)
+      const { feedTime } = await performFullSync();
+      serverTime = feedTime;
         } else {
           // subsequent runs: partial feed‐diff + user‐state delta pull
           serverTime = await performSync();
           await pullUserState(db);
         }
+	this.hidden  = await loadHidden();
+	this.starred = await loadStarred();
         // 2) load raw items, map & attach a numeric timestamp
         const rawList = await db.transaction('items', 'readonly')
           .objectStore('items')
@@ -109,7 +115,6 @@ window.rssApp = () => {
         this.entries = mapped;
         // restore previous scroll position once entries are rendered
         initScrollPos(this);
-        this.hidden = await pruneStaleHidden(this.entries, serverTime);
         this.updateCounts();
         setInterval(async () => {
           // don’t sync while in settings or if disabled
@@ -117,6 +122,7 @@ window.rssApp = () => {
           try {
             await performSync();
             await pullUserState(await dbPromise);
+        	this.hidden = await pruneStaleHidden(this.entries, serverTime);
           } catch (err) {
             console.error("Partial sync failed", err);
           }

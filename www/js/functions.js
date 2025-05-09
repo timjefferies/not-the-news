@@ -297,24 +297,17 @@ export function shuffleFeed(state) {
  * @returns {{id: string, hiddenAt: string}[]}
  */
 export async function loadHidden() {
-  // load hidden list from IDB
-  const db = await dbPromise;
-  const entry = await db.transaction("userState", "readonly")
-    .objectStore("userState")
-    .get("hidden");
-  // Parse and coerce into an array, even if malformed or missing
+  const db    = await dbPromise;
+  const entry = await db.transaction('userState','readonly')
+    .objectStore('userState').get('hidden');
   let raw = [];
+
   if (entry && entry.value != null) {
-    // entry.value may be JSON or an array
-    if (typeof entry.value === 'string') {
-      try {
-        raw = JSON.parse(entry.value);
-      } catch (e) {
-        console.warn('loadHidden: invalid JSON in entry.value', entry.value);
-        raw = [];
-      }
-    } else if (Array.isArray(entry.value)) {
-      raw = entry.value;
+    try {
+      raw = JSON.parse(entry.value);
+    } catch {
+      console.warn('loadHidden: invalid JSON in entry.value', entry.value);
+      raw = [];
     }
   }
   if (!Array.isArray(raw)) {
