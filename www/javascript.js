@@ -111,7 +111,7 @@ window.rssApp = () => {
     // Modified getter
     get filteredEntries() {
       // Include entries.length in the hash to detect initial load
-      const currentHash = `${this.entries.length}-${this.filterMode}-${this.hidden.length}-${this.starred.length}`;
+      const currentHash = `${this.entries.length}-${this.filterMode}-${this.hidden.length}-${this.starred.length}-${this.imagesEnabled}`;
 
       // Return cached value only if we have entries and hash matches
       if (this.entries.length > 0 &&
