@@ -1,5 +1,6 @@
 // www/js/database.js
-import { openDB } from 'idb';
+import { openDB } from "../../libs/idb.js";
+window.openDB = openDB;
 export const bufferedChanges = [];
 
 // Initialize IndexedDB with 'items' and 'meta' stores

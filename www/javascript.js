@@ -1,10 +1,10 @@
+import { dbPromise, performFullSync, pullUserState } from "./js/database.js";
 import { scrollToTop, attachScrollToTopHandler, formatDate,
           isStarred, toggleStar,
           setFilter, updateCounts, pruneStaleHidden,
           shuffleFeed as handleShuffleFeed,
           loadHidden, loadStarred, loadFilterMode, isHidden, toggleHidden } from "./js/functions.js";
 import { initSync, initTheme, initImages, initScrollPos, initConfigComponent,loadSyncEnabled, loadImagesEnabled } from "./js/settings.js";
-import { dbPromise, performFullSync } from "./js/database.js";
 
 window.rssApp = () => {
   return {
