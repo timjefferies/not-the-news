@@ -45,6 +45,11 @@ export function initSync(app) {
     tx.objectStore('userState').put({ key: 'syncEnabled', value: app.syncEnabled });
     await tx.done;
     syncText.textContent = app.syncEnabled ? 'yes' : 'no';
+    // ─── when they turn AutoSync ON, fire off a full sync + reload ───
+    if (app.syncEnabled) {
+      console.log("AutoSync enabled – kicking off full feed sync");
+      app.init();  // re‑runs your entire init (pullUserState, performFullSync, load items, etc)
+    }
   });
 }
 
