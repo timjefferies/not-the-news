@@ -148,11 +148,6 @@ export async function toggleHidden(state, link) {
   await tx.done;
   if (typeof state.updateCounts === 'function') {
     state.updateCounts();
-    // buffer this mutation for pushUserState(), store raw array
-    bufferedChanges.push({
-      key: 'hidden',
-      value: state.hidden
-    });
   }
   // fire off single‐item delta for hidden
   await fetch("/user-state/hidden/delta", {

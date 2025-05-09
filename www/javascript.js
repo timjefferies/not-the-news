@@ -53,6 +53,10 @@ window.rssApp = () => {
         const count = await db.transaction('items', 'readonly').objectStore('items').count();
         let serverTime;
         if (count === 0) {
+          // seed your migrated user state
+          bufferedChanges.push({ key: 'hidden',  value: this.hidden  });
+          bufferedChanges.push({ key: 'starred', value: this.starred });
+          bufferedChanges.push({ key: 'settings', value: { filterMode: this.filterMode } });
           // first run: full feed + user‐state
           const { feedTime } = await performFullSync();
           serverTime = feedTime;
