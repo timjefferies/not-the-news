@@ -202,7 +202,7 @@ def clean_feed(input_file: str, output_file: str):
     fg.link(href=feed_link, rel="alternate")
     fg.id(feed_link)
     fg.description(feed.feed.get("description", ""))
-    fg.language(feed.feed.get(language', 'en'))
+    fg.language(feed.feed.get('language', 'en'))
     fg.generator('python-feedgen-cleaner')
 
     for entry in cleaned_entries:
