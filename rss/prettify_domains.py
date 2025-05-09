@@ -37,19 +37,18 @@ def _split_segment(text: str, max_len: int = 60) -> List[str]:
     return [left] + _split_segment(right, max_len)
 
 
-def wrap_title(title: str, max_len: int = 60) -> str:
+def wrap_title(entry: dict, max_len: int = 60) -> str:
     """
     Split `title` into logical chunks ≤ max_len characters,
     then wrap the first chunk in <h1> and the rest in <h2>.
     """
-    parts = _split_segment(title, max_len)
+    title = entry.get("title", "")
+    link = entry.get("link", "#")
+    parts = title.split(" — ")
+
     return "".join(
-        (
-            f'<h1><a href="{entry.link}" target="_blank">{parts[0]}</a></h1>'
-            if i == 0
-            else f"<h2>{part}</h2>"
-        )
-        for i, part in enumerate(parts)
+        [f'<h1><a href="{link}" target="_blank">{parts[0]}</a></h1>']
+        + [f"<h2>{part}</h2>" for part in parts[1:]]
     )
 
 
@@ -129,7 +128,7 @@ def prettify_domains(entry):
     # Global post-processing: images
     entry = prettify_images(entry)
     # Wrap crazy long titles
-    new_title = wrap_title(entry.get("title"), max_len=60)
+    new_title = wrap_title(entry, max_len=60)
     entry["title"] = new_title
 
     """
