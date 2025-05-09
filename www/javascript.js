@@ -1,4 +1,4 @@
-import { dbPromise, performFullSync, pullUserState } from "./js/database.js";
+import { dbPromise, performSync, performFullSync, pullUserState } from "./js/database.js";
 import { scrollToTop, attachScrollToTopHandler, formatDate,
           isStarred, toggleStar,
           setFilter, updateCounts, pruneStaleHidden,
@@ -56,6 +56,8 @@ window.rssApp = () => {
         const rawList = await db.transaction('items', 'readonly')
                                  .objectStore('items')
                                  .getAll();
+	// sort feed items chronologically (newest first)
+	rawList.sort((a, b) => Date.parse(b.pubDate) - Date.parse(a.pubDate));
         // 3) transform each item like your old loadFeed did
         const mapped = rawList.map(item => {
           const raw = item.desc || '';

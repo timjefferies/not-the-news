@@ -333,5 +333,5 @@ export async function loadFilterMode() {
   const entry = await db.transaction('userState','readonly')
                        .objectStore('userState')
                        .get('filterMode');
-  return entry?.value ?? 'all';
+  return entry?.value ?? 'unread';
 }
