@@ -160,22 +160,22 @@ def get_user_state():
 @app.route("/user-state", methods=["POST"])
 def post_user_state():
     """Accept client‐side mutations and bump lastModified."""
-    try:
-        data = request.get_json(force=True)
-        changes = data.get("changes", {})
-        server_time = None
-        for key, val in changes.items():
-            # merge arrays or overwrite settings
-            current = _load_state(key)["value"] or ({} if key == "settings" else [])
-            if isinstance(current, list) and isinstance(val, list):
-                merged = val  # last-writer-wins for simplicity
-            else:
-                merged = val
-            server_time = _save_state(key, merged)
-        return jsonify({"serverTime": server_time}), 200
-    except Exception as e:
-        app.logger.exception("Error in post_user_state")
-        return jsonify({"error": f"{e}"}), 500
+    # parse JSON quietly; reject if missing or malformed
+    data = request.get_json(silent=True)
+    if not data or "changes" not in data or not isinstance(data["changes"], dict):
+        return jsonify({"error": "Invalid or missing JSON body"}), 400
+
+    server_time = None
+    for key, val in data["changes"].items():
+        # merge arrays or overwrite settings
+        current = _load_state(key)["value"] or ({} if key == "settings" else [])
+        if isinstance(current, list) and isinstance(val, list):
+            merged = val
+        else:
+            merged = val
+        server_time = _save_state(key, merged)
+
+    return jsonify({"serverTime": server_time}), 200
 @app.route("/user-state/hidden/delta", methods=["POST"])
 def hidden_delta():
     data    = request.get_json(force=True)

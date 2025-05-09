@@ -118,16 +118,21 @@ export async function pullUserState(db) {
 /** Push local buffered mutations */
 export async function pushUserState(db, buffered = bufferedChanges) {
   if (buffered.length === 0) return;
-  const body = { changes: {} };
-  for (let { key, value } of buffered) {
-    body.changes[key] = value;
+  // build a fresh changes object (only keys & values)
+  const changes = {};
+  for (const { key, value } of buffered) {
+    changes[key] = value;
   }
+  const payload = JSON.stringify({ changes });
   const res = await fetch('/user-state', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    method:  'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept':       'application/json'
+    },
+    body: payload,
   });
-  if (!res.ok) {
+    if (!res.ok) {
     // log the real error payload instead of crashing on res.json()
     const text = await res.text();
     console.error(`pushUserState failed ${res.status}:`, text);
@@ -137,6 +142,7 @@ export async function pushUserState(db, buffered = bufferedChanges) {
   const tx = db.transaction('userState', 'readwrite');
   tx.objectStore('userState').put({ key: 'lastStateSync', value: serverTime });
   await tx.done;
+  bufferedChanges.length = 0;
 }
 
 // Integrate into your sync driver
