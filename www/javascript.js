@@ -30,7 +30,7 @@ function mapRawItems(rawList, formatDate) {
     }
 
     // 3) remaining text
-    const description = doc.body.textContent.trim();
+    const description = doc.body.innerHTML.trim();
 
     // 4) timestamp parse
     const timestamp = Date.parse(item.pubDate) || 0;
@@ -76,7 +76,6 @@ window.rssApp = () => {
     async init() {
       this.loading = true; //loading screen
       let serverTime = 0;
-      // ensure serverTime always exists
       try {
         this.syncEnabled = await loadSyncEnabled();
         this.imagesEnabled = await loadImagesEnabled();
@@ -101,7 +100,7 @@ window.rssApp = () => {
         } else {
           serverTime = Date.now();
         }
-        // 1) load raw items and map/sort via helper
+        // 1) Load items from indexedDB and map/sort via helper
         const rawList = await db.transaction('items', 'readonly').objectStore('items').getAll();
         this.entries = mapRawItems(rawList, this.formatDate);
         this.hidden = await pruneStaleHidden(this.entries, serverTime);
@@ -136,13 +135,12 @@ window.rssApp = () => {
         document.addEventListener("visibilitychange", resetActivity, true);
         window.addEventListener("focus", resetActivity, true);
 
-        const SYNC_INTERVAL = 5 * 60 * 1000;  // 5 min
-        const IDLE_THRESHOLD = 60 * 1000;      // 1 min of no activity → skip
+        const SYNC_INTERVAL = 5 * 60 * 1000;  // 5 min default sync cycle
+        const IDLE_THRESHOLD = 60 * 1000;      // 1 min of no activity → skip sync
 
         setInterval(async () => {
           const now = Date.now();
-          // if settings open, sync off, page hidden, or idle → bail
-          if (
+          if ( // if settings open, sync off, page hidden, or idle → bail
             this.openSettings ||
             !this.syncEnabled ||
             document.hidden ||
