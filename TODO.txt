@@ -1,29 +1,27 @@
 # TODO
 - add a password setting and screen, to block bots and scrapers.
-- implement redis cache
-- fix the wrong url on reddit titles
-- fix desktop style
-- fix missing paragraphs from reddit titles
+- fix missing paragraphs from descriptions
+- fix the wrong url on reddit/wired titles
+- fix desktop styling
+- fix settings screen, set the autosync toggle to partial sync and add a force sync button.
 
 # LATER
-- migrate from localstorage to indexedDB
-- implement a hidden status bar and flash a toast message if something went wrong saving the state, or when syncing
+- implement a hidden pop up bar and flash a toast message if something went wrong saving the state, or when syncing/internet disconnected.
 - rework styles.css and turn all the sizing into relative variables.
 - make the python and js files read only, and run caddy as none root
-
-- write a function in js to download the entire list, re-combine them save offline to localstorage and display. The idea is all the xml files will be cached in localstorage except the newest one, so less data is used when syncing. Also enables offline reading.
 - turn app into a PWA app
+- Add a custom theme styling box in the settings.
 
+- Feature: Shuffle mode. The app only shows 10 items at a time. If you don't like the items you have two choices:
 
-- Feature that the app only shows 10 items at a time. If you don't like the items you have two choices:
+    1. Close off all the items, which loads ten new items
+    2. Press the shuffle button. Each day the shuffle counter resets and you start the day with 1 shuffle.
+    
+    In order to earn more shuffles, you do so by closing off ten items. Every ten items closed equals an extra shuffle.
 
-1. Close off all the items, which loads ten new items
-2. Press the shuffle button. Each day the shuffle counter resets and you start the day with 1 shuffle.
-In order to earn more shuffles, you do so by closing off ten items. Every ten items closed equals an extra shuffle.
+    The idea of this feature is to encourage reading and discourage doom scrolling.
 
-The idea of this feature is to encourage reading and discourage doom scrolling.
-
-If you are receiving a deck of items that are consistently bad, that means you either need a better list of source feeds, or that you need to better populate the keyword blacklist.
+    If you are receiving a deck of items that are consistently bad, that means you either need a better list of source feeds, or that you need to better populate the keyword blacklist.
 
 - Keyword whitelist. 
 This is a list of keywords that override your blacklist. This feature can be used to ensure that if you do need to catch current or timely events that you have a way to do so.
