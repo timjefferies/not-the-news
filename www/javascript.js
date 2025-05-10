@@ -8,6 +8,46 @@ import {
 } from "./js/functions.js";
 import { initSync, initTheme, initImages, initScrollPos, initConfigComponent, loadSyncEnabled, loadImagesEnabled } from "./js/settings.js";
 
+function mapRawItems(rawList, formatDate) {
+  return rawList.map(item => {
+    const raw = item.desc || "";
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(raw, "text/html");
+
+    // 1) extract first image
+    const imgElem = doc.querySelector("img");
+    const imageUrl = imgElem ? imgElem.src : "";
+    if (imgElem) imgElem.remove();
+
+    // 2) extract first .source-url or <a>
+    let sourceUrl = "";
+    const sourceElem = doc.querySelector(".source-url") || doc.querySelector("a");
+    if (sourceElem) {
+      sourceUrl = sourceElem.textContent.trim();
+      sourceElem.remove();
+    } else {
+      sourceUrl = item.link ? new URL(item.link).hostname : "";
+    }
+
+    // 3) remaining text
+    const description = doc.body.textContent.trim();
+
+    // 4) timestamp parse
+    const timestamp = Date.parse(item.pubDate) || 0;
+
+    return {
+      id: item.guid,
+      image: imageUrl,
+      title: item.title,
+      link: item.link,
+      pubDate: formatDate(item.pubDate || ""),
+      description,
+      source: sourceUrl,
+      timestamp,
+    };
+  }).sort((a, b) => b.timestamp - a.timestamp);
+}
+
 window.rssApp = () => {
   return {
     openSettings: false, // Controls visibility of the settings modal
@@ -38,19 +78,18 @@ window.rssApp = () => {
       // ensure serverTime always exists
       let serverTime = 0;
       try {
-        // 1) Apply theme & sync, then load persisted state
         this.syncEnabled = await loadSyncEnabled();
         this.imagesEnabled = await loadImagesEnabled();
         initTheme();
         initSync(this);
         initImages(this);
         initConfigComponent(this);
-        // 2) Load user‑state from IndexedDB
+        // Load user‑state from IndexedDB
         this.hidden = await loadHidden();
         this.starred = await loadStarred();
         this.filterMode = await loadFilterMode();
 
-        // 0) Sync: full only on empty DB, otherwise feed‐diff + user‐state pull
+        // 0) Full Sync On empty DB
         const db = await dbPromise;
         const count = await db.transaction('items', 'readonly').objectStore('items').count();
         let serverTime;
@@ -63,64 +102,21 @@ window.rssApp = () => {
         }
         this.hidden = await loadHidden();
         this.starred = await loadStarred();
-        // 2) load raw items, map & attach a numeric timestamp
-        const rawList = await db.transaction('items', 'readonly')
-          .objectStore('items')
-          .getAll();
-        const mapped = rawList.map(item => {
-          const raw = item.desc || '';
-          // parse the HTML snippet properly
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(raw, 'text/html');
-          // 1) extract and remove the first <img>
-          const imgElem = doc.querySelector('img');
-          const imageUrl = imgElem ? imgElem.src : '';
-          if (imgElem) imgElem.remove();
-          // 2) extract and remove the first .source-url span or <a>
-          let sourceUrl = '';
-          const sourceElem = doc.querySelector('.source-url') || doc.querySelector('a');
-          if (sourceElem) {
-            sourceUrl = sourceElem.textContent.trim();
-            sourceElem.remove();
-          } else {
-            sourceUrl = item.link ? new URL(item.link).hostname : '';
-          }
-          // 3) whatever remains is your clean text
-          const descText = doc.body.textContent.trim();
-          // 4) parse timestamp
-          const timestamp = Date.parse(item.pubDate) || 0;
-          return {
-            id: item.guid,
-            image: imageUrl,
-            title: item.title,
-            link: item.link,
-            pubDate: this.formatDate(item.pubDate || ''),
-            description: descText,
-            source: sourceUrl,
-            timestamp,  // preserve for sorting
-          };
-        });
-        // 3) sort mapped entries by timestamp descending (newest first)
-        mapped.sort((a, b) => b.timestamp - a.timestamp);
-
-        // 4) assign your sorted feed
-        this.entries = mapped;
-        // restore previous scroll position once entries are rendered
-        initScrollPos(this);
-        this.updateCounts();
-
+        // 1) load raw items and map/sort via helper
+        const rawList = await db.transaction('items', 'readonly').objectStore('items').getAll();
+        this.entries = mapRawItems(rawList, this.formatDate);
+        initScrollPos(this); // restore previous scroll position once entries are rendered
+        this.updateCounts(); // update dropdown
         this.loading = false;
-        // 3) kick off one‑off background partial sync
+        // 2) kick off one‑off background partial sync
         if (this.syncEnabled) {
           setTimeout(async () => {
             try {
-              const newServerTime = await performSync();
+              await performSync();
               await pullUserState(await dbPromise);
-              // re‑load & re‑render the updated items
+              // re‑load & re‑render using helper
               const freshRaw = await db.transaction('items', 'readonly').objectStore('items').getAll();
-              const freshMapped = freshRaw.map(/* same mapping logic */);
-              freshMapped.sort((a, b) => b.timestamp - a.timestamp);
-              this.entries = freshMapped;
+              this.entries = mapRawItems(freshRaw, this.formatDate);
               this.updateCounts();
             } catch (err) {
               console.error('Background partial sync failed', err);
