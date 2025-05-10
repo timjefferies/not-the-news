@@ -1,28 +1,55 @@
 ![image](screenshot.jpg)
 
 # not-the-news
-Browser based single page scroll rss reader with keyword filtering.
+The premise of Not The News is simple: Stop wasting time.
+Wasting time on casual browsing, wasting time on algorithms and video reels that you can't control. Wasting time on ads.
+
+The fact is that social media is not good for your health, your productivity, or your overall life.
+
+Not The News aims to be a solution to this. It's the itch for myself I had to scratch. (Maybe you need it too).
+
+Not The News is at it's core a browser based single page scroll rss reader with keyword filtering.
 Multiple rss feeds are regularly aggregated into a single scrollable feed, rss items that flag up with filtered keywords are removed.
 
-Features:
+But the idea is to keep things minimal, and to _focus_ you. So that you can get on with life, preferably away from the internet.
+So with that in mind the app has no folders, and manages everything automagically without your input. You just read and go.
+
+You add the rss feeds that you want, and then use the app. 
+If the feed is overwhelming, then add more filtering keywords, or reduce the feeds you use.
+It's about balance. And simplicity. While still feeling personal.
+
+If you want the latest news updates using this app, you can. But I encourage you to think differently about how you consume information. Not The News is the tool to help with that.
+
+Current Features:
 - Keyword filtering - only see the information you want to see.
 - Night/Day mode
 - Auto reload in the background when new rss items are available
-- Automatic cross browser/device syncing
+- Automatic cross browser/device syncing with low data usage
 - Feed filter modes (Unread/Starred/Hidden/All)
+- Starred items are saved items
 
-# configuration
+# Requirements
+Not The News currently requires:
+- A vps/server that can run docker
+- A web domain (yourdomain.com) that points to the server that runs docker
 
-edit and rename the config examples in
+# Configuration
+Clone the repo:
+```git clone https://github.com/timjefferies/not-the-news.git```
+
+For the first run. Edit and rename the config examples in
 www/config/
 - feeds.txt
 - filter_keywords.txt
 
-# running it
+Once the app is running you can use the settings cog icon in the top right, to configure everything.
 
-# Build and run the container
-./build.sh -d yourdomain.com -e admin@youremail.com
+# Running it
+## Build and run the container
+```./build.sh -d yourdomain.com -e admin@youremail.com```
 
-# Optional - set up a cron to backup the data every 12 hours
+## Optional - set up a cron to backup the data every 12 hours
 
-sudo echo "0 */12 * * * cd <FOLDER WHERE NOT-THE-NEWS IS LOCATED> && sh backup.sh" >> /var/spool/cron/crontabs/root
+By default all the data is stored inside a docker container volume. This cron command will backup every 12 hours to a local folder, so that you can save your app usage (in case your server fails).
+
+```sudo echo "0 */12 * * * cd <FOLDER WHERE NOT-THE-NEWS IS LOCATED> && sh backup.sh" >> /var/spool/cron/crontabs/root```
