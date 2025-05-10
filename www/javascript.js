@@ -35,7 +35,7 @@ window.rssApp = () => {
 
     async init() {
       this.loading = true; //loading screen
-            // ensure serverTime always exists
+      // ensure serverTime always exists
       let serverTime = 0;
       try {
         // 1) Apply theme & sync, then load persisted state
@@ -53,18 +53,16 @@ window.rssApp = () => {
         // 0) Sync: full only on empty DB, otherwise feed‐diff + user‐state pull
         const db = await dbPromise;
         const count = await db.transaction('items', 'readonly').objectStore('items').count();
-	let serverTime;
+        let serverTime;
         if (count === 0) {
           // first run: full feed+user‑state pull from server
           const { feedTime } = await performFullSync();
           serverTime = feedTime;
         } else {
-          // subsequent runs: diff‑sync + delta‑pull
-          serverTime = await performSync();
-          await pullUserState(db);
+          serverTime = Date.now();
         }
-	   this.hidden  = await loadHidden();
-	this.starred = await loadStarred();
+        this.hidden = await loadHidden();
+        this.starred = await loadStarred();
         // 2) load raw items, map & attach a numeric timestamp
         const rawList = await db.transaction('items', 'readonly')
           .objectStore('items')
@@ -116,7 +114,7 @@ window.rssApp = () => {
           try {
             await performSync();
             await pullUserState(await dbPromise);
-        	this.hidden = await pruneStaleHidden(this.entries, serverTime);
+            this.hidden = await pruneStaleHidden(this.entries, serverTime);
           } catch (err) {
             console.error("Partial sync failed", err);
           }
