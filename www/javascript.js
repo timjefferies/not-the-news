@@ -108,6 +108,25 @@ window.rssApp = () => {
         // restore previous scroll position once entries are rendered
         initScrollPos(this);
         this.updateCounts();
+
+        this.loading = false;
+        // 3) kick off one‑off background partial sync
+        if (this.syncEnabled) {
+          setTimeout(async () => {
+            try {
+              const newServerTime = await performSync();
+              await pullUserState(await dbPromise);
+              // re‑load & re‑render the updated items
+              const freshRaw = await db.transaction('items', 'readonly').objectStore('items').getAll();
+              const freshMapped = freshRaw.map(/* same mapping logic */);
+              freshMapped.sort((a, b) => b.timestamp - a.timestamp);
+              this.entries = freshMapped;
+              this.updateCounts();
+            } catch (err) {
+              console.error('Background partial sync failed', err);
+            }
+          }, 0);
+        }
         setInterval(async () => {
           // don’t sync while in settings or if disabled
           if (this.openSettings || !this.syncEnabled) return;
