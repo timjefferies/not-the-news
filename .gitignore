@@ -8,4 +8,5 @@ data/feed/*
 www/feed.xml
 backup
 __pycache__
+*.pyc
 
