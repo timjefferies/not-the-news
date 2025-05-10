@@ -75,8 +75,8 @@ window.rssApp = () => {
 
     async init() {
       this.loading = true; //loading screen
-      // ensure serverTime always exists
       let serverTime = 0;
+      // ensure serverTime always exists
       try {
         this.syncEnabled = await loadSyncEnabled();
         this.imagesEnabled = await loadImagesEnabled();
@@ -92,19 +92,19 @@ window.rssApp = () => {
         // 0) Full Sync On empty DB
         const db = await dbPromise;
         const count = await db.transaction('items', 'readonly').objectStore('items').count();
-        let serverTime;
         if (count === 0) {
           // first run: full feed+user‑state pull from server
           const { feedTime } = await performFullSync();
           serverTime = feedTime;
+          this.hidden  = await loadHidden();
+          this.starred = await loadStarred();
         } else {
           serverTime = Date.now();
         }
-        this.hidden = await loadHidden();
-        this.starred = await loadStarred();
         // 1) load raw items and map/sort via helper
         const rawList = await db.transaction('items', 'readonly').objectStore('items').getAll();
         this.entries = mapRawItems(rawList, this.formatDate);
+        this.hidden = await pruneStaleHidden(this.entries, serverTime);
         initScrollPos(this); // restore previous scroll position once entries are rendered
         this.updateCounts(); // update dropdown
         this.loading = false;
@@ -114,35 +114,56 @@ window.rssApp = () => {
             try {
               await performSync();
               await pullUserState(await dbPromise);
+              this.hidden = await loadHidden();
+              this.starred = await loadStarred();
               // re‑load & re‑render using helper
               const freshRaw = await db.transaction('items', 'readonly').objectStore('items').getAll();
               this.entries = mapRawItems(freshRaw, this.formatDate);
+              this.hidden = await pruneStaleHidden(this.entries, Date.now());
               this.updateCounts();
             } catch (err) {
               console.error('Background partial sync failed', err);
             }
           }, 0);
         }
+        this._attachScrollToTopHandler();
+        // ─── user activity / idle detection ───────────────────────────
+        let lastActivity = Date.now();
+        const resetActivity = () => { lastActivity = Date.now(); };
+        // listen for any “activity” events
+        ["mousemove", "mousedown", "keydown", "scroll", "click"]
+          .forEach(evt => document.addEventListener(evt, resetActivity, true));
+        document.addEventListener("visibilitychange", resetActivity, true);
+        window.addEventListener("focus", resetActivity, true);
+
+        const SYNC_INTERVAL = 5 * 60 * 1000;  // 5 min
+        const IDLE_THRESHOLD = 60 * 1000;      // 1 min of no activity → skip
+
         setInterval(async () => {
-          // don’t sync while in settings or if disabled
-          if (this.openSettings || !this.syncEnabled) return;
+          const now = Date.now();
+          // if settings open, sync off, page hidden, or idle → bail
+          if (
+            this.openSettings ||
+            !this.syncEnabled ||
+            document.hidden ||
+            (now - lastActivity) > IDLE_THRESHOLD
+          ) {
+            return;
+          }
           try {
             await performSync();
             await pullUserState(await dbPromise);
-            this.hidden = await pruneStaleHidden(this.entries, serverTime);
+            this.hidden = await pruneStaleHidden(this.entries, now);
           } catch (err) {
             console.error("Partial sync failed", err);
           }
-        }, 5 * 60 * 1000);
-        this._attachScrollToTopHandler();
+        }, SYNC_INTERVAL);
       } catch (err) {
         console.error("loadFeed failed", err);
         this.errorMessage = "Could not load feed.";
       } finally {
-        this.loading = false;
+      // nothing left to do here
       }
-      this._attachScrollToTopHandler();
-      this.hidden = await pruneStaleHidden(this.entries, serverTime)
     },
     isHidden(link) { return isHidden(this, link); },
     toggleHidden(link) { return toggleHidden(this, link); },
