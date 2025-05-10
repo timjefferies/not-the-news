@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Prata&display=swap');
+/*@import url('https://fonts.googleapis.com/css2?family=Prata&display=swap');*/
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap');
 
 /* Tell browser we support both light & dark */
 html {
@@ -216,7 +217,7 @@ p { line-height: 1.6 !important; }
 h1 { line-height: 1.4; font-size: 1.3em; font-weight: lighter; }
 
 h2, h3 {
-  font-family: 'Prata', serif;
+  font-family: 'Playfair Display', serif;
   font-weight: 100;
   color: var(--fg);
   line-height: 1.4;
@@ -236,7 +237,8 @@ a:hover { color: var(--primary); }
   justify-content: space-between;
   padding: 1rem 1rem;
   background-color: transparent;
-  font-family: 'Prata', serif;
+  font-family: 'Playfair Display', serif;
+  font-weight: 400;
   text-transform: uppercase;
   text-align: center;
   color: darkgray;
@@ -344,7 +346,8 @@ select#filter-selector option:hover {
   border-radius: 40px 40px 0 0;
   padding: 0.75em 3.5rem 0.2em 1.2em;
   border-bottom: 1px solid var(--card-border);
-  font-family: 'Prata', serif;
+  font-family: 'Playfair Display', serif;
+  font-weight: 400;
   text-transform:capitalize;
   min-height: calc(1.4em * 2);
   background: linear-gradient(360deg, var(--bg) 0%, transparent);
@@ -359,7 +362,7 @@ select#filter-selector option:hover {
 .itemtitle h2:hover { color: var(--primary); }
 .source-url { display:none; }
 #loading-screen {
-  font-family: 'Prata', serif;
+  font-family: 'Playfair Display', serif;
   position: fixed;
   top: 0;
   left: 0;
