@@ -2,23 +2,43 @@
 
 # not-the-news
 The premise of Not The News is simple: Stop wasting time.
+
 Wasting time on casual browsing, wasting time on algorithms and video reels that you can't control. Wasting time on ads.
+
 
 The fact is that social media is not good for your health, your productivity, or your overall life.
 
+
 Not The News aims to be a solution to this. It's the itch for myself I had to scratch. (Maybe you need it too).
+
 
 Not The News is at it's core a browser based single page scroll rss reader with keyword filtering.
 Multiple rss feeds are regularly aggregated into a single scrollable feed, rss items that flag up with filtered keywords are removed.
 
+
 But the idea is to keep things minimal, and to _focus_ you. So that you can get on with life, preferably away from the internet.
-So with that in mind the app has no folders, and manages everything automagically without your input. You just read and go.
+
+
+So, when you read an item and then close it. It stays closed and hidden. And you never see it again (unless you look for it under the hidden drop down, or star it to save it permanently). 
+
+
+The app has no folders, and manages everything automagically without your input. 
+
+
+You just read and go. No distractions. No confusion. No ulterior motives.
 
 You add the rss feeds that you want, and then use the app. 
+
 If the feed is overwhelming, then add more filtering keywords, or reduce the feeds you use.
+
 It's about balance. And simplicity. While still feeling personal.
 
+
+Your own personal algorithm. For you.
+
+
 If you want the latest news updates using this app, you can. But I encourage you to think differently about how you consume information. Not The News is the tool to help with that.
+
 
 Current Features:
 - Keyword filtering - only see the information you want to see.
