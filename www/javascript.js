@@ -1,52 +1,13 @@
-import { dbPromise, bufferedChanges, pushUserState, performSync, performFullSync, pullUserState } from "./js/database.js";
+import { dbPromise, bufferedChanges, pushUserState, performSync, performFullSync, pullUserState,
+  isStarred, toggleStar, isHidden, toggleHidden, loadHidden, loadStarred, pruneStaleHidden
+ } from "./js/database.js";
 import {
   scrollToTop, attachScrollToTopHandler, formatDate,
-  isStarred, toggleStar,
-  setFilter, updateCounts, pruneStaleHidden,
-  shuffleFeed as handleShuffleFeed,
-  loadHidden, loadStarred, loadFilterMode, isHidden, toggleHidden
+  setFilter, updateCounts, loadFilterMode,
+  shuffleFeed as handleShuffleFeed, mapRawItems
 } from "./js/functions.js";
 import { initSync, initTheme, initImages, initScrollPos, initConfigComponent, loadSyncEnabled, loadImagesEnabled } from "./js/settings.js";
 
-function mapRawItems(rawList, formatDate) {
-  return rawList.map(item => {
-    const raw = item.desc || "";
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(raw, "text/html");
-
-    // 1) extract first image
-    const imgElem = doc.querySelector("img");
-    const imageUrl = imgElem ? imgElem.src : "";
-    if (imgElem) imgElem.remove();
-
-    // 2) extract first .source-url or <a>
-    let sourceUrl = "";
-    const sourceElem = doc.querySelector(".source-url") || doc.querySelector("a");
-    if (sourceElem) {
-      sourceUrl = sourceElem.textContent.trim();
-      sourceElem.remove();
-    } else {
-      sourceUrl = item.link ? new URL(item.link).hostname : "";
-    }
-
-    // 3) remaining text
-    const description = doc.body.innerHTML.trim();
-
-    // 4) timestamp parse
-    const timestamp = Date.parse(item.pubDate) || 0;
-
-    return {
-      id: item.guid,
-      image: imageUrl,
-      title: item.title,
-      link: item.link,
-      pubDate: formatDate(item.pubDate || ""),
-      description,
-      source: sourceUrl,
-      timestamp,
-    };
-  }).sort((a, b) => b.timestamp - a.timestamp);
-}
 
 window.rssApp = () => {
   return {

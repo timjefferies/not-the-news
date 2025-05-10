@@ -125,14 +125,14 @@ export async function pushUserState(db, buffered = bufferedChanges) {
   }
   const payload = JSON.stringify({ changes });
   const res = await fetch('/user-state', {
-    method:  'POST',
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Accept':       'application/json'
+      'Accept': 'application/json'
     },
     body: payload,
   });
-    if (!res.ok) {
+  if (!res.ok) {
     // log the real error payload instead of crashing on res.json()
     const text = await res.text();
     console.error(`pushUserState failed ${res.status}:`, text);
@@ -152,4 +152,214 @@ export async function performFullSync() {
   const stateTime = await pullUserState(db);
   await pushUserState(db);
   return { feedTime, stateTime };
+}
+
+
+// -------- STARRED support --------
+/**
+ * @param {Object} state  The Alpine component `this`
+ * @param {string} link
+ * @returns {boolean}
+ */
+export function isStarred(state, link) {
+  return state.starred.some(entry => entry.id === link);
+}
+
+/**
+ * Toggle starred/unstarred for a given link, persist immediately
+ */
+export async function toggleStar(state, link) {
+  const idx = state.starred.findIndex(entry => entry.id === link);
+  if (idx === -1) {
+    state.starred.push({ id: link, starredAt: new Date().toISOString() });
+  } else {
+    state.starred.splice(idx, 1);
+  }
+  // persist updated starred list to IDB
+  const db = await dbPromise;
+  const tx = db.transaction("userState", "readwrite");
+  tx.objectStore("userState").put({ key: "starred", value: JSON.stringify(state.starred) });
+  await tx.done;
+  // refresh filter counts in header
+  if (typeof state.updateCounts === 'function') {
+    state.updateCounts();
+  }
+  // fire off single‐item delta for starred
+  await fetch("/user-state/starred/delta", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: link,
+      action: idx === -1 ? "add" : "remove",
+      starredAt: idx === -1 ? new Date().toISOString() : undefined
+    })
+  });
+}
+
+
+/**
+ * Check if a given link is in the hidden list.
+ * @param {object} app - The Alpine.js app instance.
+ * @param {string} link - The URL to check.
+ * @returns {boolean}
+ */
+export function isHidden(app, link) {
+  return app.hidden.some(entry => entry.id === link);
+}
+
+/**
+ * Toggle the hidden state of a given link.
+ * Adds it if missing, removes it if present.
+ * @param {object} app - The Alpine.js app instance.
+ * @param {string} link - The URL to toggle.
+ */
+export async function toggleHidden(state, link) {
+  const idx = state.hidden.findIndex(entry => entry.id === link);
+  if (idx === -1) {
+    // add new hidden object
+    state.hidden.push({ id: link, hiddenAt: new Date().toISOString() });
+  } else {
+    // remove it
+    state.hidden.splice(idx, 1);
+  }
+  // persist hidden list to IDB
+  const db = await dbPromise;
+  const tx = db.transaction("userState", "readwrite");
+  tx.objectStore("userState").put({ key: "hidden", value: JSON.stringify(app.hidden) });
+  await tx.done;
+  if (typeof state.updateCounts === 'function') {
+    state.updateCounts();
+  }
+  // fire off single‐item delta for hidden
+  await fetch("/user-state/hidden/delta", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: link,
+      action: idx === -1 ? "add" : "remove",
+      hiddenAt: idx === -1 ? new Date().toISOString() : undefined
+    })
+  });
+}
+
+/**
+ * Load hidden list from indexedDB
+ * @returns {{id: string, hiddenAt: string}[]}
+ */
+export async function loadHidden() {
+  const db = await dbPromise;
+  const entry = await db.transaction('userState', 'readonly')
+    .objectStore('userState').get('hidden');
+  let raw = [];
+
+  if (entry && entry.value != null) {
+    try {
+      raw = JSON.parse(entry.value);
+    } catch {
+      console.warn('loadHidden: invalid JSON in entry.value', entry.value);
+      raw = [];
+    }
+  }
+  if (!Array.isArray(raw)) {
+    console.warn('loadHidden: expected array but got', raw);
+    raw = [];
+  }
+  return raw.map(item =>
+    typeof item === "string"
+      ? { id: item, hiddenAt: new Date().toISOString() }
+      : item
+  );
+}
+
+/**
+ * Load starred list from indexedDB.
+ * @returns {string[]}
+ */
+export async function loadStarred() {
+  // load starred list from IDB
+  const db = await dbPromise;
+  const entry = await db.transaction("userState", "readonly")
+    .objectStore("userState")
+    .get("starred");
+  // Parse and coerce into an array, even if malformed or missing
+  let raw = [];
+  if (entry && entry.value) {
+    try {
+      raw = JSON.parse(entry.value);
+    } catch (e) {
+      console.warn('loadStarred: invalid JSON in entry.value', entry.value);
+      raw = [];
+    }
+  }
+  if (!Array.isArray(raw)) {
+    console.warn('loadStarred: expected array but got', raw);
+    raw = [];
+  }
+  return raw.map(item =>
+    typeof item === "string"
+      ? { id: item, starredAt: new Date().toISOString() }
+      : item
+  );
+}
+
+/**
+ * Remove any IDs from IndexedDB “hidden” that no longer exist in the feed.
+ * @param {Array<{id:string}>} entries  – array of current feed entries
+ * @returns {Promise<{id:string,hiddenAt:string}[]>}  – the pruned hidden list
+ */
+export async function pruneStaleHidden(entries, serverTime) {
+  const db = await dbPromise;
+  const entry = await db.transaction('userState', 'readonly')
+    .objectStore('userState')
+    .get('hidden');
+  // Normalize storedHidden: may be a JSON string or raw array
+  let storedHidden = [];
+  if (entry && entry.value != null) {
+    if (typeof entry.value === 'string') {
+      try {
+        storedHidden = JSON.parse(entry.value);
+      } catch {
+        storedHidden = [];
+      }
+    } else if (Array.isArray(entry.value)) {
+      storedHidden = entry.value;
+    }
+  }
+  // Ensure we have an array
+  if (!Array.isArray(storedHidden)) storedHidden = [];
+  // ─── guard: only prune on a healthy feed ───
+  if (
+    !Array.isArray(entries) ||
+    entries.length === 0 ||
+    // bail if any entry is missing a valid string id
+    !entries.every(e => e && typeof e.id === 'string')
+  ) {
+    return storedHidden;
+  }
+
+  // optionally normalize ids: trim/case‐fold if your guids can shift case or whitespace
+  const validIds = new Set(entries.map(e => e.id.trim().toLowerCase()));
+
+  // threshold = 30 days in milliseconds
+  const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+  const now = serverTime;
+
+  // Keep items that are either still in the feed, or within the 30-day hold window
+  const pruned = storedHidden.filter(item => {
+    const idNorm = String(item.id).trim().toLowerCase();
+    const keepBecauseInFeed = validIds.has(idNorm);
+    if (keepBecauseInFeed) return true;
+
+    // if not in feed, check age
+    const hiddenAt = new Date(item.hiddenAt).getTime();
+    const age = now - hiddenAt;
+    return age < THIRTY_DAYS;
+  });
+  // Only write back if we've actually dropped anything
+  if (pruned.length < storedHidden.length) {
+    const tx = db.transaction('userState', 'readwrite');
+    tx.objectStore('userState').put({ key: 'hidden', value: JSON.stringify(pruned) });
+    await tx.done;
+  }
+  return pruned;
 }

@@ -355,7 +355,7 @@ select#filter-selector option:hover {
   position: relative;
 }
 
-.itemtitle h1, h2 { flex: 1; word-break: break-word; }
+.itemtitle h1, .itemtitle h2 { flex: 1; word-break: break-word; }
 .itemtitle h1 { font-size: x-large !important; }
 .itemtitle h2 { font-size: large !important; }
 .itemtitle h1:hover { color: var(--primary); }
