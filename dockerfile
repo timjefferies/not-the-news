@@ -100,10 +100,12 @@ COPY Caddyfile /etc/caddy/Caddyfile
 # 7.1 Conditional auth configuration
 RUN if [ -n "$CADDY_PASSWORD" ]; then \
     HASH=$(caddy hash-password --plaintext "$CADDY_PASSWORD") && \
-    # Insert basicauth after domain declaration
-    sed -i "/^{$DOMAIN} {/a \    basicauth \/* {\n        user $HASH\n    }" /etc/caddy/Caddyfile && \
+    HASH_ESC=$(echo "$HASH" | sed 's/[\/&]/\\&/g') && \
+    # Insert basicauth after domain declaration (using literal {$DOMAIN})
+    sed -i "/^{\$DOMAIN} {/a \    basicauth \/* {\n        user $HASH_ESC\n    }" /etc/caddy/Caddyfile && \
     # Add cookie config to encode block
-    sed -i "/encode {/a \        cookie {\n            name auth_token\n            lifetime 2160h\n        }" /etc/caddy/Caddyfile; \
+    sed -i "/encode {/a \        cookie {\n            name auth_token\n            lifetime 2160h\n        }" /etc/caddy/Caddyfile && \
+    echo "Caddyfile modified successfully"; \
 fi
 ##############################################################################
 # 8. Declare the data volume & expose ports
