@@ -332,11 +332,11 @@ select#filter-selector option:hover {
   background-color: var(--card-bg);
   box-shadow: 1px 1px 100px 1px var(--card-shadow-color);
   align-content: center;
-  margin-bottom: 1.4em;
   border-radius: 40px;
   display: block;
-  float: right;
+  /* float: right; */
   position: relative;
+  margin: 1.4em auto;
 }
 
 .itemtitle {
