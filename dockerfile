@@ -104,8 +104,8 @@ RUN if [ -n "$CADDY_PASSWORD" ]; then \
     HASH_ESC=$(echo "$HASH" | sed 's/[\/&]/\\&/g') && \
     # Remove AUTH comments and replace placeholder
     sed -i '/# AUTH/s/# AUTH //' /etc/caddy/Caddyfile && \
-    sed -i "s|<HASH_PLACEHOLDER>|$HASH_ESC|" /etc/caddy/Caddyfile
-fi
+    sed -i "s|<HASH_PLACEHOLDER>|$HASH_ESC|" /etc/caddy/Caddyfile \
+    fi
 ##############################################################################
 # 8. Declare the data volume & expose ports
 VOLUME /data
