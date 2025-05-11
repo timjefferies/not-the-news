@@ -1,207 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<!-- fix white flash on reload --><script>let t=localStorage.getItem('theme');document.documentElement.classList.add(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');</script>
+  <!-- fix white flash on reload -->
+  <script>let t = localStorage.getItem('theme'); document.documentElement.classList.add(t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Not The News</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='white'/%3E%3Ctext x='32' y='50' font-size='36' font-family='Arial, sans-serif' font-weight='bold' fill='black' text-anchor='middle' letter-spacing='-2'%3ENTN%3C/text%3E%3C/svg%3E">
+  <link rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='white'/%3E%3Ctext x='32' y='50' font-size='36' font-family='Arial, sans-serif' font-weight='bold' fill='black' text-anchor='middle' letter-spacing='-2'%3ENTN%3C/text%3E%3C/svg%3E">
 
   <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-<div id="app" x-data="rssApp()" x-init="init()">
-  <!-- Loading screen -->
-  <div id="loading-screen" x-show="loading" class="loading-screen">
-    Loading…
-  </div>
+  <div id="app" x-data="rssApp()" x-init="init()">
+    <!-- Loading screen -->
+    <div id="loading-screen" x-show="loading" class="loading-screen">
+      Loading…
+    </div>
 
-  <!-- Header -->
-  <header id="header" x-show="!loading" class="header">
-    <div id="ntn-title"><h2>Not The News</h2></div>
-    <div id="header-options">
-      <!-- feed‐filter dropdown -->
-      <select id="filter-selector"
-              x-model="filterMode"
-              @change="setFilter(filterMode)"
-              class="filter-select">
-        <option value="unread">Unread</option>
-	<option value="starred">Starred</option>
-        <option value="hidden">Hidden</option>
-        <option value="all">All</option>
-      </select>
-    <!-- Shuffle button -->
-    <button id="shuffle-button" @click="shuffleFeed()" class="shuffle-btn" title="Shuffle">
-      <svg
-        class="shuffle-icon"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        width="24"
-        height="24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <polyline points="16 4 20 4 20 8" />
-        <line x1="4" y1="20" x2="20" y2="4" />
-        <polyline points="20 16 20 20 16 20" />
-        <line x1="14" y1="14" x2="20" y2="20" />
-        <line x1="4" y1="4" x2="9" y2="9" />
-      </svg>
-      <span x-text="shuffleCount" class="shuffle-count"></span>
-    </button>
-    <!-- Settings cog opens modal -->
-    <button
-      id="settings-button"
-      @click="openSettings = true"
-      class="settings-btn"
-      aria-label="Settings"
-    >
-  <svg
-    class="gear-icon size-6"
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="1.5"
-  >
-    <path
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"
-    />
-    <path
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-    />
-  </svg>
-</button>
-</div>
-  </header>
-  <!-- Feed items -->
-  <main id="items" x-show="!loading">
-    <!-- Repeat each entry via template so Alpine’s x-for can clone it properly -->
-    <template x-for="entry in filteredEntries" :key="entry.id">
-      <div
-        class="item entry"
-        x-bind:data-link="entry.id"
-        x-transition:leave="transition ease-in duration-200 transform"
-        x-transition:leave-start="opacity-100 translate-x-0"
-        x-transition:leave-end="opacity-0 translate-x-full"
-      >
-        <div class="itemtitle">
-          <button
-            class="close"
-            @click="toggleHidden(entry.id)"
-            :class="{ 'hidden': isHidden(entry.id) }"
-            aria-label="Close"
-          >✕</button>
-	  <div x-html="entry.title"></div>
-          <!-- Star/unstar button -->
-          <button class="star"
-                  @click="toggleStar(entry.id)"
-                  :class="{'starred': isStarred(entry.id)}"
-                  aria-label="Star"
-          >★</button>
-        </div>
-        <div class="itemdescription">
-          <div class="itemfrom">
-            <p class="source" x-text="`Source: ${entry.source}`"></p>
-            <p class="pubdate" x-text="entry.pubDate"></p>
+    <!-- Header -->
+    <header id="header" x-show="!loading" class="header">
+      <div id="ntn-title">
+        <h2>Not The News</h2>
+      </div>
+      <div id="header-options">
+        <!-- feed‐filter dropdown -->
+        <select id="filter-selector" x-model="filterMode" @change="setFilter(filterMode)" class="filter-select">
+          <option value="unread">Unread</option>
+          <option value="starred">Starred</option>
+          <option value="hidden">Hidden</option>
+          <option value="all">All</option>
+        </select>
+        <!-- Shuffle button -->
+        <button id="shuffle-button" @click="shuffleFeed()" class="shuffle-btn" title="Shuffle">
+          <svg class="shuffle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 4 20 4 20 8" />
+            <line x1="4" y1="20" x2="20" y2="4" />
+            <polyline points="20 16 20 20 16 20" />
+            <line x1="14" y1="14" x2="20" y2="20" />
+            <line x1="4" y1="4" x2="9" y2="9" />
+          </svg>
+          <span x-text="shuffleCount" class="shuffle-count"></span>
+        </button>
+        <!-- Settings cog opens modal -->
+        <button id="settings-button" @click="openSettings = true" class="settings-btn" aria-label="Settings">
+          <svg class="gear-icon size-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          </svg>
+        </button>
+      </div>
+    </header>
+    <!-- Feed items -->
+    <main id="items" x-show="!loading">
+      <!-- Repeat each entry via template so Alpine’s x-for can clone it properly -->
+      <template x-for="entry in filteredEntries" :key="entry.id">
+        <div class="item entry" x-bind:data-link="entry.id"
+          x-transition:leave="transition ease-in duration-200 transform"
+          x-transition:leave-start="opacity-100 translate-x-0" x-transition:leave-end="opacity-0 translate-x-full">
+          <div class="itemtitle">
+            <button class="close" @click="toggleHidden(entry.id)" :class="{ 'hidden': isHidden(entry.id) }"
+              aria-label="Close">✕</button>
+            <div x-html="entry.title"></div>
+            <!-- Star/unstar button -->
+            <button class="star" @click="toggleStar(entry.id)" :class="{'starred': isStarred(entry.id)}"
+              aria-label="Star">★</button>
           </div>
-          <template x-if="imagesEnabled && entry.image">
-              <img
-                :src="entry.image"
-                alt=""
-                class="entry-image"
-                @load="$el.classList.add('loaded')"
-                x-init="if($el.complete) $el.classList.add('loaded')"
-              />
+          <div class="itemdescription">
+            <div class="itemfrom">
+              <p class="source" x-text="`Source: ${entry.source}`"></p>
+              <p class="pubdate" x-text="entry.pubDate"></p>
+            </div>
+            <template x-if="imagesEnabled && entry.image">
+              <img :src="entry.image" alt="" class="entry-image" @load="$el.classList.add('loaded')"
+                x-init="if($el.complete) $el.classList.add('loaded')" />
             </template>
-          <span x-html="entry.description"></span>
+            <span x-html="entry.description"></span>
+          </div>
+        </div>
+      </template>
+    </main>
+
+    <!-- Settings modal -->
+    <div x-show="openSettings" x-cloak class="modal-overlay" @click.self="openSettings = false">
+      <div class="modal-content">
+        <button class="close" @click="openSettings = false">✕</button>
+        <h2>SETTINGS</h2>
+
+        <!-- Auto Sync -->
+        <div class="sync-switch">
+          <span class="settings-label">AutoSync Feed? (no to save data)</span>
+          <label class="switch" for="sync-toggle">
+            <span id="sync-text">yes</span>
+            <input type="checkbox" id="sync-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <!-- Theme toggle inside modal -->
+        <div class="theme-switch">
+          <span class="settings-label">Display theme:</span>
+          <label class="switch" for="theme-toggle">
+            <span id="theme-text">light</span>
+            <input type="checkbox" id="theme-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <!-- Images toggle inside modal -->
+        <div class="images-switch">
+          <span class="settings-label">Show images?</span>
+          <label class="switch" for="images-toggle">
+            <span id="images-text">no</span>
+            <input type="checkbox" id="images-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <!-- Keywords blacklist -->
+        <div class="settings-group grow">
+          <label for="keywords-blacklist">Keywords Blacklist:</label>
+          <textarea id="keywords-blacklist" class="settings-textarea" placeholder="One keyword per line…"></textarea>
+          <!-- Save button for Keywords -->
+          <button id="save-keywords-btn" class="settings-button">
+            Save
+          </button>
+        </div>
+
+        <!-- RSS feeds list -->
+        <div class="settings-group grow">
+          <label for="rss-feeds">RSS Feeds:</label>
+          <textarea id="rss-feeds" class="settings-textarea" placeholder="One RSS URL per line…"></textarea>
+        </div>
+        <!-- Save button for RSS -->
+        <div class="settings-group">
+          <button id="save-rss-btn" class="settings-button">
+            Save
+          </button>
         </div>
       </div>
-    </template>
-  </main>
-
-  <!-- Settings modal -->
-  <div
-    x-show="openSettings"
-    x-cloak
-    class="modal-overlay"
-    @click.self="openSettings = false"
-  >
-    <div class="modal-content">
-      <button class="close" @click="openSettings = false">✕</button>
-      <h2>SETTINGS</h2>
-
-      <!-- Auto Sync -->
-      <div class="sync-switch">
-	<span class="settings-label">AutoSync Feed? (no to save data)</span>
-        <label class="switch" for="sync-toggle">
-          <span id="sync-text">yes</span>
-          <input type="checkbox" id="sync-toggle">
-          <span class="slider"></span>
-        </label>
-      </div>
-      <!-- Theme toggle inside modal -->
-      <div class="theme-switch">
-	<span class="settings-label">Display theme:</span>
-        <label class="switch" for="theme-toggle">
-          <span id="theme-text">light</span>
-          <input type="checkbox" id="theme-toggle">
-          <span class="slider"></span>
-        </label>
-      </div>
-      <!-- Images toggle inside modal -->
-      <div class="images-switch">
-	<span class="settings-label">Show images?</span>
-        <label class="switch" for="images-toggle">
-          <span id="images-text">no</span>
-          <input type="checkbox" id="images-toggle">
-          <span class="slider"></span>
-        </label>
-      </div>
-  <!-- Keywords blacklist -->
-  <div class="settings-group grow">
-    <label for="keywords-blacklist">Keywords Blacklist:</label>
-    <textarea
-      id="keywords-blacklist"
-      class="settings-textarea"
-      placeholder="One keyword per line…"
-    ></textarea>
-  <!-- Save button for Keywords -->
-    <button id="save-keywords-btn" class="settings-button">
-      Save
-    </button>
-  </div>
-
-  <!-- RSS feeds list -->
-  <div class="settings-group grow">
-    <label for="rss-feeds">RSS Feeds:</label>
-    <textarea
-      id="rss-feeds"
-      class="settings-textarea"
-      placeholder="One RSS URL per line…"
-    ></textarea>
-  </div>
-  <!-- Save button for RSS -->
-  <div class="settings-group">
-    <button id="save-rss-btn" class="settings-button">
-      Save
-    </button>
+    </div>
   </div>
   <!-- New scroll-to-top button -->
   <button id="scroll-to-top" @click="scrollToTop()" aria-label="Scroll to top">
-	<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" fill="currentColor" viewBox="0 0 24 24">
-  	<path d="M12 4c-.39 0-.77.15-1.06.44l-6.3 6.3a1 1 0 101.41 1.41L11 7.83V19a1 1 0 102 0V7.83l4.95 4.32a1 1 0 101.41-1.41l-6.3-6.3A1.5 1.5 0 0012 4z"
-	stroke-width="1.5" />
-	</svg>
-  </button>	
+    <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" fill="currentColor" viewBox="0 0 24 24">
+      <path
+        d="M12 4c-.39 0-.77.15-1.06.44l-6.3 6.3a1 1 0 101.41 1.41L11 7.83V19a1 1 0 102 0V7.83l4.95 4.32a1 1 0 101.41-1.41l-6.3-6.3A1.5 1.5 0 0012 4z"
+        stroke-width="1.5" />
+    </svg>
+  </button>
+  </div>
 
 
   <!-- RSS Parser v3.13.0 -->
@@ -211,7 +162,6 @@
   <!-- Alpine.js v3.x.x -->
   <!-- https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" -->
   <script defer src="libs/alpine.3.x.x.js"></script>
-</div>
 </body>
-</html>
 
+</html>

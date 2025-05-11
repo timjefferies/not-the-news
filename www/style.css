@@ -245,11 +245,11 @@ a:hover { color: var(--primary); }
   font-size: small;
   font-variant: all-small-caps;
 }
- #header .switch {
+#header .switch {
    margin-left: auto;
    margin-right: 1rem;
- }
-
+} 
+#header-options { display: flex; }
 /* simple styling for our filter dropdown */
 .filter-select {
   margin: 0 1rem;
