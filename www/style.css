@@ -1,4 +1,3 @@
-/*@import url('https://fonts.googleapis.com/css2?family=Prata&display=swap');*/
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap');
 
 /* Tell browser we support both light & dark */
@@ -36,12 +35,7 @@ html {
     --card-border: #EEE;
     --card-shadow-color: lightgrey;
   }
-
-  body,
-  html {
-    background-image: none !important;
-  }
-
+}
 
 /* Manual theme overrides */
 html.light {
@@ -963,185 +957,186 @@ span.shuffle-count {
 
   @media (min-width: 481px) {}
 
-    body,
-    html {
-      font-size: 16px;
-    }
-
-    p {
-      font-size: 1rem !important;
-      line-height: 1.5 !important;
-    }
-
-    .pubdate,
-    .itemfrom {
-      padding-right: 0.5em;
-    }
-
-    .item {
-      box-shadow: 1px 1px 50px 1px var(--card-shadow-color) !important;
-      max-width: 90%;
-      border-radius: 30px;
-      margin: 1.5em auto;
-      float: none;
-    }
-
-    .itemtitle {
-      font-size: 1.5rem !important;
-      padding: 0.75em 2.5rem 0.2em 1.2em;
-      min-height: calc(1.4em * 3);
-    }
-
-    .itemdescription {
-      padding: 1em 1.8em 2em !important;
-    }
-
-    button.close,
-    button.star {
-      font-size: 1.5rem;
-    }
-
-    .filter-select {
-      margin-left: auto;
-    }
+  body,
+  html {
+    font-size: 16px;
   }
 
-  /* Make modal full-screen on small devices */
-  @media (max-width: 640px) {
-    .modal-content {
-      width: 100%;
-      height: 100%;
-      margin: 0 1em 0 1em;
-    }
+  p {
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
   }
 
-  @media (min-width: 481px) and (max-width: 767px) {
-    .modal-content {
-      width: 90%;
-    }
-
+  .pubdate,
+  .itemfrom {
+    padding-right: 0.5em;
   }
 
-  /* Tablet and up: wider cards & larger titles */
-  @media (min-width: 768px) {
-
-    body,
-    html {
-      font-size: calc(18px + .2vw);
-    }
-
-    .modal-content {
-      width: 85%;
-    }
-
-    .item {
-      max-width: 75%;
-      /* cards take 75% of viewport */
-      margin: 2em auto;
-      box-shadow: 1px 1px 50px 1px var(--card-shadow-color);
-    }
-
-    .itemtitle h1 {
-      font-size: 2rem !important;
-    }
-
-    .itemtitle h2 {
-      font-size: 1.5rem !important;
-    }
-    body,
-    html {
-      font-size: calc(18px + .2vw);
-    }
-
-    p {
-      line-height: 1.6 !important;
-    }
-
-    .item {
-      max-width: 85%;
-      border-radius: 40px;
-      margin: 1.5em auto;
-      float: none;
-    }
-
-    .itemtitle {
-      font-size: 1.75rem !important;
-      padding: 0.75em 3rem 0.2em 1.2em;
-    }
-
-    button.close,
-    button.star {
-      font-size: 2rem;
-    }
+  .item {
+    box-shadow: 1px 1px 50px 1px var(--card-shadow-color) !important;
+    max-width: 90%;
+    border-radius: 30px;
+    margin: 1.5em auto;
+    float: none;
   }
 
-  /* Desktop and up: half-width, centered, big headings */
-  @media (min-width: 1024px) {
-
-    body,
-    html {
-      font-size: calc(20px + .3vw);
-    }
-
-    .item {
-      max-width: 50%;
-      /* cards take half the screen */
-      margin: 2.5em auto;
-    }
-
-    .itemtitle h1 {
-      font-size: 2.5rem !important;
-    }
-
-    .itemtitle h2 {
-      font-size: 2rem !important;
-    }
-
-    .pubdate p,
-    .itemfrom p {
-      font-size: smaller !important;
-    }
-
-    .item {
-      float: unset;
-      margin-left: 20%;
-      margin-right: 20%;
-    }
-
-    #header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      /* centers everything by default */
-      position: relative;
-      /* only needed if you absolute‐center the H2 below */
-    }
-
-    .filter-select {
-      font-size: large;
-    }
-
-    /* absolute‐center the H2 */
-    #header h2 {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 1rem;
-      margin-top: 0.5em;
-    }
-
-    /* push the switch off to the right */
-    #header .switch {
-      margin-left: auto;
-      margin-right: 1rem;
-      /* match your padding */
-    }
-
-    .modal-content {
-      min-width: 60% !important;
-      /* mirror .item’s 20% left/right margins */
-      margin-left: 20% !important;
-      margin-right: 20% !important;
-    }
+  .itemtitle {
+    font-size: 1.5rem !important;
+    padding: 0.75em 2.5rem 0.2em 1.2em;
+    min-height: calc(1.4em * 3);
   }
+
+  .itemdescription {
+    padding: 1em 1.8em 2em !important;
+  }
+
+  button.close,
+  button.star {
+    font-size: 1.5rem;
+  }
+
+  .filter-select {
+    margin-left: auto;
+  }
+}
+
+/* Make modal full-screen on small devices */
+@media (max-width: 640px) {
+  .modal-content {
+    width: 100%;
+    height: 100%;
+    margin: 0 1em 0 1em;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 767px) {
+  .modal-content {
+    width: 90%;
+  }
+
+}
+
+/* Tablet and up: wider cards & larger titles */
+@media (min-width: 768px) {
+
+  body,
+  html {
+    font-size: calc(18px + .2vw);
+  }
+
+  .modal-content {
+    width: 85%;
+  }
+
+  .item {
+    max-width: 75%;
+    /* cards take 75% of viewport */
+    margin: 2em auto;
+    box-shadow: 1px 1px 50px 1px var(--card-shadow-color);
+  }
+
+  .itemtitle h1 {
+    font-size: 2rem !important;
+  }
+
+  .itemtitle h2 {
+    font-size: 1.5rem !important;
+  }
+
+  body,
+  html {
+    font-size: calc(18px + .2vw);
+  }
+
+  p {
+    line-height: 1.6 !important;
+  }
+
+  .item {
+    max-width: 85%;
+    border-radius: 40px;
+    margin: 1.5em auto;
+    float: none;
+  }
+
+  .itemtitle {
+    font-size: 1.75rem !important;
+    padding: 0.75em 3rem 0.2em 1.2em;
+  }
+
+  button.close,
+  button.star {
+    font-size: 2rem;
+  }
+}
+
+/* Desktop and up: half-width, centered, big headings */
+@media (min-width: 1024px) {
+
+  body,
+  html {
+    font-size: calc(20px + .3vw);
+  }
+
+  .item {
+    max-width: 50%;
+    /* cards take half the screen */
+    margin: 2.5em auto;
+  }
+
+  .itemtitle h1 {
+    font-size: 2.5rem !important;
+  }
+
+  .itemtitle h2 {
+    font-size: 2rem !important;
+  }
+
+  .pubdate p,
+  .itemfrom p {
+    font-size: smaller !important;
+  }
+
+  .item {
+    float: unset;
+    margin-left: 20%;
+    margin-right: 20%;
+  }
+
+  #header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* centers everything by default */
+    position: relative;
+    /* only needed if you absolute‐center the H2 below */
+  }
+
+  .filter-select {
+    font-size: large;
+  }
+
+  /* absolute‐center the H2 */
+  #header h2 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1rem;
+    margin-top: 0.5em;
+  }
+
+  /* push the switch off to the right */
+  #header .switch {
+    margin-left: auto;
+    margin-right: 1rem;
+    /* match your padding */
+  }
+
+  .modal-content {
+    min-width: 60% !important;
+    /* mirror .item’s 20% left/right margins */
+    margin-left: 20% !important;
+    margin-right: 20% !important;
+  }
+}
 }
