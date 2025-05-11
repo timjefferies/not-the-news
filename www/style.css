@@ -27,13 +27,13 @@ html {
 /* System light mode */
 @media (prefers-color-scheme: light) {
   :root {
-    --bg: #f5f5f5;
-    --fg: darkslategrey;
-    --primary: cornflowerblue;
-    --secondary: slategrey;
-    --card-bg: #ffffff;
-    --card-border: #EEE;
-    --card-shadow-color: lightgrey;
+    --bg: #f5f5f5 !important;
+    --fg: darkslategrey !important;
+    --primary: cornflowerblue !important;
+    --secondary: slategrey !important;
+    --card-bg: #ffffff !important;
+    --card-border: #EEE !important;
+    --card-shadow-color: lightgrey !important;
   }
 }
 
@@ -1006,7 +1006,7 @@ button.star {
     max-width: 75%;
     /* cards take 75% of viewport */
     margin: 2em auto;
-    box-shadow: 1px 1px 50px 1px var(--card-shadow-color);
+    box-shadow: 1px 1px 50px 1px var(--card-shadow-color) !important;
   }
 
   .itemtitle h1 {
@@ -1073,7 +1073,7 @@ button.star {
     float: unset;
     margin-left: 20%;
     margin-right: 20%;
-    box-shadow: 1px 1px 100px 1px var(--card-shadow-color);
+    box-shadow: 1px 1px 100px 1px var(--card-shadow-color) !important;
     margin: 1.4em auto;
   }
 
