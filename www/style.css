@@ -15,6 +15,10 @@ html {
   --card-bg: #1E1E1E;
   --card-border: #343536;
   --card-shadow-color: rgba(0, 0, 0, 0.5);
+  --fg-muted: gray;               /* for secondary text/borders */
+  --bg-alt: #ffffff;              /* alt card bg or “light” backgrounds */
+  --toggle-track: #ccc;           /* your switch slider track */
+  --link-highlight: aliceblue;    /* for the gradient & button bg in light mode */
 }
 
 /* System light mode */
@@ -44,13 +48,13 @@ html {
 /* Manual theme overrides */
 html.light {
   /* show noise background */
-  background-color: ghostwhite !important;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><defs><filter id='tileableNoise' x='0%' y='0%' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch' result='noise'/><feColorMatrix in='noise' type='saturate' values='0'/><feComponentTransfer><feFuncA type='linear' slope='0.05'/></feComponentTransfer></filter></defs><rect width='100%' height='100%' fill='%23f5f5f5'/><rect width='100%' height='100%' filter='url(%23tileableNoise)'/></svg>") !important;
+  background-color: var(--bg-light) !important;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><defs><filter id='tileableNoise' x='0%' y='0%' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch' result='noise'/><feColorMatrix in='noise' type='saturate' values='0'/><feComponentTransfer><feFuncA type='linear' slope='0.05'/></feComponentTransfer></filter></defs><rect width='100%' height='100%' /><rect width='100%' height='100%' filter='url(%23tileableNoise)'/></svg>") !important;
   background-repeat: repeat;
 
   button.close,
   button.star {
-    background: aliceblue;
+    background: var(--link-highlight);
   }
 
   button.close:hover {
@@ -62,17 +66,17 @@ html.light {
   }
 
   .itemtitle {
-    background: linear-gradient(360deg, aliceblue 0%, transparent);
+    background: linear-gradient(360deg, var(--link-highlight) 0%, transparent);
   }
 
   .itemtitle a {
-    color: steelblue;
+    color: var(--primary);
   }
 }
 
 html.dark {
   a:visited {
-    color: #0060A8;
+    a:visited { color: var(--link-visited); }
   }
 
   background-image: none;
@@ -85,9 +89,7 @@ html.dark {
     box-shadow: -2px -2px 0 1px var(--card-shadow-color);
   }
 
-  #header {
-    text-shadow: 2px 2px 2px black;
-  }
+  #header { text-shadow: 2px 2px 2px var(--shadow-text); }
 }
 
 /* make the cog button match your dark theme */
@@ -103,7 +105,7 @@ html.dark .cog-wheel-button:hover {
 }
 
 html.dark .switch input:checked+.slider {
-  background-color: #2c4c4c;
+  background-color: var(--toggle-checked-dark);
 }
 
 
@@ -141,7 +143,7 @@ button.close {
   color: var(--fg);
   border-radius: 0 40px 0 20px;
   opacity: 0.8;
-  box-shadow: -1px 1px 0 1px whitesmoke;
+  box-shadow: -1px 1px 0 1px var(--card-shadow-color);
 
   position: absolute;
   top: 0;
@@ -164,7 +166,7 @@ button.star {
   color: var(--fg);
   border-radius: 20px 0 0 0;
   opacity: 0.6;
-  box-shadow: -2px -2px 0 1px whitesmoke;
+  box-shadow: -2px -2px 0 1px var(--card-shadow-color);
 
   float: right;
   position: absolute;
@@ -194,7 +196,7 @@ button.close.hidden {
   /* shared padding, font & background */
   padding-right: 1em;
   padding-bottom: 0.5em;
-  color: gray;
+  color: var(--fg-muted);
   font-style: italic;
   font-size: 1rem;
   background-color: var(--card-bg);
@@ -327,7 +329,7 @@ a:hover {
   font-weight: 400;
   text-transform: uppercase;
   text-align: center;
-  color: darkgray;
+  color: var(--fg-muted);
   font-size: small;
   font-variant: all-small-caps;
 }
@@ -391,7 +393,7 @@ select#filter-selector option:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: var(--toggle-track);
   transition: .4s;
   border-radius: 34px;
 }
@@ -540,8 +542,8 @@ select#filter-selector option:hover {
   position: fixed;
   bottom: 20px;
   z-index: 9999;
-  background-color: #fff;
-  color: darkgrey;
+  background-color: var(--bg-alt);
+  color: var(--fg-muted);
   border-radius: 50%;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   cursor: pointer;
@@ -550,8 +552,8 @@ select#filter-selector option:hover {
 
 #scroll-to-top:hover,
 .cog-wheel-button:hover {
-  background-color: #555;
-  color: white;
+  background-color: var(--hover-alt-bg);
+  color: var(--hover-alt-color);
 }
 
 .cog-wheel-button {
