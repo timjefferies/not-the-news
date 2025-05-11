@@ -436,13 +436,14 @@ select#filter-selector option:hover {
 .item {
   border: 1px solid var(--card-border);
   background-color: var(--card-bg);
-  box-shadow: 1px 1px 100px 1px var(--card-shadow-color);
   align-content: center;
-  border-radius: 40px;
   display: block;
-  /* float: right; */
   position: relative;
-  margin: 1.4em auto;
+    box-shadow: 0px 4px 15px -5px var(--card-shadow-color) !important;
+    max-width: 100%;
+    border-radius: 10px;
+    margin: 1em auto;
+    float: none;
 }
 
 .itemtitle {
@@ -896,14 +897,6 @@ span.shuffle-count {
     margin-left: auto;
   }
 
-  .item {
-    box-shadow: 0px 4px 15px -5px var(--card-shadow-color) !important;
-    max-width: 100%;
-    border-radius: 10px;
-    margin: 1em auto;
-    float: none;
-  }
-
   .modal-content {
     border-radius: 10px;
   }
@@ -974,8 +967,6 @@ span.shuffle-count {
 
   .item {
     box-shadow: 1px 1px 50px 1px var(--card-shadow-color) !important;
-    max-width: 90%;
-    border-radius: 30px;
     margin: 1.5em auto;
     float: none;
   }
@@ -1101,6 +1092,9 @@ span.shuffle-count {
     float: unset;
     margin-left: 20%;
     margin-right: 20%;
+    box-shadow: 1px 1px 100px 1px var(--card-shadow-color);
+    border-radius: 40px;
+    margin: 1.4em auto;
   }
 
   #header {
