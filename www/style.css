@@ -15,10 +15,14 @@ html {
   --card-bg: #1E1E1E;
   --card-border: #343536;
   --card-shadow-color: rgba(0, 0, 0, 0.5);
-  --fg-muted: gray;               /* for secondary text/borders */
-  --bg-alt: #ffffff;              /* alt card bg or “light” backgrounds */
-  --toggle-track: #ccc;           /* your switch slider track */
-  --link-highlight: aliceblue;    /* for the gradient & button bg in light mode */
+  --fg-muted: gray;
+  /* for secondary text/borders */
+  --bg-alt: #ffffff;
+  /* alt card bg or “light” backgrounds */
+  --toggle-track: #ccc;
+  /* your switch slider track */
+  --link-highlight: aliceblue;
+  /* for the gradient & button bg in light mode */
 }
 
 /* System light mode */
@@ -38,12 +42,6 @@ html {
     background-image: none !important;
   }
 
-  .pubdate p,
-  .itemfrom p {
-    color: var(--fg);
-    opacity: 0.6;
-  }
-}
 
 /* Manual theme overrides */
 html.light {
@@ -76,7 +74,9 @@ html.light {
 
 html.dark {
   a:visited {
-    a:visited { color: var(--link-visited); }
+    a:visited {
+      color: var(--link-visited);
+    }
   }
 
   background-image: none;
@@ -89,7 +89,9 @@ html.dark {
     box-shadow: -2px -2px 0 1px var(--card-shadow-color);
   }
 
-  #header { text-shadow: 2px 2px 2px var(--shadow-text); }
+  #header {
+    text-shadow: 2px 2px 2px var(--shadow-text);
+  }
 }
 
 /* make the cog button match your dark theme */
@@ -114,7 +116,7 @@ body,
 html {
   color: var(--fg);
   word-break: break-word;
-  font-size: calc(18px + .5vw);
+  font-size: 14px;
   background-color: var(--bg);
   background-repeat: repeat;
 }
@@ -191,10 +193,10 @@ button.close.hidden {
   background: transparent;
 }
 
-.pubdate,
 .itemfrom {
   /* shared padding, font & background */
   padding-right: 1em;
+  opacity: 0.6;
   padding-bottom: 0.5em;
   color: var(--fg-muted);
   font-style: italic;
@@ -960,7 +962,7 @@ span.shuffle-count {
     height: 4rem;
   }
 
-  @media (min-width: 481px) and (max-width: 767px) {
+  @media (min-width: 481px) {}
 
     body,
     html {
@@ -1005,8 +1007,48 @@ span.shuffle-count {
     }
   }
 
-  @media (min-width: 768px) and (max-width: 1023px) {
+  /* Make modal full-screen on small devices */
+  @media (max-width: 640px) {
+    .modal-content {
+      width: 100%;
+      height: 100%;
+      margin: 0 1em 0 1em;
+    }
+  }
 
+  @media (min-width: 481px) and (max-width: 767px) {
+    .modal-content {
+      width: 90%;
+    }
+
+  }
+
+  /* Tablet and up: wider cards & larger titles */
+  @media (min-width: 768px) {
+
+    body,
+    html {
+      font-size: calc(18px + .2vw);
+    }
+
+    .modal-content {
+      width: 85%;
+    }
+
+    .item {
+      max-width: 75%;
+      /* cards take 75% of viewport */
+      margin: 2em auto;
+      box-shadow: 1px 1px 50px 1px var(--card-shadow-color);
+    }
+
+    .itemtitle h1 {
+      font-size: 2rem !important;
+    }
+
+    .itemtitle h2 {
+      font-size: 1.5rem !important;
+    }
     body,
     html {
       font-size: calc(18px + .2vw);
@@ -1034,7 +1076,27 @@ span.shuffle-count {
     }
   }
 
+  /* Desktop and up: half-width, centered, big headings */
   @media (min-width: 1024px) {
+
+    body,
+    html {
+      font-size: calc(20px + .3vw);
+    }
+
+    .item {
+      max-width: 50%;
+      /* cards take half the screen */
+      margin: 2.5em auto;
+    }
+
+    .itemtitle h1 {
+      font-size: 2.5rem !important;
+    }
+
+    .itemtitle h2 {
+      font-size: 2rem !important;
+    }
 
     .pubdate p,
     .itemfrom p {
@@ -1082,31 +1144,5 @@ span.shuffle-count {
       margin-left: 20% !important;
       margin-right: 20% !important;
     }
-  }
-
-  /* Make modal full-screen on small devices */
-  @media (max-width: 640px) {
-    .modal-content {
-      width: 100%;
-      height: 100%;
-      margin: 0 1em 0 1em;
-    }
-  }
-
-  /* Mirror .item’s width at different breakpoints */
-  @media (min-width: 768px) and (max-width: 1023px) {
-    .modal-content {
-      width: 85%;
-    }
-
-    /* .item max-width:85% */
-  }
-
-  @media (min-width: 481px) and (max-width: 767px) {
-    .modal-content {
-      width: 90%;
-    }
-
-    /* .item max-width:90% */
   }
 }
