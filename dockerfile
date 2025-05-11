@@ -38,7 +38,7 @@ ARG EMAIL
 ARG APP_PASSWORD
 ENV DOMAIN=${DOMAIN} \
     EMAIL=${EMAIL} \
-    APP_PASSWORD=${APP_PASSWORD}
+    APP_PASSWORD=${APP_PASSWORD} \
     ACME_CA=https://acme-v02.api.letsencrypt.org/directory
 
 ##############################################################################
