@@ -73,6 +73,7 @@ You can run it without a password:
 But it's recommended instead to make it secure:
 ```./build.sh -d <yourdomain.com> -e <admin@youremail.com> -n -p <yourpassword>```
 
+Then when you open the site the username is your email, and the password is set as above.
 
 ## Optional - set up a cron to backup the data every 12 hours
 
