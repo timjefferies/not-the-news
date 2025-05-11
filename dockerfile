@@ -96,16 +96,14 @@ RUN mkdir -p /usr/local/bin && \
 ##############################################################################
 # 7. copy Caddyfile (persist to /data, allow ACME_CA override)
 COPY Caddyfile /etc/caddy/Caddyfile
-
 # 7.1 Conditional auth configuration
+ARG CADDY_PASSWORD=""
 RUN if [ -n "$CADDY_PASSWORD" ]; then \
     HASH=$(caddy hash-password --plaintext "$CADDY_PASSWORD") && \
-    # Uncomment auth block and insert hash
     sed -i "/# AUTH_START/,/# AUTH_END/ { \
         s/# //g; \
-        s/<HASH_PLACEHOLDER>/$(echo $HASH | sed 's/[\/&]/\\&/g')/; \
+        s/<HASH_PLACEHOLDER>/$HASH/; \
     }" /etc/caddy/Caddyfile && \
-    # Uncomment cookie block
     sed -i "/# COOKIE_START/,/# COOKIE_END/ s/# //g" /etc/caddy/Caddyfile; \
 fi
 ##############################################################################

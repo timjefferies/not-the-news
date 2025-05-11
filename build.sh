@@ -47,6 +47,7 @@ echo "Configuring build arguments:"
 BUILD_ARGS=(
     "--build-arg" "DOMAIN=$DOMAIN"
     "--build-arg" "EMAIL=$EMAIL"
+    "--build-arg" "CACHE_BUST=$(date +%s)"
 )
 
 if [ -n "$PASSWORD" ]; then
@@ -54,7 +55,7 @@ if [ -n "$PASSWORD" ]; then
     ESCAPED_PWD=$(printf '%q' "$PASSWORD")
     BUILD_ARGS+=("--build-arg" "CADDY_PASSWORD=$ESCAPED_PWD")
 fi
-
+# Build arguments
 [ -n "$NO_CACHE" ] && {
     echo "Adding no-cache flag..."
     BUILD_ARGS+=("--no-cache")
