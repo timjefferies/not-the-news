@@ -1083,26 +1083,17 @@ button.star {
     margin: 1.4em auto;
   }
 
-  #header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* centers everything by default */
-    position: relative;
-    /* only needed if you absolute‐center the H2 below */
-  }
-
   .filter-select {
     font-size: large;
   }
-
-  /* absolute‐center the H2 */
   #header h2 {
+    padding-right: 0;
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
     font-size: 1rem;
-    margin-top: 0.5em;
+    margin-top: -0.5em;
+    }
   }
 
   /* push the switch off to the right */
