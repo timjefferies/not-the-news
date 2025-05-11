@@ -8,7 +8,9 @@
   # AUTH basic_auth /* {
   # AUTH   {$EMAIL} <HASH_PLACEHOLDER>
   # AUTH }
-
+  # AUTH handle /login {
+  # AUTH   respond "Set-Cookie: auth=valid; Path=/; Max-Age=7776000; Secure; HttpOnly" 200
+  # AUTH }
   # Proxy the new user-state endpoint (GET & POST) to Flask
   handle /user-state* {
     reverse_proxy 127.0.0.1:3000
@@ -33,13 +35,6 @@
   file_server
   # — Compression & caching for HTML/JS/XML/JSON assets —
   encode {
-    # AUTH cookie {
-    # AUTH   name auth_token
-    # AUTH   lifetime 2160h
-    # AUTH   secret "<PASSWORD_HASH>"
-    # AUTH   secure
-    # AUTH   http_only
-    # AUTH }
     br 11
     gzip 5
 
