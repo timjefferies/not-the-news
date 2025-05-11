@@ -97,6 +97,14 @@ RUN mkdir -p /usr/local/bin && \
 # 7. copy Caddyfile (persist to /data, allow ACME_CA override)
 COPY Caddyfile /etc/caddy/Caddyfile
 
+# 7.1 Conditional auth configuration
+RUN if [ -n "$CADDY_PASSWORD" ]; then \
+    HASH=$(caddy hash-password --plaintext "$CADDY_PASSWORD") && \
+    # Insert basicauth after domain declaration
+    sed -i "/^{$DOMAIN} {/a \    basicauth \/* {\n        user $HASH\n    }" /etc/caddy/Caddyfile && \
+    # Add cookie config to encode block
+    sed -i "/encode {/a \        cookie {\n            name auth_token\n            lifetime 2160h\n        }" /etc/caddy/Caddyfile; \
+fi
 ##############################################################################
 # 8. Declare the data volume & expose ports
 VOLUME /data
