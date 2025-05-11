@@ -6,7 +6,7 @@
 
 {$DOMAIN} {
   # AUTH basicauth /* {
-  # AUTH user <HASH_PLACEHOLDER>
+  # AUTH   user <HASH_PLACEHOLDER>
   # AUTH }
 
   # Proxy the new user-state endpoint (GET & POST) to Flask
@@ -34,8 +34,8 @@
   # — Compression & caching for HTML/JS/XML/JSON assets —
   encode {
     # AUTH cookie {
-    # AUTH name auth_token
-    # AUTH lifetime 2160h
+    # AUTH   name auth_token
+    # AUTH   lifetime 2160h
     # AUTH }
     br 11
     gzip 5

@@ -51,7 +51,7 @@ BUILD_ARGS=(
 if [ -n "$PASSWORD" ]; then
     echo "Adding password argument..."
     ESCAPED_PWD=$(printf '%q' "$PASSWORD")
-    BUILD_ARGS+=("--build-arg" "PASSWORD=$ESCAPED_PWD")
+    BUILD_ARGS+=("--build-arg" "APP_PASSWORD=$ESCAPED_PWD")
 fi
 # Build arguments
 [ -n "$NO_CACHE" ] && {
