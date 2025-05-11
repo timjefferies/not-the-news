@@ -1,6 +1,4 @@
 #!/bin/bash
-set -x  # Print commands as they execute
-
 # Help function
 usage() {
     echo "Usage: $0 -d DOMAIN -e EMAIL [-p PASSWORD] [-n]"
@@ -53,7 +51,7 @@ BUILD_ARGS=(
 if [ -n "$PASSWORD" ]; then
     echo "Adding password argument..."
     ESCAPED_PWD=$(printf '%q' "$PASSWORD")
-    BUILD_ARGS+=("--build-arg" "CADDY_PASSWORD=$ESCAPED_PWD")
+    BUILD_ARGS+=("--build-arg" "PASSWORD=$ESCAPED_PWD")
 fi
 # Build arguments
 [ -n "$NO_CACHE" ] && {
