@@ -66,7 +66,13 @@ Once the app is running you can use the settings cog icon in the top right, to c
 
 # Running it
 ## Build and run the container
-```./build.sh -d yourdomain.com -e admin@youremail.com```
+
+You can run it without a password:
+```./build.sh -d <yourdomain.com> -e <admin@youremail.com>```
+
+But it's recommended instead to make it secure:
+```./build.sh -d <yourdomain.com> -e <admin@youremail.com> -n -p <yourpassword>```
+
 
 ## Optional - set up a cron to backup the data every 12 hours
 
