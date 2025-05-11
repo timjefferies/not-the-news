@@ -947,7 +947,7 @@ button.star {
 
 
 /* Responsive breakpoints */
-@media (min-width: 481px) {
+/*@media (min-width: 481px) {
 
   body,
   html {
@@ -988,7 +988,7 @@ button.star {
   .filter-select {
     margin-left: auto;
   }
-}
+}*/
 
 /* Tablet and up: wider cards & larger titles */
 @media (min-width: 768px) {
