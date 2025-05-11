@@ -100,11 +100,12 @@ COPY Caddyfile /etc/caddy/Caddyfile
 ARG CADDY_PASSWORD=""
 RUN if [ -n "$CADDY_PASSWORD" ]; then \
     HASH=$(caddy hash-password --plaintext "$CADDY_PASSWORD") && \
-    sed -i "/# AUTH_START/,/# AUTH_END/ { \
-        s/# //g; \
-        s/<HASH_PLACEHOLDER>/$HASH/; \
-    }" /etc/caddy/Caddyfile && \
-    sed -i "/# COOKIE_START/,/# COOKIE_END/ s/# //g" /etc/caddy/Caddyfile; \
+    # Remove auth comments and markers
+    sed -i '/# basicauth/,/# }/ {/^#/!d; s/#//}' /etc/caddy/Caddyfile && \
+    sed -i "/# basicauth/a \    basicauth \/* {\n        user $HASH\n    }" /etc/caddy/Caddyfile && \
+    # Remove cookie comments and markers
+    sed -i '/# cookie {/,/# }/ {/^#/!d; s/#//}' /etc/caddy/Caddyfile && \
+    sed -i "/# cookie {/a \        cookie {\n            name auth_token\n            lifetime 2160h\n        }" /etc/caddy/Caddyfile; \
 fi
 ##############################################################################
 # 8. Declare the data volume & expose ports
