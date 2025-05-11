@@ -1,10 +1,6 @@
 # TODO
 - if any activity after a certain time, immediately perform a background sync
-- if reddit description contains [link], if it's an i.reddit.it image, rewrite the link as an img tag, if it's v.reddit.it rewrite the link as a video tag, otherwise set the <link> tag to it. Hide the [link]
-- add a password setting and screen, to block bots and scrapers.
-- fix missing paragraphs from descriptions
 - fix the wrong url on reddit/wired titles
-- fix desktop styling
 - fix settings screen, set the autosync toggle to partial sync and add a force sync button.
 
 # LATER
@@ -29,4 +25,5 @@
 This is a list of keywords that override your blacklist. This feature can be used to ensure that if you do need to catch current or timely events that you have a way to do so.
 
 for example. Adding a keyword set of 'breaking, war' will promote to the top any items that contain both these keywords.
+- if reddit description contains [link], if it's an i.reddit.it image, rewrite the link as an img tag, if it's v.reddit.it rewrite the link as a video tag, otherwise set the <link> tag to it. Hide the [link]
 
