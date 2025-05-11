@@ -5,11 +5,9 @@
 }
 
 {$DOMAIN} {
-  # AUTH_START
-  # basicauth /* {
-  #     user <HASH_PLACEHOLDER>
-  # }
-  # AUTH_END
+  # AUTH basicauth /* {
+  # AUTH user <HASH_PLACEHOLDER>
+  # AUTH }
 
   # Proxy the new user-state endpoint (GET & POST) to Flask
   handle /user-state* {
@@ -35,12 +33,10 @@
   file_server
   # — Compression & caching for HTML/JS/XML/JSON assets —
   encode {
-    # COOKIE_START
-    # cookie {
-    #     name auth_token
-    #     lifetime 2160h
-    # }
-    # COOKIE_END
+    # AUTH cookie {
+    # AUTH name auth_token
+    # AUTH lifetime 2160h
+    # AUTH }
     br 11
     gzip 5
 

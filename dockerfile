@@ -98,14 +98,12 @@ RUN mkdir -p /usr/local/bin && \
 COPY Caddyfile /etc/caddy/Caddyfile
 # 7.1 Conditional auth configuration
 ARG CADDY_PASSWORD=""
+# 7.1 Conditional auth configuration
 RUN if [ -n "$CADDY_PASSWORD" ]; then \
     HASH=$(caddy hash-password --plaintext "$CADDY_PASSWORD") && \
-    # Remove auth comments and markers
-    sed -i '/# basicauth/,/# }/ {/^#/!d; s/#//}' /etc/caddy/Caddyfile && \
-    sed -i "/# basicauth/a \    basicauth \/* {\n        user $HASH\n    }" /etc/caddy/Caddyfile && \
-    # Remove cookie comments and markers
-    sed -i '/# cookie {/,/# }/ {/^#/!d; s/#//}' /etc/caddy/Caddyfile && \
-    sed -i "/# cookie {/a \        cookie {\n            name auth_token\n            lifetime 2160h\n        }" /etc/caddy/Caddyfile; \
+    # Remove AUTH comments and replace placeholder
+    sed -i '/# AUTH/s/# AUTH //' /etc/caddy/Caddyfile && \
+    sed -i "s/<HASH_PLACEHOLDER>/$HASH/" /etc/caddy/Caddyfile; \
 fi
 ##############################################################################
 # 8. Declare the data volume & expose ports
