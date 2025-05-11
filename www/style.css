@@ -1045,7 +1045,6 @@ button.star {
 
 /* Desktop and up: half-width, centered, big headings */
 @media (min-width: 1024px) {
-
   body,
   html {
     font-size: calc(20px + .3vw);
@@ -1089,7 +1088,6 @@ button.star {
     font-size: 1rem;
     margin-top: -0.5em;
     }
-  }
 
   /* push the switch off to the right */
   #header .switch {
@@ -1100,8 +1098,5 @@ button.star {
 
   .modal-content {
     min-width: 60% !important;
-    /* mirror .item’s 20% left/right margins */
-    margin-left: 20% !important;
-    margin-right: 20% !important;
   }
 }
