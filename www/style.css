@@ -441,7 +441,6 @@ select#filter-selector option:hover {
   position: relative;
   box-shadow: 0px 4px 15px -5px var(--card-shadow-color) !important;
   max-width: 100%;
-  border-radius: 10px;
   margin: 1em auto;
   float: none;
 }
@@ -450,7 +449,6 @@ select#filter-selector option:hover {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  border-radius: 40px 40px 0 0;
   padding: 0.75em 3.5rem 0.2em 1.2em;
   border-bottom: 1px solid var(--card-border);
   font-family: 'Playfair Display', serif;
@@ -573,7 +571,6 @@ select#filter-selector option:hover {
 .modal-content {
   background-color: var(--card-bg);
   margin: 10% auto;
-  border-radius: 40px;
   border: 1px solid var(--card-border);
 
   display: flex;
@@ -897,7 +894,7 @@ p {
   margin-left: auto;
 }
 
-.modal-content {
+.modal-content, .item {
   border-radius: 10px;
 }
 
@@ -1031,7 +1028,6 @@ button.star {
 
   .item {
     max-width: 85%;
-    border-radius: 40px;
     margin: 1.5em auto;
     float: none;
   }
@@ -1079,7 +1075,6 @@ button.star {
     margin-left: 20%;
     margin-right: 20%;
     box-shadow: 1px 1px 100px 1px var(--card-shadow-color);
-    border-radius: 40px;
     margin: 1.4em auto;
   }
 
