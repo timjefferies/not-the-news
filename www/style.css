@@ -198,7 +198,6 @@ button.close.hidden {
   padding-right: 1em;
   opacity: 0.6;
   padding-bottom: 0.5em;
-  color: var(--fg-muted);
   font-style: italic;
   font-size: 1rem;
   background-color: var(--card-bg);
