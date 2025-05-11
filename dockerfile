@@ -19,8 +19,9 @@ RUN apk add --no-cache \
   && xcaddy build \
       --with github.com/dunglas/caddy-cbrotli \
       --with github.com/caddyserver/cache-handler@latest \
-      --with github.com/pberkel/caddy-storage-redis
-
+      --with github.com/pberkel/caddy-storage-redis \
+      --with github.com/caddyserver/caddy/v2/modules/caddyencode \
+      --with github.com/caddyserver/caddy/v2/modules/caddyhttp/cookiejar
 ##############################################################################
 # 1. Base image
 FROM caddy:2-alpine
