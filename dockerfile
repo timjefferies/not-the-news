@@ -97,15 +97,12 @@ RUN mkdir -p /usr/local/bin && \
 # 7. copy Caddyfile (persist to /data, allow ACME_CA override)
 COPY Caddyfile /etc/caddy/Caddyfile
 # 7.1 Conditional auth configuration
-ARG CADDY_PASSWORD=""
-# 7.1 Conditional auth configuration
 RUN if [ -n "$CADDY_PASSWORD" ]; then \
     HASH=$(caddy hash-password --plaintext "$CADDY_PASSWORD") && \
     HASH_ESC=$(echo "$HASH" | sed 's/[\/&]/\\&/g') && \
     # Remove AUTH comments and replace placeholder
     sed -i '/# AUTH/s/# AUTH //' /etc/caddy/Caddyfile && \
-    sed -i "s|<HASH_PLACEHOLDER>|$HASH_ESC|" /etc/caddy/Caddyfile \
-    fi
+    sed -i "s|<HASH_PLACEHOLDER>|$HASH_ESC|" /etc/caddy/Caddyfilie; fi
 ##############################################################################
 # 8. Declare the data volume & expose ports
 VOLUME /data
