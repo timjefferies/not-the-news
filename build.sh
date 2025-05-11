@@ -73,23 +73,6 @@ echo "Starting build process..."
     exit 1
 }
 
-# Post-build verification
-echo "Verifying installation..."
-echo "==========================================="
-echo "Checking Caddyfile modifications:"
-sudo docker exec ntn sh -c "cat /etc/caddy/Caddyfile | grep -A4 'basicauth'"
-sudo docker exec ntn sh -c "cat /etc/caddy/Caddyfile | grep -A4 'cookie {'"
-
-echo "==========================================="
-echo "Testing Caddy configuration:"
-sudo docker exec ntn caddy validate --config /etc/caddy/Caddyfile
-
-echo "==========================================="
-echo "Check these outputs:"
-echo "1. basicauth block should show your bcrypt hash"
-echo "2. cookie block should show 2160h lifetime"
-echo "3. Caddy validation should show no errors"
-
 # Optional Cleanup
 # sudo docker image prune -f
 # sudo docker builder prune -f
