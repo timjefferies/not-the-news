@@ -19,7 +19,8 @@
 
   <!-- Header -->
   <header id="header" x-show="!loading" class="header">
-    <h2>Not The News</h2>
+    <div id="ntn-title"><h2>Not The News</h2></div>
+    <div id="header-options">
       <!-- feed‐filter dropdown -->
       <select id="filter-selector"
               x-model="filterMode"
@@ -79,15 +80,8 @@
     />
   </svg>
 </button>
-  <!-- New scroll-to-top button -->
-  <button id="scroll-to-top" @click="scrollToTop()" aria-label="Scroll to top">
-	<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" fill="currentColor" viewBox="0 0 24 24">
-  	<path d="M12 4c-.39 0-.77.15-1.06.44l-6.3 6.3a1 1 0 101.41 1.41L11 7.83V19a1 1 0 102 0V7.83l4.95 4.32a1 1 0 101.41-1.41l-6.3-6.3A1.5 1.5 0 0012 4z"
-	stroke-width="1.5" />
-	</svg>
-  </button>	
+</div>
   </header>
-
   <!-- Feed items -->
   <main id="items" x-show="!loading">
     <!-- Repeat each entry via template so Alpine’s x-for can clone it properly -->
@@ -201,6 +195,14 @@
       Save
     </button>
   </div>
+  <!-- New scroll-to-top button -->
+  <button id="scroll-to-top" @click="scrollToTop()" aria-label="Scroll to top">
+	<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" fill="currentColor" viewBox="0 0 24 24">
+  	<path d="M12 4c-.39 0-.77.15-1.06.44l-6.3 6.3a1 1 0 101.41 1.41L11 7.83V19a1 1 0 102 0V7.83l4.95 4.32a1 1 0 101.41-1.41l-6.3-6.3A1.5 1.5 0 0012 4z"
+	stroke-width="1.5" />
+	</svg>
+  </button>	
+
 
   <!-- RSS Parser v3.13.0 -->
   <!-- https://cdn.jsdelivr.net/npm/rss-parser@3.13.0/dist/rss-parser.min.js -->
