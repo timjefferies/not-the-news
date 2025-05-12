@@ -9,7 +9,8 @@
   # AUTH   {$EMAIL} <HASH_PLACEHOLDER>
   # AUTH }
   # AUTH handle /login {
-  # AUTH   respond "Set-Cookie: auth=valid; Path=/; Max-Age=7776000; Secure; HttpOnly" 200
+  # AUTH   header Set-Cookie "auth=valid; Path=/; Max-Age=7776000; Secure; HttpOnly"
+  # AUTH   respond "Logged in" 200
   # AUTH }
   # Proxy the new user-state endpoint (GET & POST) to Flask
   handle /user-state* {
