@@ -10,10 +10,14 @@
   @unauth {
     not header Cookie auth=valid
     not path /login.html
-    not path /api/login
+    not path /api/login*
     not file
   }
   redir @unauth /login.html 302
+  # Proxy your login API _first_
+  handle /api/login* {
+    reverse_proxy 127.0.0.1:3000
+  }
 
   # Proxy the new user-state endpoint (GET & POST) to Flask
   handle /user-state* {
