@@ -5,8 +5,14 @@
 }
 
 {$DOMAIN} {
-  # Block anything if the auth cookie isn't present
-  @unauth not header Cookie auth=valid
+  # Block anything if the auth cookie isn't present,
+  # but let login.html, the login API, and static files through.
+  @unauth {
+    not header Cookie auth=valid
+    not path /login.html
+    not path /api/login
+    not file
+  }
   respond @unauth "Unauthorized" 401
 
   # Proxy the new user-state endpoint (GET & POST) to Flask
