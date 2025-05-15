@@ -13,7 +13,7 @@
     not path /api/login
     not file
   }
-  respond @unauth "Unauthorized" 401
+  redir @unauth /login.html 302
 
   # Proxy the new user-state endpoint (GET & POST) to Flask
   handle /user-state* {
