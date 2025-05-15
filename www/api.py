@@ -28,7 +28,6 @@ def login():
             max_age=60*60*24*90,     # 90 days
             httponly=True,
             secure=True,
-            samesite="Strict",
             samesite="Lax",          # allow on top-level navigations
             path="/"                 # send on every path
         )
