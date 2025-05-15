@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, abort
+from flask import Flask, request, jsonify, abort, make_response
 from datetime import datetime, timezone
 from xml.etree import ElementTree as ET
 from email.utils import parsedate_to_datetime
@@ -18,6 +18,20 @@ os.makedirs(USER_STATE_DIR, exist_ok=True)
 # ─── Feed‐sync state ───────────────────────────────────────────────────────
 FEED_XML = os.path.join(FEED_DIR, "feed.xml")
 
+@app.route("/api/login", methods=["POST"])
+def login():
+    data = request.get_json() or {}
+    if data.get("password") == os.environ["APP_PASSWORD"]:
+        resp = make_response(jsonify({"status": "ok"}))
+        resp.set_cookie(
+            "auth", "valid",
+            max_age=60*60*24*90,     # 90 days
+            httponly=True,
+            secure=True,
+            samesite="Strict"
+        )
+        return resp
+    return jsonify({"error": "Unauthorized"}), 401
 
 def _load_feed_items():
     """Parse feed.xml into a dict of guid → item_data."""

@@ -5,13 +5,10 @@
 }
 
 {$DOMAIN} {
-  # AUTH basic_auth /* {
-  # AUTH   {$EMAIL} <HASH_PLACEHOLDER>
-  # AUTH }
-  # AUTH handle /login {
-  # AUTH   header Set-Cookie "auth=valid; Path=/; Max-Age=7776000; Secure; HttpOnly"
-  # AUTH   respond "Logged in" 200
-  # AUTH }
+  # Block anything if the auth cookie isn't present
+  @unauth not header Cookie auth=valid
+  respond @unauth "Unauthorized" 401
+
   # Proxy the new user-state endpoint (GET & POST) to Flask
   handle /user-state* {
     reverse_proxy 127.0.0.1:3000

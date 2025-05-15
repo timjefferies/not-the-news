@@ -93,13 +93,6 @@ RUN mkdir -p /usr/local/bin && \
 ##############################################################################
 # 7. copy Caddyfile (persist to /data, allow ACME_CA override)
 COPY Caddyfile /etc/caddy/Caddyfile
-# Conditional auth configuration
-RUN if [ -n "$APP_PASSWORD" ]; then \
-    HASH=$(caddy hash-password --plaintext "$APP_PASSWORD") && \
-    HASH_ESC=$(echo "$HASH" | sed 's/[\/&]/\\&/g') && \
-    # Remove AUTH comments and replace placeholder
-    sed -i '/# AUTH/s/# AUTH //' /etc/caddy/Caddyfile && \
-    sed -i "s|<HASH_PLACEHOLDER>|$HASH_ESC|" /etc/caddy/Caddyfile; fi
 # Replace {$EMAIL} and {$ACME_CA} in the Caddyfile
 RUN sed -i "s|{\$EMAIL}|${EMAIL}|g" /etc/caddy/Caddyfile && \
     sed -i "s|{\$ACME_CA:[^}]*}|${ACME_CA}|g" /etc/caddy/Caddyfile

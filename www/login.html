@@ -1,0 +1,20 @@
+<!-- www/login.html -->
+<!DOCTYPE html><html><body>
+  <form id="login">
+    <input type="password" id="pw" placeholder="Password"/>
+    <button>Login</button>
+  </form>
+  <script>
+    document.getElementById("login").onsubmit = async e => {
+      e.preventDefault();
+      const pw = document.getElementById("pw").value;
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({password: pw})
+      });
+      if (res.status === 200) return window.location.href = "/";
+      alert("Bad password");
+    };
+  </script>
+</body></html>

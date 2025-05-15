@@ -2,8 +2,8 @@
 <html lang="en">
 
 <head>
-  <!-- fix white flash on reload -->
-  <script>let t = localStorage.getItem('theme'); document.documentElement.classList.add(t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');</script>
+  <script>let t = localStorage.getItem('theme'); document.documentElement.classList.add(t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');</script><!-- fix white flash on reload -->
+  <script>if (!document.cookie.includes("auth=valid")) {window.location.href = "/login.html";}</script><!-- fix white flash on reload -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Not The News</title>
@@ -16,13 +16,8 @@
 
 <body>
   <div id="app" x-data="rssApp()" x-init="init()">
-    <!-- Loading screen -->
-    <div id="loading-screen" x-show="loading" class="loading-screen">
-      Loading…
-    </div>
-
-    <!-- Header -->
-    <header id="header" x-show="!loading" class="header">
+    <div id="loading-screen" x-show="loading" class="loading-screen">Loading…</div><!-- Loading screen -->
+    <header id="header" x-show="!loading" class="header"><!-- Header -->
       <div id="ntn-title">
         <h2>Not The News</h2>
       </div>
