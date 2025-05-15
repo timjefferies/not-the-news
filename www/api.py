@@ -21,18 +21,28 @@ FEED_XML = os.path.join(FEED_DIR, "feed.xml")
 @app.route("/api/login", methods=["POST"])
 def login():
     data = request.get_json() or {}
-    if data.get("password") == os.environ["APP_PASSWORD"]:
-        resp = make_response(jsonify({"status": "ok"}))
-        resp.set_cookie(
-            "auth", "valid",
-            max_age=60*60*24*90,     # 90 days
-            httponly=True,
-            secure=True,
-            samesite="Lax",          # allow on top-level navigations
-            path="/"                 # send on every path
-        )
-        return resp
-    return jsonify({"error": "Unauthorized"}), 401
+    submitted_pw = data.get("password", "")
+
+    if not submitted_pw:
+        return jsonify({"error": "Password required"}), 400
+
+    if submitted_pw != os.environ.get("APP_PASSWORD"):
+        return jsonify({"error": "Invalid password"}), 401
+
+    # Generate secure random token
+    auth_token = secrets.token_urlsafe(32)  # 43-character URL-safe token
+
+    resp = make_response(jsonify({"status": "ok"}))
+    resp.set_cookie(
+        "auth",
+        auth_token,
+        max_age=90*24*60*60,  # 90 days
+        httponly=True,
+        secure=True,
+        samesite="Strict",
+        path="/"
+    )
+    return resp
 
 def _load_feed_items():
     """Parse feed.xml into a dict of guid → item_data."""
