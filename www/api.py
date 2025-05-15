@@ -20,29 +20,45 @@ FEED_XML = os.path.join(FEED_DIR, "feed.xml")
 
 @app.route("/api/login", methods=["POST"])
 def login():
-    data = request.get_json() or {}
-    submitted_pw = data.get("password", "")
+    try:
+        # Ensure request contains JSON
+        if not request.is_json:
+            return jsonify({"error": "Missing JSON in request"}), 400
+            
+        data = request.get_json()
+        submitted_pw = data.get("password")
 
-    if not submitted_pw:
-        return jsonify({"error": "Password required"}), 400
+        # Check password exists in request
+        if not submitted_pw:
+            return jsonify({"error": "Password required"}), 400
 
-    if submitted_pw != os.environ.get("APP_PASSWORD"):
-        return jsonify({"error": "Invalid password"}), 401
+        # Check environment variable exists
+        if "APP_PASSWORD" not in os.environ:
+            return jsonify({"error": "Server misconfigured"}), 500
 
-    # Generate secure random token
-    auth_token = secrets.token_urlsafe(32)  # 43-character URL-safe token
+        # Validate password
+        if submitted_pw != os.environ["APP_PASSWORD"]:
+            return jsonify({"error": "Invalid password"}), 401
 
-    resp = make_response(jsonify({"status": "ok"}))
-    resp.set_cookie(
-        "auth",
-        auth_token,
-        max_age=90*24*60*60,  # 90 days
-        httponly=True,
-        secure=True,
-        samesite="Strict",
-        path="/"
-    )
-    return resp
+        # Generate token
+        auth_token = secrets.token_urlsafe(32)
+
+        # Create response
+        resp = make_response(jsonify({"status": "ok"}))
+        resp.set_cookie(
+            "auth",
+            auth_token,
+            max_age=90*24*60*60,
+            httponly=True,
+            secure=True,
+            samesite="Strict",
+            path="/"
+        )
+        return resp
+
+    except Exception as e:
+        app.logger.error(f"Login error: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
 
 def _load_feed_items():
     """Parse feed.xml into a dict of guid → item_data."""
