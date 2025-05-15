@@ -29,6 +29,8 @@ def login():
             httponly=True,
             secure=True,
             samesite="Strict"
+            samesite="Lax",          # allow on top-level navigations
+            path="/"                 # send on every path
         )
         return resp
     return jsonify({"error": "Unauthorized"}), 401
