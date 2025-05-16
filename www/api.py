@@ -6,6 +6,8 @@ import os
 import json, secrets
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # Trust X-Forwarded headers
+
 DATA_DIR = "/data"
 FEED_DIR = os.path.join(DATA_DIR, "feed")
 CONFIG_DIR = os.path.join(DATA_DIR, "config")
