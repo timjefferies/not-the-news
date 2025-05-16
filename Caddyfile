@@ -16,42 +16,49 @@
   redir @unauth /login.html 302
   # Proxy your login API _first_
   handle /api/login* {
-    reverse_proxy 127.0.0.1:3000
-    header_up X-Forwarded-Proto https
-    header_up Host {host}
+    reverse_proxy 127.0.0.1:3000 {
+      header_up X-Forwarded-Proto https
+      header_up Host {host}
+    }
   }
 
   # Proxy the new user-state endpoint (GET & POST) to Flask
   handle /user-state* {
-    reverse_proxy 127.0.0.1:3000
-    header_up X-Forwarded-Proto https
-    header_up Host {host}
+    reverse_proxy 127.0.0.1:3000 {
+      header_up X-Forwarded-Proto https
+      header_up Host {host}
+    }
   }
   handle /load-config* {
-	  reverse_proxy 127.0.0.1:3000
-    header_up X-Forwarded-Proto https
-    header_up Host {host}
+    reverse_proxy 127.0.0.1:3000 {
+      header_up X-Forwarded-Proto https
+      header_up Host {host}
+    }
   }
   handle /save-config* {
-	  reverse_proxy 127.0.0.1:3000
-    header_up X-Forwarded-Proto https
-    header_up Host {host}
+    reverse_proxy 127.0.0.1:3000 {
+      header_up X-Forwarded-Proto https
+      header_up Host {host}
+    }
   }
   # Proxy feed-sync API endpoints to Flask
   handle /time* {
-	  reverse_proxy 127.0.0.1:3000
-    header_up X-Forwarded-Proto https
-    header_up Host {host}
+    reverse_proxy 127.0.0.1:3000 {
+      header_up X-Forwarded-Proto https
+      header_up Host {host}
+    }
   }
   handle /guids* {
-	  reverse_proxy 127.0.0.1:3000
-    header_up X-Forwarded-Proto https
-    header_up Host {host}
+    reverse_proxy 127.0.0.1:3000 {
+      header_up X-Forwarded-Proto https
+      header_up Host {host}
+    }
   }
   handle /items* {
-	  reverse_proxy 127.0.0.1:3000
-    header_up X-Forwarded-Proto https
-    header_up Host {host}
+    reverse_proxy 127.0.0.1:3000 {
+      header_up X-Forwarded-Proto https
+      header_up Host {host}
+    }
   }
   root * /app/www
   file_server
