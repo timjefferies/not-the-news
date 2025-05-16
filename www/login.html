@@ -23,10 +23,8 @@
       padding: 20px;
     }
 
-    .login-title {
-      font-size: 2.5rem;
+    .ntn-title {
       margin-bottom: 2rem;
-      font-weight: bold;
     }
 
     #login-form {
@@ -40,7 +38,7 @@
     }
 
     #login-form input {
-      width: 100%;
+      width: --webkit-fill-available;
       padding: 12px;
       margin-bottom: 1rem;
       border: 1px solid #ccc;
@@ -72,7 +70,9 @@
 
 <body>
   <div class="login-container">
-    <h1 class="login-title">Not The News</h1>
+          <div id="ntn-title">
+        <h2>Not The News</h2>
+      </div>
     <form id="login-form">
       <input type="password" placeholder="Enter password" required id="pw">
       <button type="submit">Login</button>
