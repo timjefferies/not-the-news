@@ -1,75 +1,101 @@
-<!-- www/login.html -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-  <title>Login</title>
+  <title>Login - Not The News</title>
   <style>
-    /* reset */
-    html,
-    body {
-      height: 100%;
-      margin: 0;
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #1a1a1a;
+      --input-bg: #f0f0f0;
+      --button-bg: #007bff;
+      --button-hover: #0056b3;
     }
 
-    /* center container */
+    .dark {
+      --bg-color: #1a1a1a;
+      --text-color: #ffffff;
+      --input-bg: #2d2d2d;
+      --button-bg: #0d6efd;
+      --button-hover: #0b5ed7;
+    }
+
     body {
+      margin: 0;
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f0f2f5;
+      background: var(--bg-color);
+      color: var(--text-color);
       font-family: sans-serif;
     }
 
-    /* form styling */
-    #login {
-      background: #ffffff;
+    .login-container {
+      text-align: center;
+      width: 100%;
+      padding: 20px;
+    }
+
+    .login-title {
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      font-weight: bold;
+    }
+
+    #login-form {
+      background: var(--bg-color);
       padding: 2rem;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      display: flex;
-      flex-direction: column;
       width: 100%;
-      max-width: 320px;
+      max-width: 400px;
+      margin: 0 auto;
     }
 
-    #login input {
+    #login-form input {
+      width: 100%;
+      padding: 12px;
       margin-bottom: 1rem;
-      padding: 0.75rem;
-      font-size: 1rem;
       border: 1px solid #ccc;
       border-radius: 4px;
+      background: var(--input-bg);
+      color: var(--text-color);
     }
 
-    #login button {
-      padding: 0.75rem;
-      font-size: 1rem;
+    #login-form button {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--button-bg);
+      color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      background: #007bff;
-      color: #fff;
+      transition: background-color 0.2s;
     }
 
-    #login button:hover {
-      background: #0056b3;
+    #login-form button:hover {
+      background-color: var(--button-hover);
     }
   </style>
+  <script>
+    let t = localStorage.getItem('theme');
+    document.documentElement.classList.add(t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
+  </script>
 </head>
 
 <body>
-  <div id="ntn-title">
-    <h2>Not The News</h2>
+  <div class="login-container">
+    <h1 class="login-title">Not The News</h1>
+    <form id="login-form">
+      <input type="password" placeholder="Enter password" required id="pw">
+      <button type="submit">Login</button>
+    </form>
   </div>
-  <form id="login">
-    <input type="password" id="pw" placeholder="Password" required />
-    <button type="submit">Login</button>
-  </form>
   <script>
-    document.getElementById("login").onsubmit = async e => {
+    document.getElementById("login-form").addEventListener('submit', async e => {
       e.preventDefault();
       const form = e.target;
       const btn = form.querySelector('button');
@@ -92,7 +118,7 @@
         if (res.status === 200) {
           window.location.href = "/";
         } else {
-          pwInput.value = ""; // Clear password on failure
+          pwInput.value = "";
           alert("Invalid password");
         }
       } catch (error) {
@@ -100,8 +126,7 @@
       } finally {
         btn.disabled = false;
       }
-    };
+    });
   </script>
 </body>
-
 </html>
