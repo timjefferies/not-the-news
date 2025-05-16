@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, abort, make_response
 from datetime import datetime, timezone
 from xml.etree import ElementTree as ET
 from email.utils import parsedate_to_datetime
+from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 import json, secrets
 
