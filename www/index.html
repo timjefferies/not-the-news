@@ -3,7 +3,7 @@
 
 <head>
   <script>let t = localStorage.getItem('theme'); document.documentElement.classList.add(t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');</script><!-- fix white flash on reload -->
-  <script>if (!document.cookie.includes("auth=valid")) {window.location.href = "/login.html";}</script><!-- fix white flash on reload -->
+  <script>if (!document.cookie.includes("auth=")) {window.location.href = "/login.html";}</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Not The News</title>
