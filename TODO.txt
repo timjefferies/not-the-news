@@ -1,11 +1,10 @@
 # TODO
 - if any activity after a certain time, immediately perform a background sync
 - fix the wrong url on reddit/wired titles
-- fix settings screen, set the autosync toggle to partial sync and add a force sync button.
+- on settings screen, set the autosync toggle to partial sync and add a force sync button.
 
 # LATER
 - implement a hidden pop up bar and flash a toast message if something went wrong saving the state, or when syncing/internet disconnected.
-- rework styles.css and turn all the sizing into relative variables.
 - make the python and js files read only, and run caddy as none root
 - turn app into a PWA app
 - Add a custom theme styling box in the settings.
