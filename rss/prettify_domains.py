@@ -96,7 +96,20 @@ def prettify_x_entry(entry):
 
 
 def prettify_wired_entry(entry):
-    """Wrap wired.com links via removepaywalls.com proxy."""
+    # derive a clean source_url from the original link (wired.com)
+    source_url = entry.get("link", "").strip()
+    
+    # wrap it in a hidden <span> instead of an HTML comment
+    metadata_tag = f'<span class="source-url">{source_url}</span>'
+
+    desc = entry.get("description", "")
+    if "<![CDATA[" in desc:
+        # insert the span immediately after the CDATA open
+        entry["description"] = desc.replace("<![CDATA[", "<![CDATA[" + metadata_tag, 1)
+    else:
+        # fallback: append to whatever the description is
+        entry["description"] = desc + metadata_tag
+    # Wrap wired.com links via removepaywalls.com proxy.
     link = entry.get("link", "").strip()
     if "wired.com" in link:
         # Insert removepaywalls.com before the original URL

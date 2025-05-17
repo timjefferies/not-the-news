@@ -25,7 +25,6 @@ if not os.path.exists(feed_dir):
 else:
     print(f"Directory already exists: {feed_dir}")
 
-
 # helper to detect a running merge_feeds.py
 def is_merge_running():
     """Return True if merge_feeds.py is already in the process list."""
@@ -38,7 +37,6 @@ def is_merge_running():
         ).returncode
         == 0
     )
-
 
 def generate_feed():
     if os.path.exists(final_feed_file):
@@ -116,21 +114,8 @@ def generate_feed():
     #        ['sed','-i','s/img src/img loading="lazy" src/g', final_feed_file],
     #        check=True
     #    )
-    #    subprocess.run(
-    #        ['sed','-i','s/x.com/xcancel.com/g', final_feed_file],
-    #        check=True
-    #    )
-    #    subprocess.run(
-    #            ['sed','-i','s/www.wired.com/removepaywalls.com\/https:\/\/www.wired.com/g', final_feed_file],
-    #        check=True
-    #    )
-    #    subprocess.run(
-    #        ['sed','-i','s/www.reddit/old.reddit/g', final_feed_file],
-    #        check=True
-    #    )
 
     print("Feed updated successfully")
-
 
 def main():
     parser = argparse.ArgumentParser(description="Not-the-News feed generator")
@@ -153,7 +138,6 @@ def main():
             sys.exit(0)
     else:
         generate_feed()
-
 
 if __name__ == "__main__":
     main()
