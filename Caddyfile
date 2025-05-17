@@ -11,7 +11,10 @@
     not header Cookie auth*
     not path /login.html
     not path /api/login*
-    not file
+    not path /libs/*
+    not path /*.css
+    not path /*.js
+    not path /*.svg
   }
   redir @unauth /login.html 302
   # Proxy your login API _first_
