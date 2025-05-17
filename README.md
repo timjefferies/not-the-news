@@ -67,13 +67,10 @@ Once the app is running you can use the settings cog icon in the top right, to c
 # Running it
 ## Build and run the container
 
-You can run it without a password:
-```./build.sh -d <yourdomain.com> -e <admin@youremail.com>```
-
-But it's recommended instead to make it secure:
+Build it with a domain name, your email (for letsencrypt), and the password so that you can login
 ```./build.sh -d <yourdomain.com> -e <admin@youremail.com> -n -p <yourpassword>```
 
-Then when you open the site the username is your email, and the password is set as above.
+Then when you open the site the password is the one set as above.
 
 ## Optional - set up a cron to backup the data every 12 hours
 
