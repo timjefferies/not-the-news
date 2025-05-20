@@ -1,19 +1,73 @@
 // www/sw.js
-import { precacheAndRoute } 
-  from 'https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-precaching.module.js';
-import { registerRoute } 
-  from 'https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-routing.module.js';
-import { StaleWhileRevalidate } 
-  from 'https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-strategies.module.js';
+const STATIC_CACHE = 'shell-v1';
+const API_CACHE    = 'api-v1';
 
-precacheAndRoute(self.__WB_MANIFEST);
+// List the files you want precached:
+const PRECACHE_URLS = [
+  '/',                     // your index.html
+  '/javascript.js',        // your main bundle
+  '/js/database.js',
+  '/js/functions.js',
+  '/js/settings.js',
+  '/css/styles.css',       // if you have a CSS file
+  // add any other static assets here
+];
 
-registerRoute(
-  ({ url }) => url.pathname.startsWith('/items'),
-  new StaleWhileRevalidate({ cacheName: 'api-items' })
-);
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(STATIC_CACHE)
+      .then(cache => cache.addAll(PRECACHE_URLS))
+      .then(() => self.skipWaiting())
+  );
+});
 
-registerRoute(
-  ({ request }) => request.mode === 'navigate',
-  new StaleWhileRevalidate({ cacheName: 'shell' })
-);
+self.addEventListener('activate', event => {
+  // clean up old caches
+  const keep = [STATIC_CACHE, API_CACHE];
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.map(key => {
+        if (!keep.includes(key)) return caches.delete(key);
+      }))
+    ).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', event => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // 1. navigation requests → serve shell from cache
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      caches.match('/')  // serve index.html
+        .then(resp => resp || fetch(request))
+    );
+    return;
+  }
+
+  // 2. API calls → stale-while-revalidate
+  if (url.pathname.startsWith('/items') || url.pathname.startsWith('/user-state')) {
+    event.respondWith(
+      caches.open(API_CACHE).then(cache =>
+        cache.match(request).then(cached => {
+          const networkFetch = fetch(request)
+            .then(resp => {
+              cache.put(request, resp.clone());
+              return resp;
+            })
+            .catch(() => {}); // swallow errors
+          return cached || networkFetch;
+        })
+      )
+    );
+    return;
+  }
+
+  // 3. other requests → cache-first for static
+  event.respondWith(
+    caches.match(request).then(cached => 
+      cached || fetch(request)
+    )
+  );
+});
