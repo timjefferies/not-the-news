@@ -55,8 +55,6 @@ window.rssApp = () => {
 
         // 0) Full Sync On empty DB
         const db = await dbPromise;
-        const rawList = await db.transaction('items','readonly').objectStore('items').getAll();
-        this.entries = mapRawItems(rawList, this.formatDate);
         const count = await db.transaction('items', 'readonly').objectStore('items').count();
         if (count === 0) {
           // first run: full feed+user‑state pull from server
