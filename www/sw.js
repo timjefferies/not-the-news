@@ -1,5 +1,5 @@
 // www/sw.js
-const STATIC_CACHE = 'shell-v1';
+const STATIC_CACHE = 'shell-v2';
 const API_CACHE    = 'api-v1';
 
 // List the files you want precached:

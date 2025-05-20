@@ -1,12 +1,24 @@
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
-    .then(reg => console.log('SW registered:', reg.scope))
+    .then(reg => {
+      console.log('SW registered:', reg.scope);
+      // when a new SW is found, reload once it's activated
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        newSW.addEventListener('statechange', () => {
+          if (newSW.state === 'activated') {
+            window.location.reload();
+          }
+        });
+      });
+    })
     .catch(err => console.warn('SW registration failed:', err));
 }
 
-import { dbPromise, bufferedChanges, pushUserState, performSync, performFullSync, pullUserState, processPendingOperations,
+import {
+  dbPromise, bufferedChanges, pushUserState, performSync, performFullSync, pullUserState, processPendingOperations,
   isStarred, toggleStar, isHidden, toggleHidden, loadHidden, loadStarred, pruneStaleHidden
- } from "./js/database.js";
+} from "./js/database.js";
 import {
   scrollToTop, attachScrollToTopHandler, formatDate,
   setFilter, updateCounts, loadFilterMode,
@@ -60,7 +72,7 @@ window.rssApp = () => {
           // first run: full feed+user‑state pull from server
           const { feedTime } = await performFullSync();
           serverTime = feedTime;
-          this.hidden  = await loadHidden();
+          this.hidden = await loadHidden();
           this.starred = await loadStarred();
         } else {
           serverTime = Date.now();
@@ -130,7 +142,7 @@ window.rssApp = () => {
           } catch (err) {
             console.error("Partial sync failed", err);
           }
-            /** replay any queued operations once we're back online */
+          /** replay any queued operations once we're back online */
         }, SYNC_INTERVAL);
       } catch (err) {
         console.error("loadFeed failed", err);
