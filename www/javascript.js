@@ -1,3 +1,9 @@
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/js/sw.js')
+    .then(reg => console.log('SW registered:', reg.scope))
+    .catch(err => console.warn('SW registration failed:', err));
+}
+
 import { dbPromise, bufferedChanges, pushUserState, performSync, performFullSync, pullUserState, processPendingOperations,
   isStarred, toggleStar, isHidden, toggleHidden, loadHidden, loadStarred, pruneStaleHidden
  } from "./js/database.js";
@@ -8,15 +14,6 @@ import {
 } from "./js/functions.js";
 import { initSync, initTheme, initImages, initScrollPos, initConfigComponent, loadSyncEnabled, loadImagesEnabled } from "./js/settings.js";
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/js/sw.js')
-    .then(reg => {
-      console.log('SW registered, scope:', reg.scope);
-    })
-    .catch(err => {
-      console.warn('SW registration failed:', err);
-    });
-}
 window.rssApp = () => {
   return {
     openSettings: false, // Controls visibility of the settings modal
