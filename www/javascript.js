@@ -65,16 +65,17 @@ window.rssApp = () => {
         this.hidden = await loadHidden();
         this.starred = await loadStarred();
 
-        // 0) Full Sync On empty DB
+        // 0) Full Sync on empty DB—but only if online
         const db = await dbPromise;
         const count = await db.transaction('items', 'readonly').objectStore('items').count();
-        if (count === 0) {
-          // first run: full feed+user‑state pull from server
+        if (count === 0 && this.isOnline) {
+          // first run *and* online: full feed+user‑state pull from server
           const { feedTime } = await performFullSync();
           serverTime = feedTime;
           this.hidden = await loadHidden();
           this.starred = await loadStarred();
         } else {
+          // offline or not first run → use local data
           serverTime = Date.now();
         }
         // ─── network detection & offline queue sync ─────────────────
