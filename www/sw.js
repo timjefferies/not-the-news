@@ -1,17 +1,18 @@
-import { precacheAndRoute }     from 'workbox-precaching';
-import { registerRoute }        from 'workbox-routing';
-import { StaleWhileRevalidate } from 'workbox-strategies';
+// www/sw.js
+import { precacheAndRoute } 
+  from 'https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-precaching.module.js';
+import { registerRoute } 
+  from 'https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-routing.module.js';
+import { StaleWhileRevalidate } 
+  from 'https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-strategies.module.js';
 
-// precache your build output
 precacheAndRoute(self.__WB_MANIFEST);
 
-// Cache API calls for feed items
 registerRoute(
   ({ url }) => url.pathname.startsWith('/items'),
   new StaleWhileRevalidate({ cacheName: 'api-items' })
 );
 
-// Cache your HTML shell
 registerRoute(
   ({ request }) => request.mode === 'navigate',
   new StaleWhileRevalidate({ cacheName: 'shell' })
