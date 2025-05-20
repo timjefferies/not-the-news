@@ -44,6 +44,7 @@ Current Features:
 - Keyword filtering - only see the information you want to see.
 - Night/Day mode
 - Auto reload in the background when new rss items are available
+- Works offline when no connection
 - Automatic cross browser/device syncing with low data usage
 - Feed filter modes (Unread/Starred/Hidden/All)
 - Starred items are saved items
