@@ -16,7 +16,7 @@ window.rssApp = () => {
     // will be populated in init():
     hidden: [],
     starred: [],
-    filterMode: null,
+    filterMode: "unread",
     imagesEnabled: null,
     syncEnabled: null,
     isShuffled: false,              // Track whether we're in shuffled mode
@@ -65,8 +65,8 @@ window.rssApp = () => {
         const rawList = await db.transaction('items', 'readonly').objectStore('items').getAll();
         this.entries = mapRawItems(rawList, this.formatDate);
         this.hidden = await pruneStaleHidden(this.entries, serverTime);
-        initScrollPos(this); // restore previous scroll position once entries are rendered
         this.updateCounts(); // update dropdown
+        initScrollPos(this); // restore previous scroll position once entries are rendered
         this.loading = false;
         // 2) kick off one‑off background partial sync
         if (this.syncEnabled) {
