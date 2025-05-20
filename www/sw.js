@@ -9,8 +9,10 @@ const PRECACHE_URLS = [
   '/js/database.js',
   '/js/functions.js',
   '/js/settings.js',
-  '/css/styles.css',       // if you have a CSS file
-  // add any other static assets here
+  '/style.css',       // if you have a CSS file
+  '/libs/alpine.3.x.x.js',
+  '/libs/idb.js',
+  '/libs/rss-parser.min.js'
 ];
 
 self.addEventListener('install', event => {
