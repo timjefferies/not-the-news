@@ -47,7 +47,7 @@ window.rssApp = () => {
         // Load user‑state from IndexedDB
         this.hidden = await loadHidden();
         this.starred = await loadStarred();
-        this.filterMode = await loadFilterMode();
+        //this.filterMode = await loadFilterMode(); // always start on unread.
 
         // 0) Full Sync On empty DB
         const db = await dbPromise;
