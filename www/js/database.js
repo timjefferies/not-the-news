@@ -445,3 +445,58 @@ export async function processPendingOperations() {
     }
   }
 }
+
+/**
+ * Perform delta-only sync: fetch only GUIDs changed since the last sync.
+ */
+export async function performDeltaSync() {
+  if (!isOnline()) {
+    console.log('Skipping delta sync while offline');
+    return Date.now();
+  }
+  const db = await dbPromise;
+  // 1) Load last GUID sync timestamp
+  const metaEntry = await db
+    .transaction('userState', 'readonly')
+    .objectStore('userState')
+    .get('lastGuidSync') || { value: null };
+  const since = metaEntry.value;
+
+  // 2) Fetch only changed GUIDs since `since`
+  const res = await fetchWithRetry(
+    `/guids?since=${encodeURIComponent(since || '')}`
+  );
+  const { added = [], removed = [], serverTime: newServerTime } = await res.json();
+
+  // 3) Delete removed items
+  if (removed.length) {
+    const txDel = db.transaction('items', 'readwrite');
+    removed.forEach(guid => txDel.objectStore('items').delete(guid));
+    await txDel.done;
+  }
+
+  // 4) Fetch and store new items in batches
+  const BATCH = 50;
+  for (let i = 0; i < added.length; i += BATCH) {
+    const batch = added.slice(i, i + BATCH);
+    const batchRes = await fetchWithRetry('/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guids: batch })
+    });
+    const data = await batchRes.json();
+    const txUp = db.transaction('items', 'readwrite');
+    batch.forEach(guid => {
+      const item = data[guid];
+      item.lastSync = newServerTime;
+      txUp.objectStore('items').put(item);
+    });
+    await txUp.done;
+  }
+
+  // 5) Update last GUID sync timestamp
+  const txMetaUp = db.transaction('userState', 'readwrite');
+  txMetaUp.objectStore('userState').put({ key: 'lastGuidSync', value: newServerTime });
+  await txMetaUp.done;
+  return newServerTime;
+}

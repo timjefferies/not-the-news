@@ -16,7 +16,7 @@ if ('serviceWorker' in navigator) {
 }
 
 import {
-  dbPromise, bufferedChanges, pushUserState, performSync, performFullSync, pullUserState, processPendingOperations,
+  dbPromise, bufferedChanges, pushUserState, performSync, performFullSync, performDeltaSync, pullUserState, processPendingOperations,
   isStarred, toggleStar, isHidden, toggleHidden, loadHidden, loadStarred, pruneStaleHidden
 } from "./js/database.js";
 import {
@@ -99,7 +99,7 @@ window.rssApp = () => {
         if (this.syncEnabled) {
           setTimeout(async () => {
             try {
-              await performSync();
+              await performDeltaSync();
               await pullUserState(await dbPromise);
               this.hidden = await loadHidden();
               this.starred = await loadStarred();
@@ -137,7 +137,7 @@ window.rssApp = () => {
             return;
           }
           try {
-            await performSync();
+            await performDeltaSync();
             await pullUserState(await dbPromise);
             this.hidden = await pruneStaleHidden(this.entries, now);
           } catch (err) {
