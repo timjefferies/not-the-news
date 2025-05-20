@@ -134,7 +134,6 @@ window.rssApp = () => {
       // nothing left to do here
       }
     },
-    /** replay any queued operations once we're back online */
     async syncPendingChanges() {
       if (!this.isOnline) return;
       try {
