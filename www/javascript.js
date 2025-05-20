@@ -91,8 +91,16 @@ window.rssApp = () => {
         // 1) Load items from indexedDB and map/sort via helper
         const rawList = await db.transaction('items', 'readonly').objectStore('items').getAll();
         this.entries = mapRawItems(rawList, this.formatDate);
-        this.hidden = await pruneStaleHidden(this.entries, serverTime);
         this.updateCounts(); // update dropdown
+        // Do the prune work only when the browser is idle
+        requestIdleCallback(async () => {
+          const pruned = await pruneStaleHidden(this.entries, serverTime);
+          // if anything changed, replace and re‑update counts
+          if (pruned.length !== this.hidden.length) {
+            this.hidden = pruned;
+            this.updateCounts();
+          }
+        });
         initScrollPos(this); // restore previous scroll position once entries are rendered
         this.loading = false;
         // 2) kick off one‑off background partial sync
@@ -109,7 +117,7 @@ window.rssApp = () => {
               this.hidden = await pruneStaleHidden(this.entries, Date.now());
               this.updateCounts();
             } catch (err) {
-              console.error('Background partial sync failed', err);
+              console.error('Background delta sync failed', err);
             }
           }, 0);
         }
@@ -139,7 +147,18 @@ window.rssApp = () => {
           try {
             await performDeltaSync();
             await pullUserState(await dbPromise);
-            this.hidden = await pruneStaleHidden(this.entries, now);
+
+            // Immediately update counts based on new user‑state
+            this.updateCounts();
+
+            // Then prune stale hidden entries when idle
+            requestIdleCallback(async () => {
+              const pruned = await pruneStaleHidden(this.entries, now);
+              if (pruned.length !== this.hidden.length) {
+                this.hidden = pruned;
+                this.updateCounts();
+              }
+            });
           } catch (err) {
             console.error("Partial sync failed", err);
           }
