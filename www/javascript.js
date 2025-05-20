@@ -8,7 +8,15 @@ import {
 } from "./js/functions.js";
 import { initSync, initTheme, initImages, initScrollPos, initConfigComponent, loadSyncEnabled, loadImagesEnabled } from "./js/settings.js";
 
-
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/js/sw.js')
+    .then(reg => {
+      console.log('SW registered, scope:', reg.scope);
+    })
+    .catch(err => {
+      console.warn('SW registration failed:', err);
+    });
+}
 window.rssApp = () => {
   return {
     openSettings: false, // Controls visibility of the settings modal
@@ -35,6 +43,8 @@ window.rssApp = () => {
     shuffleFeed() { handleShuffleFeed(this); },
 
     async init() {
+      const rawList = await db.transaction('items','readonly').objectStore('items').getAll();
+      this.entries = mapRawItems(rawList, this.formatDate);
       this.loading = true; //loading screen
       let serverTime = 0;
       try {
