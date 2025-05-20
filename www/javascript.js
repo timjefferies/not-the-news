@@ -129,9 +129,10 @@ window.rssApp = () => {
         }, SYNC_INTERVAL);
       } catch (err) {
         console.error("loadFeed failed", err);
-        this.errorMessage = "Could not load feed.";
+        this.errorMessage = "Could not load feed: " + err.message;
       } finally {
-      // nothing left to do here
+        // Ensure the loading spinner is removed on all paths
+        this.loading = false;
       }
     },
     async syncPendingChanges() {
