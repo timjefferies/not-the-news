@@ -2,6 +2,13 @@
 import { openDB } from "../../libs/idb.js";
 window.openDB = openDB;
 export const bufferedChanges = [];
+// queue for operations to retry when back online
+export const pendingOperations = [];
+
+// helper to detect network state
+export function isOnline() {
+  return navigator.onLine;
+}
 
 // Initialize IndexedDB with 'items' and 'meta' stores
 export const dbPromise = openDB('not-the-news-db', 2, {
@@ -20,6 +27,9 @@ export const dbPromise = openDB('not-the-news-db', 2, {
 });
 // helper: retry fetch with exponential backoff
 async function fetchWithRetry(url, options = {}, retries = 3, backoff = 500) {
+  if (!isOnline()) {
+    throw new Error('Currently offline');
+  }
   try {
     return await fetch(url, options);
   } catch (err) {
@@ -33,7 +43,12 @@ async function fetchWithRetry(url, options = {}, retries = 3, backoff = 500) {
  * Perform diff‐based sync using /items endpoints.
  */
 export async function performSync() {
+  if (!isOnline()) {
+    console.log('Skipping sync while offline');
+    return Date.now();
+  }
   const db = await dbPromise;
+
 
   // 1) fetch serverTime and compute cutoff
   const { time: serverTimeStr } = await fetchWithRetry('/time').then(r => r.json());
@@ -99,6 +114,10 @@ export async function performSync() {
 // ─── Delta‐based user‐state sync ───────────────────────────────────────────
 /** Fetch only the keys changed since lastStateSync */
 export async function pullUserState(db) {
+  if (!isOnline()) {
+    console.log('Skipping pullUserState while offline');
+    return null;
+  }
   const meta = await db.get('userState', 'lastStateSync') || { value: null };
   const since = meta.value;
   const headers = {};
@@ -119,6 +138,16 @@ export async function pullUserState(db) {
 export async function pushUserState(db, buffered = bufferedChanges) {
   if (buffered.length === 0) return;
   // build a fresh changes object (only keys & values)
+  // If offline, queue and bail
+  if (!isOnline()) {
+    console.log('Offline: queueing user state changes for later sync');
+    pendingOperations.push({
+      type: 'pushUserState',
+      data: JSON.parse(JSON.stringify(buffered))
+    });
+    return;
+  }
+  // otherwise, server sync...
   const changes = {};
   for (const { key, value } of buffered) {
     changes[key] = value;
@@ -170,8 +199,10 @@ export function isStarred(state, link) {
  */
 export async function toggleStar(state, link) {
   const idx = state.starred.findIndex(entry => entry.id === link);
+  const action = idx === -1 ? "add" : "remove";
+  const starredAt = idx === -1 ? new Date().toISOString() : undefined;
   if (idx === -1) {
-    state.starred.push({ id: link, starredAt: new Date().toISOString() });
+    state.starred.push({ id: link, starredAt });
   } else {
     state.starred.splice(idx, 1);
   }
@@ -184,16 +215,22 @@ export async function toggleStar(state, link) {
   if (typeof state.updateCounts === 'function') {
     state.updateCounts();
   }
-  // fire off single‐item delta for starred
-  await fetch("/user-state/starred/delta", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      id: link,
-      action: idx === -1 ? "add" : "remove",
-      starredAt: idx === -1 ? new Date().toISOString() : undefined
-    })
-  });
+  const delta = { id: link, action, starredAt };
+  if (!isOnline()) {
+    pendingOperations.push({ type: 'starDelta', data: delta });
+    console.log(`Offline: queued star change (${action})`);
+  } else {
+    try {
+      await fetch("/user-state/starred/delta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(delta)
+      });
+    } catch (err) {
+      console.error("Failed to sync star change:", err);
+      pendingOperations.push({ type: 'starDelta', data: delta });
+    }
+  }
 }
 
 
@@ -215,9 +252,11 @@ export function isHidden(app, link) {
  */
 export async function toggleHidden(state, link) {
   const idx = state.hidden.findIndex(entry => entry.id === link);
+  const action = idx === -1 ? "add" : "remove";
+  const hiddenAt = idx === -1 ? new Date().toISOString() : undefined;
   if (idx === -1) {
     // add new hidden object
-    state.hidden.push({ id: link, hiddenAt: new Date().toISOString() });
+    state.hidden.push({ id: link, hiddenAt })
   } else {
     // remove it
     state.hidden.splice(idx, 1);
@@ -231,15 +270,22 @@ export async function toggleHidden(state, link) {
     state.updateCounts();
   }
   // fire off single‐item delta for hidden
-  await fetch("/user-state/hidden/delta", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      id: link,
-      action: idx === -1 ? "add" : "remove",
-      hiddenAt: idx === -1 ? new Date().toISOString() : undefined
-    })
-  });
+  const delta = { id: link, action, hiddenAt };
+  if (!isOnline()) {
+    pendingOperations.push({ type: 'hiddenDelta', data: delta });
+    console.log(`Offline: queued hidden change (${action})`);
+  } else {
+    try {
+      await fetch("/user-state/hidden/delta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(delta)
+      });
+    } catch (err) {
+      console.error("Failed to sync hidden change:", err);
+      pendingOperations.push({ type: 'hiddenDelta', data: delta });
+    }
+  }
 }
 
 /**
@@ -362,4 +408,40 @@ export async function pruneStaleHidden(entries, serverTime) {
     await tx.done;
   }
   return pruned;
+}
+
+/**
+ * Process operations queued while offline
+ */
+export async function processPendingOperations() {
+  if (!isOnline() || pendingOperations.length === 0) return;
+  const ops = pendingOperations.splice(0);
+  for (const op of ops) {
+    try {
+      switch (op.type) {
+        case 'pushUserState':
+          await pushUserState(await dbPromise, op.data);
+          break;
+        case 'starDelta':
+          await fetch("/user-state/starred/delta", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(op.data)
+          });
+          break;
+        case 'hiddenDelta':
+          await fetch("/user-state/hidden/delta", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(op.data)
+          });
+          break;
+        default:
+          console.warn(`Unknown op: ${op.type}`);
+      }
+    } catch (e) {
+      console.error(`Failed to process ${op.type}`, e);
+      pendingOperations.push(op);
+    }
+  }
 }

@@ -1,4 +1,4 @@
-import { dbPromise, bufferedChanges, pushUserState, performSync, performFullSync, pullUserState,
+import { dbPromise, bufferedChanges, pushUserState, performSync, performFullSync, pullUserState, processPendingOperations,
   isStarred, toggleStar, isHidden, toggleHidden, loadHidden, loadStarred, pruneStaleHidden
  } from "./js/database.js";
 import {
@@ -13,7 +13,7 @@ window.rssApp = () => {
   return {
     openSettings: false, // Controls visibility of the settings modal
     entries: [],
-    // will be populated in init():
+    isOnline: navigator.onLine, // start with current network status
     hidden: [],
     starred: [],
     filterMode: "unread",
@@ -47,7 +47,6 @@ window.rssApp = () => {
         // Load user‑state from IndexedDB
         this.hidden = await loadHidden();
         this.starred = await loadStarred();
-        //this.filterMode = await loadFilterMode(); // always start on unread.
 
         // 0) Full Sync On empty DB
         const db = await dbPromise;
@@ -61,6 +60,16 @@ window.rssApp = () => {
         } else {
           serverTime = Date.now();
         }
+        // ─── network detection & offline queue sync ─────────────────
+        window.addEventListener('online', () => {
+          this.isOnline = true;
+          if (this.syncEnabled && typeof this.syncPendingChanges === 'function') {
+            this.syncPendingChanges();
+          }
+        });
+        window.addEventListener('offline', () => {
+          this.isOnline = false;
+        });
         // 1) Load items from indexedDB and map/sort via helper
         const rawList = await db.transaction('items', 'readonly').objectStore('items').getAll();
         this.entries = mapRawItems(rawList, this.formatDate);
@@ -116,12 +125,22 @@ window.rssApp = () => {
           } catch (err) {
             console.error("Partial sync failed", err);
           }
+            /** replay any queued operations once we're back online */
         }, SYNC_INTERVAL);
       } catch (err) {
         console.error("loadFeed failed", err);
         this.errorMessage = "Could not load feed.";
       } finally {
       // nothing left to do here
+      }
+    },
+    /** replay any queued operations once we're back online */
+    async syncPendingChanges() {
+      if (!this.isOnline) return;
+      try {
+        await processPendingOperations();
+      } catch (err) {
+        console.error('syncPendingChanges failed', err);
       }
     },
     isHidden(link) { return isHidden(this, link); },
