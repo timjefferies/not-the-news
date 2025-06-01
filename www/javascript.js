@@ -17,7 +17,7 @@ if ('serviceWorker' in navigator) {
 
 import {
   dbPromise, bufferedChanges, pushUserState, performSync, performFullSync, pullUserState, processPendingOperations,
-  isStarred, toggleStar, isHidden, toggleHidden, loadHidden, loadStarred, pruneStaleHidden
+  isStarred, toggleStar, isHidden, toggleHidden, loadHidden, loadStarred, pruneStaleHidden, saveLastFeedSyncTimestamp, loadLastFeedSyncTimestamp
 } from "./js/database.js";
 import {
   scrollToTop, attachScrollToTopHandler, formatDate,
@@ -25,6 +25,9 @@ import {
   shuffleFeed as handleShuffleFeed, mapRawItems
 } from "./js/functions.js";
 import { initSync, initTheme, initImages, initScrollPos, initConfigComponent, loadSyncEnabled, loadImagesEnabled } from "./js/settings.js";
+
+const STALENESS_THRESHOLD_HOURS = 1; // Sync if data is older than 1 hour
+// const STALENESS_THRESHOLD_HOURS = 0.001; // For testing: ~3 seconds
 
 window.rssApp = () => {
   return {
@@ -51,105 +54,162 @@ window.rssApp = () => {
     setFilter(mode) { setFilter(this, mode); },
     shuffleFeed() { handleShuffleFeed(this); },
 
+    async triggerSyncAndRefresh(isFullSync = false, reason = "generic") {
+      if (!this.isOnline) {
+        console.log(`Sync skipped (offline) - ${reason}`);
+        // Attempt to use the last known sync time for pruning if offline
+        const db = await dbPromise;
+        return await loadLastFeedSyncTimestamp(db) || Date.now();
+      }
+      // Allow full sync for first run even if general sync is disabled
+      if (!this.syncEnabled && !(isFullSync && reason.includes("initial"))) {
+        console.log(`Sync skipped (sync disabled) - ${reason}`);
+        const db = await dbPromise;
+        return await loadLastFeedSyncTimestamp(db) || Date.now();
+      }
+
+      console.log(`Triggering sync (${isFullSync ? 'full' : 'partial'}) - ${reason}`);
+      this.loading = true;
+      let newServerTime;
+      const db = await dbPromise;
+
+      try {
+        if (isFullSync) {
+          const { feedTime } = await performFullSync(); // This also calls pullUserState
+          newServerTime = feedTime;
+        } else {
+          newServerTime = await performSync();
+          await pullUserState(db); // Manually pull user state after partial feed sync
+        }
+        await saveLastFeedSyncTimestamp(db, newServerTime);
+
+        // Refresh local data from DB
+        this.hidden = await loadHidden();
+        this.starred = await loadStarred();
+        const freshRaw = await db.transaction('items', 'readonly').objectStore('items').getAll();
+        this.entries = mapRawItems(freshRaw, this.formatDate);
+        // Use the time from this sync for pruning
+        this.hidden = await pruneStaleHidden(this.entries, newServerTime);
+        this.updateCounts();
+        console.log(`Sync successful - ${reason}. Server time: ${new Date(newServerTime).toISOString()}`);
+        return newServerTime;
+      } catch (err) {
+        console.error(`Sync failed - ${reason}:`, err);
+        const lastKnownSyncTime = await loadLastFeedSyncTimestamp(db);
+        return lastKnownSyncTime || Date.now(); // Fallback for pruning
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async checkStaleAndSyncOnResume(reason = "resume") {
+      if (!this.isOnline || !this.syncEnabled || document.hidden) { // Check document.hidden again for safety
+        if(document.hidden) console.log(`Skipping sync on ${reason}: document is hidden.`);
+        return;
+      }
+
+      const db = await dbPromise;
+      const lastFeedSyncTime = await loadLastFeedSyncTimestamp(db);
+      const now = Date.now();
+      const stalenessThresholdMs = STALENESS_THRESHOLD_HOURS * 60 * 60 * 1000;
+
+      if (!lastFeedSyncTime || (now - lastFeedSyncTime) > stalenessThresholdMs) {
+        await this.triggerSyncAndRefresh(false, `stale data on ${reason}`);
+      } else {
+        console.log(`App ${reason}, data is fresh enough (last sync: ${lastFeedSyncTime ? new Date(lastFeedSyncTime).toISOString() : 'never'}).`);
+      }
+    },
+
     async init() {
       this.loading = true; //loading screen
-      let serverTime = 0;
+      const db = await dbPromise;
+      let currentServerTimeForPruning = Date.now(); // Fallback/initial server time for pruning
+
       try {
         this.syncEnabled = await loadSyncEnabled();
         this.imagesEnabled = await loadImagesEnabled();
         initTheme();
-        initSync(this);
+        initSync(this); // Be cautious if initSync calls app.init() - can cause loops.
         initImages(this);
         initConfigComponent(this);
-        // Load user‑state from IndexedDB
+
         this.hidden = await loadHidden();
         this.starred = await loadStarred();
 
-        // 0) Full Sync on empty DB—but only if online
-        const db = await dbPromise;
         const count = await db.transaction('items', 'readonly').objectStore('items').count();
+        const lastFeedSyncTime = await loadLastFeedSyncTimestamp(db);
+
         if (count === 0 && this.isOnline) {
-          // first run *and* online: full feed+user‑state pull from server
-          const { feedTime } = await performFullSync();
-          serverTime = feedTime;
-          this.hidden = await loadHidden();
-          this.starred = await loadStarred();
+          currentServerTimeForPruning = await this.triggerSyncAndRefresh(true, "initial empty DB");
+        } else if (this.isOnline && this.syncEnabled) {
+          const now = Date.now();
+          const stalenessThresholdMs = STALENESS_THRESHOLD_HOURS * 60 * 60 * 1000;
+          if (!lastFeedSyncTime || (now - lastFeedSyncTime) > stalenessThresholdMs) {
+            currentServerTimeForPruning = await this.triggerSyncAndRefresh(false, "stale data on load");
+          } else {
+            console.log("Data is fresh enough on load. Using local data.");
+            currentServerTimeForPruning = lastFeedSyncTime || Date.now();
+            const rawList = await db.transaction('items', 'readonly').objectStore('items').getAll();
+            this.entries = mapRawItems(rawList, this.formatDate);
+          }
         } else {
-          // offline or not first run → use local data
-          serverTime = Date.now();
+          console.log("Offline, sync disabled, or data fresh. Using local data.");
+          currentServerTimeForPruning = lastFeedSyncTime || Date.now();
+          const rawList = await db.transaction('items', 'readonly').objectStore('items').getAll();
+          this.entries = mapRawItems(rawList, this.formatDate);
         }
-        // ─── network detection & offline queue sync ─────────────────
+
+        // Common post-load/sync steps
+        this.hidden = await pruneStaleHidden(this.entries, currentServerTimeForPruning);
+        this.updateCounts();
+        initScrollPos(this);
+
+        // Network listeners
         window.addEventListener('online', () => {
           this.isOnline = true;
           if (this.syncEnabled && typeof this.syncPendingChanges === 'function') {
             this.syncPendingChanges();
           }
+          this.checkStaleAndSyncOnResume("became online");
         });
-        window.addEventListener('offline', () => {
-          this.isOnline = false;
-        });
-        // 1) Load items from indexedDB and map/sort via helper
-        const rawList = await db.transaction('items', 'readonly').objectStore('items').getAll();
-        this.entries = mapRawItems(rawList, this.formatDate);
-        this.hidden = await pruneStaleHidden(this.entries, serverTime);
-        this.updateCounts(); // update dropdown
-        initScrollPos(this); // restore previous scroll position once entries are rendered
-        this.loading = false;
-        // 2) kick off one‑off background partial sync
-        if (this.syncEnabled) {
-          setTimeout(async () => {
-            try {
-              await performSync();
-              await pullUserState(await dbPromise);
-              this.hidden = await loadHidden();
-              this.starred = await loadStarred();
-              // re‑load & re‑render using helper
-              const freshRaw = await db.transaction('items', 'readonly').objectStore('items').getAll();
-              this.entries = mapRawItems(freshRaw, this.formatDate);
-              this.hidden = await pruneStaleHidden(this.entries, Date.now());
-              this.updateCounts();
-            } catch (err) {
-              console.error('Background partial sync failed', err);
-            }
-          }, 0);
-        }
+        window.addEventListener('offline', () => { this.isOnline = false; });
+
         this._attachScrollToTopHandler();
-        // ─── user activity / idle detection ───────────────────────────
+
+        // User activity / idle detection & periodic sync
         let lastActivity = Date.now();
         const resetActivity = () => { lastActivity = Date.now(); };
-        // listen for any “activity” events
+
         ["mousemove", "mousedown", "keydown", "scroll", "click"]
           .forEach(evt => document.addEventListener(evt, resetActivity, true));
-        document.addEventListener("visibilitychange", resetActivity, true);
-        window.addEventListener("focus", resetActivity, true);
 
-        const SYNC_INTERVAL = 5 * 60 * 1000;  // 5 min default sync cycle
-        const IDLE_THRESHOLD = 60 * 1000;      // 1 min of no activity → skip sync
+        document.addEventListener("visibilitychange", () => {
+          resetActivity();
+          if (document.visibilityState === 'visible') {
+            this.checkStaleAndSyncOnResume("tab became visible");
+          }
+        }, true);
+
+        window.addEventListener("focus", () => {
+          resetActivity();
+          this.checkStaleAndSyncOnResume("window gained focus");
+        }, true);
+
+        const SYNC_INTERVAL = 5 * 60 * 1000;
+        const IDLE_THRESHOLD = 60 * 1000;
 
         setInterval(async () => {
           const now = Date.now();
-          if ( // if settings open, sync off, page hidden, or idle → bail
-            this.openSettings ||
-            !this.syncEnabled ||
-            document.hidden ||
-            (now - lastActivity) > IDLE_THRESHOLD
-          ) {
+          if (this.openSettings || !this.syncEnabled || document.hidden || (now - lastActivity) > IDLE_THRESHOLD) {
             return;
           }
-          try {
-            await performSync();
-            await pullUserState(await dbPromise);
-            this.hidden = await pruneStaleHidden(this.entries, now);
-          } catch (err) {
-            console.error("Partial sync failed", err);
-          }
-          /** replay any queued operations once we're back online */
+          await this.triggerSyncAndRefresh(false, "periodic background sync");
         }, SYNC_INTERVAL);
+
       } catch (err) {
-        console.error("loadFeed failed", err);
-        this.errorMessage = "Could not load feed: " + err.message;
+        console.error("App init failed:", err);
+        this.errorMessage = "Could not initialize application: " + err.message;
       } finally {
-        // Ensure the loading spinner is removed on all paths
         this.loading = false;
       }
     },

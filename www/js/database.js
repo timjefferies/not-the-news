@@ -108,6 +108,7 @@ export async function performSync() {
     }
     await txUp2.done;
   }
+  console.log('performSync completed, serverTime:', new Date(serverTime).toISOString());
   return serverTime;
 }
 
@@ -183,6 +184,28 @@ export async function performFullSync() {
   return { feedTime, stateTime };
 }
 
+// -------- LAST SYNC TIMESTAMP management --------
+/**
+ * Saves the timestamp of the last successful feed synchronization.
+ * @param {IDBDatabase} db - The IndexedDB database instance.
+ * @param {number} timestamp - The timestamp (milliseconds since epoch).
+ */
+export async function saveLastFeedSyncTimestamp(db, timestamp) {
+  const tx = db.transaction('userState', 'readwrite');
+  await tx.objectStore('userState').put({ key: 'lastFeedSyncTimestamp', value: timestamp });
+  await tx.done;
+  console.log('Saved lastFeedSyncTimestamp:', new Date(timestamp).toISOString());
+}
+
+/**
+ * Loads the timestamp of the last successful feed synchronization.
+ * @param {IDBDatabase} db - The IndexedDB database instance.
+ * @returns {Promise<number|undefined>} - The timestamp or undefined if not set.
+ */
+export async function loadLastFeedSyncTimestamp(db) {
+  const entry = await db.transaction('userState', 'readonly').objectStore('userState').get('lastFeedSyncTimestamp');
+  return entry?.value;
+}
 
 // -------- STARRED support --------
 /**
